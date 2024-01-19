@@ -36,7 +36,7 @@ import { GameScene } from "./scenes/GameScene";
         default: "matter",
         matter: {
             // enableSleeping: true,
-            // debug: true,
+            debug: true,
             gravity: { x: 0, y: 0 },
         }
         

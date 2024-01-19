@@ -5,10 +5,15 @@
 import { CST } from "../constants/CST";
 
 import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-import { NavMesh } from "~/levelComponents/NavMesh";
+// import { NavMesh } from "~/levelComponents/NavMesh";
+import jsonLogic from '../jsonLogic';
 
 type GameDialogue = {
+    rulePre?: Record<string, unknown>;
+    rulePost?: Record<string, unknown>;
     player?: string;
+    playerTexture?: string;
+    playerMoveAnim?: string;
     enemy?: string;
     enemySpeed?: {
         x: number, y: number;
@@ -19,45 +24,22 @@ type GameDialogue = {
     newDialogue?: GameDialogue[];
 };
 
-const scriptedDialogs: GameDialogue[] = [
-    // { player: 'I am here again' },
-    // { player: 'I feel different now...' },
-    // { player: 'Who is that?' },
-    // {
-    //     enemy: 'It will make sense soon',
-    //     enemySpeed: { x: -1, y: 1 },
-    //     enemyIdle: 'idle'
-    // },
-    // {
-    //     enemy: 'Die fist',
-    //     enemyIdle: 'slice',
-    // },
-    // { player: 'SHIT!' },
-    // {
-    //     enemyIdle: 'idle',
-    //     enemyCanChase: true
-    // }, { enemyCanChase: true },
-    // {
-    //     enemy: 'HA HA HA!!!',
-    //     enemyCanChase: true
-    // },
-];
-
-
 export class GameScene extends AnimatedTileSceneBase {
 
-    navMesh!: NavMesh;
+    // navMesh!: NavMesh;
 
     graphics: Phaser.GameObjects.Graphics;
-    controls: Phaser.Cameras.Controls.SmoothedKeyControl;
+    // controls: Phaser.Cameras.Controls.SmoothedKeyControl;
     visualLayers: Phaser.Tilemaps.TilemapLayer[] = [];
     tileHalfHeight: number;
     depthMap: Record<string, number>;
     character: Character;
     characterEnemy: Character;
-    dialogueState: number;
     enemyCanChase: boolean;
     scriptedDialogs: GameDialogue[];
+
+    blackboard: Record<string, unknown> = {};
+    cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
     constructor() {
         super({
@@ -81,25 +63,39 @@ export class GameScene extends AnimatedTileSceneBase {
         this.cursors = this.input.keyboard.createCursorKeys();
         this.lights.enable().setAmbientColor(0x333333);
 
-        this.dialogueState = 0;
-
         this.scriptedDialogs = [];
 
-        setInterval(() => {
-            if (this.dialogueState >= this.scriptedDialogs.length) {
-                return;
-            }
-            this.processGameDialogue(this.scriptedDialogs[this.dialogueState]);
-
-            this.dialogueState++;
-        }, 2600);
-
-
+        jsonLogic.rm_operation('setVar');
+        jsonLogic.add_operation('setVar', this.jsLogicSetBlackboardVar.bind(this));
         this.addPhysicsListeners();
     }
 
-    processGameDialogue(d: GameDialogue) {
-        const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue } = d;
+    jsLogicSetBlackboardVar(key: string, value: unknown) {
+
+        console.log('>>>>>MMM>>>', key, '|', value);
+        if (!key) {
+            return;
+        }
+        this.blackboard[key] = value;
+    }
+
+    /**
+    * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
+    **/
+    processGameDialogue(d: GameDialogue): boolean {
+        const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim } = d;
+
+        if (rulePre) {
+            console.log('RYYYYLE', rulePre);
+            const res = jsonLogic.apply(rulePre, this.blackboard);
+            if (!res) {
+
+                console.log(":::PREEEE:>>>", res);
+                return false;
+            }
+        }
+
+        console.log('WHHHHHAAAAT?', rulePre);
 
         this.character.textBubble.setText(player ?? '');
 
@@ -115,6 +111,20 @@ export class GameScene extends AnimatedTileSceneBase {
         if (enemyCanChase !== undefined) {
             this.enemyCanChase = !!enemyCanChase;
         }
+        if (playerTexture) {
+            this.character.imageFramePrefix = playerTexture;
+        }
+
+        if (playerMoveAnim) {
+            this.character.moveAnim = playerMoveAnim;
+        }
+
+
+        if (rulePost) {
+            console.log('RYYYYLE POOOOST', rulePost);
+            const res = jsonLogic.apply(rulePost, this.blackboard);
+            console.log(":::Pooooooost:>>>", res);
+        }
 
         this.time.delayedCall(2500, () => {
             this.character.textBubble.setText('');
@@ -123,9 +133,15 @@ export class GameScene extends AnimatedTileSceneBase {
 
             if (newDialogue) {
                 this.scriptedDialogs = newDialogue;
-                this.dialogueState = 0;
+            }
+
+            const nextDialogueItem = this.scriptedDialogs.shift();
+            if (nextDialogueItem) {
+                this.processGameDialogue(nextDialogueItem);
             }
         }, [], this);
+
+        return true;
     }
 
     getLogicObject(key: string) {
@@ -152,8 +168,8 @@ export class GameScene extends AnimatedTileSceneBase {
 
             console.log(dialogue);
             if (dialogue) {
-                this.processGameDialogue(dialogue);
-                if (dialogue.removeTrigger) {
+                const wasProcessed = this.processGameDialogue(dialogue);
+                if (wasProcessed && dialogue.removeTrigger) {
                     this.matter.world.remove(trigger);
                 }
 
@@ -193,7 +209,10 @@ export class GameScene extends AnimatedTileSceneBase {
 
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
-                    const depth = t.y * 1000 + t.x * 100 + layerIndex;
+                    let depth = t.y * 1000 + t.x * 100 + layerIndex;
+                    if (t.properties.wall) {
+                        depth += 50;
+                    }
                     if (!isPlainLayer) {
                         this.add.image(t.pixelX, t.pixelY, 'tiles', t.index - 1)
                             .setDepth(
@@ -206,6 +225,7 @@ export class GameScene extends AnimatedTileSceneBase {
                         const depthKey = `${t.pixelX}-${t.pixelY}`;
                         this.depthMap[depthKey] = depth;
                     }
+
                     if (hasTileCollisions) {
                         this.makeTileCollision(t);
                     }
@@ -246,6 +266,8 @@ export class GameScene extends AnimatedTileSceneBase {
 
         this.characterEnemy.myLight.intensity = 0.3;
 
+        this.cameras.main.fadeIn(2000, 0, 0, 0);
+
 
         // ---------
 
@@ -265,7 +287,20 @@ export class GameScene extends AnimatedTileSceneBase {
 
                 });
             } else if (n === 'logic') {
-                this.map.getObjectLayer(n)?.objects.forEach(o => {
+                const currLayer = this.map.getObjectLayer(n);
+                if (!currLayer) {
+                    return
+                }
+                if (currLayer.properties) {
+                    // this.blackboard = JSON.parse();
+                    const blackboard = currLayer.properties.find(({ name }) => name === 'blackboard')
+
+                    this.blackboard = JSON.parse(blackboard.value);
+
+                }
+
+
+                currLayer.objects.forEach(o => {
                     const pp = this.visualLayers[0].tileToWorldXY(o.x / 64, o.y / 64);
                     // pp.add({ x: tileWidth / 2, y: tileHeight / 2 });
 
@@ -298,6 +333,58 @@ export class GameScene extends AnimatedTileSceneBase {
                     }
                 });
 
+            }
+            else if (n === 'tileLogic') {
+
+                type CustomTileObjectProperty = {
+                    value: unknown;
+                    name: string;
+                    type: string;
+                }
+
+                type CustomTileObject = {
+                    flippedAntiDiagonal: boolean;
+                    flippedHorizontal: boolean;
+                    flippedVertical: boolean;
+                    gid: number;
+                    height: number;
+                    id: number;
+                    name: string;
+                    rotation: number;
+                    type: string;
+                    visible: boolean;
+                    width: number;
+                    x: number;
+                    y: number;
+                    properties: CustomTileObjectProperty[];
+
+                };
+                const objects: CustomTileObject[] = (this.map.getObjectLayer(n)?.objects ?? []) as unknown as CustomTileObject[];
+                const layerIndex = 0; // this will be rearranged later to use shared indexed for all layers
+
+                objects.forEach((t) => {
+
+                    const pp = this.visualLayers[0].tileToWorldXY(t.x / 64, t.y / 64);
+                    let depth = pp.y * 1000 + pp.x * 100 + layerIndex;
+
+                    this.add.image(pp.x, pp.y - t.height / 2, 'tiles', t.gid - 1)
+                        .setDepth(
+                            t.y
+                            // depth
+                        )
+                        .setOrigin(0, 0)
+                        .setPipeline('Light2D');
+
+                        // const depthKey = `${pp.x}-${pp.y}`;
+                        // this.depthMap[depthKey] = depth;
+                    //
+                    // if (hasTileCollisions) {
+                    //     this.makeTileCollision(t);
+                    // }
+
+                });
+
+                console.log(">>>>", objects);
             }
         });
     }
@@ -406,23 +493,45 @@ export class GameScene extends AnimatedTileSceneBase {
             this.characterEnemy.sprite.setVelocity(0);
         }
         this.character.sprite.setVelocity(0);
+
+
+        let directionsPressed = false;
         if (this.cursors.left.isDown) {
+            directionsPressed = true;
             this.character.sprite
                 .setVelocityX(-2);
         }
         else if (this.cursors.right.isDown) {
+
+            directionsPressed = true;
             this.character.sprite
                 .setVelocityX(2);
         }
 
         if (this.cursors.up.isDown) {
+
+            directionsPressed = true;
             this.character.sprite
                 .setVelocityY(-2);
         }
         else if (this.cursors.down.isDown) {
+
+            directionsPressed = true;
             this.character.sprite
                 //.setAngle(-180)
                 .setVelocityY(2);
+        }
+
+        else if (!directionsPressed && this.cursors.space.isDown && this.character.imageFramePrefix === 'enemy') {
+            if (this.character.defaultAnimation !== 'slice') {
+                this.character.defaultAnimation = 'slice';
+                this.character.sprite.on(Phaser.Animations.Events.ANIMATION_REPEAT, () => {
+                    console.log('done±');
+                    this.character.sprite.removeAllListeners();
+                    this.character.defaultAnimation = 'idle';
+                }, this);
+
+            }
         }
 
         this.character.update();
@@ -447,12 +556,12 @@ export class GameScene extends AnimatedTileSceneBase {
 
         const highDepthTile = this.getDepthAtWorldXY(this.character.sprite.x, this.character.sprite.y);
         if (highDepthTile) {
-            this.character.sprite.setDepth(highDepthTile + 1);
+            this.character.sprite.setDepth(highDepthTile);
         }
 
         const butcherHighDepthTile = this.getDepthAtWorldXY(this.characterEnemy.sprite.x, this.characterEnemy.sprite.y);
         if (butcherHighDepthTile) {
-            this.characterEnemy.sprite.setDepth(butcherHighDepthTile + 1);
+            this.characterEnemy.sprite.setDepth(butcherHighDepthTile);
         }
     }
 
@@ -483,7 +592,7 @@ class Character {
         this.sprite = scene.matter.add.sprite(x, y, imageFramePrefix + imageFrame);
 
         this.sprite.play({ key: imageFramePrefix + imageFrame, repeat: -1 });
-        this.sprite.setCircle(15, { label: imageFramePrefix })
+        this.sprite.setCircle(17, { label: imageFramePrefix })
             .setScale(0.9)
             .setFixedRotation()
             .setOrigin(0.5, 0.9)

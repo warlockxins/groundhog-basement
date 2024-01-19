@@ -13,17 +13,25 @@ export class MenuScene extends Phaser.Scene {
         console.log("data passed to this scene", data);
     }
 
-    preload() {}
+    preload() { }
     create() {
         // this.scene.start(CST.SCENES.MENU);
         // this.clickCountText = this.add.text(100, 200, "");
 
-        this.clickButton = this.add.text(100, 100, "Start!", { fill: "#0f0" });
+        this.clickButton = this.add.text(400, 100, "Start!", {
+            // fill: "#0f0", 
+            align: 'center',
+            color: '#00a6ed',
+            fontFamily: 'Arial Black', fontSize: 74,
+        }).setOrigin(0.5, 0);
         this.clickButton
             .setInteractive()
             .on("pointerdown", () => this.startPressed())
             .on("pointerover", () => this.enterButtonHoverState())
             .on("pointerout", () => this.enterButtonRestState());
+
+
+        this.cameras.main.fadeIn(1000, 0, 0, 0);
     }
 
     startPressed() {
@@ -38,6 +46,6 @@ export class MenuScene extends Phaser.Scene {
     }
 
     enterButtonRestState() {
-        this.clickButton.setStyle({ fill: "#0f0" });
+        this.clickButton.setStyle({ fill: "#00a6ed" });
     }
 }
