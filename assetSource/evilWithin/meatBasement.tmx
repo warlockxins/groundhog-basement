@@ -12,8 +12,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="2" x="1.1525" y="63.947">
-     <polygon points="0,0 63.8939,-0.401849 62.4874,-64.0948 54.6514,-8.84067"/>
+    <object id="3" x="0.570683" y="64.0139">
+     <polygon points="0,0 63.0535,-0.695955 63.6103,-63.6103 46.629,-80.5916 50.5263,-13.7799 -16.8421,-17.1205"/>
     </object>
    </objectgroup>
   </tile>
@@ -22,8 +22,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="3" x="1.1525" y="64.7507">
-     <polygon points="0,0 63.0902,-0.401849 27.5266,-2.61202"/>
+    <object id="4" x="0.292301" y="63.7355">
+     <polygon points="0,0 63.7495,0.278382 61.94,-15.7286 -0.139191,-16.5637"/>
     </object>
    </objectgroup>
   </tile>
@@ -32,15 +32,15 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="3" x="64.4436" y="62.5405">
-     <polygon points="0,0 -0.401849,-62.2865 -5.62588,-34.559"/>
+    <object id="4" x="64.1809" y="63.8747">
+     <polygon points="0,0 0,-64.0278 -21.9922,-85.4632 -22.6881,-15.7286 -6.54197,-0.139191"/>
     </object>
    </objectgroup>
   </tile>
   <tile id="12">
    <objectgroup draworder="index" id="2">
     <object id="1" x="-1.05767" y="32.4018">
-     <polygon points="0,0 66.5059,1.00462 63.8939,-34.1571 -7.23327,-34.559"/>
+     <polygon points="-4.73249,3.61896 71.0992,6.98983 66.8169,-37.0801 -7.37246,-39.9874"/>
     </object>
    </objectgroup>
   </tile>
@@ -67,7 +67,7 @@
    </properties>
    <objectgroup draworder="index" id="2">
     <object id="3" x="9.21425" y="55.0072">
-     <polygon points="0,0 46.8419,0.165519 45.5177,-46.1798 -9.36726,-54.7195"/>
+     <polygon points="-8.49065,4.03654 51.7136,6.42911 54.1475,-44.2311 -9.36726,-54.7195"/>
     </object>
    </objectgroup>
   </tile>
@@ -76,8 +76,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="2" x="-0.253968" y="63.746">
-     <polygon points="0,0 64.6976,0.401849 64.6976,-63.0902 53.044,-11.2518"/>
+    <object id="3" x="0.431492" y="64.1531">
+     <polygon points="0,0 63.7495,-0.278382 63.7495,-64.3062 44.2627,-83.2362 48.5776,-15.1718 -19.0692,-18.7908"/>
     </object>
    </objectgroup>
   </tile>
@@ -86,8 +86,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="3" x="0.750653" y="64.3488">
-     <polygon points="0,0 63.4921,-0.803697 23.91,-3.81756"/>
+    <object id="4" x="0.431492" y="64.1531">
+     <polygon points="0,0 63.6103,-0.139191 63.1927,-15.311 0.695955,-19.0692"/>
     </object>
    </objectgroup>
   </tile>
@@ -96,8 +96,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="4" x="64.2427" y="63.5451">
-     <polygon points="0,0 -0.200924,-63.2911 -3.01386,-33.9562"/>
+    <object id="5" x="64.3201" y="64.2923">
+     <polygon points="0,0 0.278382,-63.7495 -20.8786,-84.3497 -21.9922,-15.8678 -6.82036,-0.417573"/>
     </object>
    </objectgroup>
   </tile>
@@ -116,8 +116,8 @@
      </properties>
      <polygon points="0,0 52.8431,-1.40647 63.126,29.216 19.2976,29.7507"/>
     </object>
-    <object id="3" x="63.6024" y="65.0588">
-     <polygon points="0,0 -64.1519,-0.89348 -35.2031,3.75262"/>
+    <object id="4" x="1.68421" y="66.241">
+     <polygon points="0,0 62.3575,0.556764 62.2184,-11.5528 -2.78382,-16.1462"/>
     </object>
    </objectgroup>
   </tile>
@@ -126,8 +126,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="2" x="1.1525" y="64.7507">
-     <polygon points="0,0 61.4828,-0.401849 20.6952,-6.22865"/>
+    <object id="3" x="1.54502" y="66.9369">
+     <polygon points="0,0 65.1414,1.67029 62.6359,-20.8786 -19.6259,-21.0178"/>
     </object>
    </objectgroup>
   </tile>
@@ -136,8 +136,8 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="1" x="64.3201" y="63.7355">
-     <polygon points="0,0 -0.278382,-63.1927 3.20139,-33.2666"/>
+    <object id="2" x="64.4593" y="64.1531">
+     <polygon points="0,0 -17.6773,-17.3989 -19.2084,-82.1227 0,-64.0278"/>
     </object>
    </objectgroup>
   </tile>
@@ -161,11 +161,11 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
    <objectgroup draworder="index" id="2">
-    <object id="1" x="1.95225" y="64.5227">
-     <polygon points="0,0 18.4057,-0.536088 4.4674,-1.60826"/>
+    <object id="3" x="0.0139191" y="63.4572">
+     <polygon points="0,0 16.007,1.80948 12.2488,-12.2488 -1.11353,-11.1353"/>
     </object>
-    <object id="2" x="46.2689" y="64.5227">
-     <polygon points="0,0 18.227,-0.357392 8.04132,-3.75262"/>
+    <object id="4" x="44.8334" y="64.2923">
+     <polygon points="3.61896,2.50544 19.3475,0.139191 17.6773,-11.5528 -0.835146,-13.0839"/>
     </object>
    </objectgroup>
   </tile>

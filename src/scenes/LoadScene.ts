@@ -55,7 +55,7 @@ export class LoadScene extends Phaser.Scene {
     init() { }
 
     preload() {
-        this.load.spritesheet("tiles", "levels/tiles.png", { frameWidth: 128, frameHeight: 128 });
+        this.load.spritesheet("tiles", "levels/tilesTop.png", { frameWidth: 128, frameHeight: 128 });
 
         // this.load.spritesheet('walk-ne', 'images/walk-ne.png', { frameWidth: 128, frameHeight: 128 });
         // this.load.spritesheet('idle-ne', 'images/idle-ne.png', { frameWidth: 128, frameHeight: 128 });
@@ -68,7 +68,7 @@ export class LoadScene extends Phaser.Scene {
          this.load.spritesheet('enemy' + file, `images/enemy/${file}`, { frameWidth: 128, frameHeight: 128 });
         });
 
-        this.load.tilemapTiledJSON("map", "levels/basement.json");
+        this.load.tilemapTiledJSON("map", "levels/basementTop.json");
 
         let loadingBar = this.add.graphics({
             fillStyle: {

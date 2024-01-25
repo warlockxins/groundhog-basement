@@ -32,7 +32,6 @@ export class GameScene extends AnimatedTileSceneBase {
     // controls: Phaser.Cameras.Controls.SmoothedKeyControl;
     visualLayers: Phaser.Tilemaps.TilemapLayer[] = [];
     tileHalfHeight: number;
-    depthMap: Record<string, number>;
     character: Character;
     characterEnemy: Character;
     enemyCanChase: boolean;
@@ -188,8 +187,6 @@ export class GameScene extends AnimatedTileSceneBase {
             "tiles"
         );
 
-        this.depthMap = {};
-
         this.map.layers.forEach((l, layerIndex) => {
             const isPlainLayer = l.properties.find(({ name, value }) => {
                 return name === 'staticLayer' && value === true;
@@ -203,15 +200,15 @@ export class GameScene extends AnimatedTileSceneBase {
                 const floorLayer = this.map.createLayer(l.name, 'tiles');
                 if (floorLayer) {
                     this.visualLayers.push(floorLayer);
-                    floorLayer.setPipeline('Light2D');
+                    // floorLayer.setPipeline('Light2D');
                 }
             }
 
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
-                    let depth = t.y * 1000 + t.x * 100 + layerIndex;
+                    let depth = this.depthForXY(t.pixelX, t.pixelY);
                     if (t.properties.wall) {
-                        depth += 50;
+                        depth += 1;
                     }
                     if (!isPlainLayer) {
                         this.add.image(t.pixelX, t.pixelY, 'tiles', t.index - 1)
@@ -219,13 +216,8 @@ export class GameScene extends AnimatedTileSceneBase {
                                 depth
                             )
                             .setOrigin(0, 0)
-                            .setPipeline('Light2D');
+                        // .setPipeline('Light2D');
                     }
-                    if (!t.properties.wall) {
-                        const depthKey = `${t.pixelX}-${t.pixelY}`;
-                        this.depthMap[depthKey] = depth;
-                    }
-
                     if (hasTileCollisions) {
                         this.makeTileCollision(t);
                     }
@@ -365,18 +357,15 @@ export class GameScene extends AnimatedTileSceneBase {
                 objects.forEach((t) => {
 
                     const pp = this.visualLayers[0].tileToWorldXY(t.x / 64, t.y / 64);
-                    let depth = pp.y * 1000 + pp.x * 100 + layerIndex;
-
+                    let depth = this.depthForXY(pp.x, pp.y);
                     this.add.image(pp.x, pp.y - t.height / 2, 'tiles', t.gid - 1)
                         .setDepth(
-                            t.y
-                            // depth
+                            depth
                         )
                         .setOrigin(0, 0)
                         .setPipeline('Light2D');
 
-                        // const depthKey = `${pp.x}-${pp.y}`;
-                        // this.depthMap[depthKey] = depth;
+                    // const depthKey = `${pp.x}-${pp.y}`;
                     //
                     // if (hasTileCollisions) {
                     //     this.makeTileCollision(t);
@@ -387,6 +376,15 @@ export class GameScene extends AnimatedTileSceneBase {
                 console.log(">>>>", objects);
             }
         });
+    }
+
+    depthForXY(worldX: number, worldY: number) {
+        // return  y * 10000 + x;
+        const tileHeight = 64;
+        const tileWidth = 128;
+        var y = ((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
+
+        return y;
     }
 
     makeTileCollision(tile: Phaser.Tilemaps.Tile) {
@@ -554,12 +552,14 @@ export class GameScene extends AnimatedTileSceneBase {
             };
         });
 
-        const highDepthTile = this.getDepthAtWorldXY(this.character.sprite.x, this.character.sprite.y);
+        // const highDepthTile = this.getDepthAtWorldXY(this.character.sprite.x, this.character.sprite.y);
+        const highDepthTile = this.depthForXY(this.character.sprite.x, this.character.sprite.y);
+
         if (highDepthTile) {
             this.character.sprite.setDepth(highDepthTile);
         }
 
-        const butcherHighDepthTile = this.getDepthAtWorldXY(this.characterEnemy.sprite.x, this.characterEnemy.sprite.y);
+        const butcherHighDepthTile = this.depthForXY(this.characterEnemy.sprite.x, this.characterEnemy.sprite.y);
         if (butcherHighDepthTile) {
             this.characterEnemy.sprite.setDepth(butcherHighDepthTile);
         }
@@ -570,7 +570,7 @@ export class GameScene extends AnimatedTileSceneBase {
         this.visualLayers.forEach((tileLayer) => {
             const tile = tileLayer.getIsoTileAtWorldXY(x, y, false);
             if (tile) {
-                highDepthTile = this.depthMap[`${tile.pixelX}-${tile.pixelY}`];
+                // noop
             }
         });
         return highDepthTile;

@@ -10,7 +10,7 @@ import Phaser from "phaser";
 
 import { LoadScene } from "./scenes/LoadScene";
 import { MenuScene } from "./scenes/MenuScene";
-import { GameScene } from "./scenes/GameScene";
+import { GameScene } from "./scenes/GameSceneTop";
 
  const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
