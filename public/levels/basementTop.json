@@ -191,6 +191,17 @@
                  "height":128,
                  "id":11,
                  "name":"",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{\n  \"removeTrigger\":true,\n  \"player\": \"need a key\",\n  \"playerIdle\":\"idle\",\n  \"playerTexture\": \"enemy\",\n  \"playerMoveAnim\": \"walk\",\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  }\n}"
+                        }, 
+                        {
+                         "name":"wall",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,

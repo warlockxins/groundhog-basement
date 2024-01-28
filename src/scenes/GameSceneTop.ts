@@ -7,6 +7,7 @@ import { CST } from "../constants/CST";
 import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
 // import { NavMesh } from "~/levelComponents/NavMesh";
 import jsonLogic from '../jsonLogic';
+import { Character } from './Character';
 
 type GameDialogue = {
     rulePre?: Record<string, unknown>;
@@ -158,6 +159,7 @@ export class GameScene extends AnimatedTileSceneBase {
 
             const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
             let trigger: MatterJS.BodyType = null;
+
             if (bodyA.dialogue) {
                 trigger = bodyA;
             }
@@ -165,11 +167,17 @@ export class GameScene extends AnimatedTileSceneBase {
                 trigger = bodyB;
             }
 
-            console.log(dialogue);
+            if (trigger?.gameObject?.name) {
+                console.log('....', trigger);
+            }
+
             if (dialogue) {
                 const wasProcessed = this.processGameDialogue(dialogue);
                 if (wasProcessed && dialogue.removeTrigger) {
                     this.matter.world.remove(trigger);
+                }
+                else {
+                    Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
                 }
 
             }
@@ -189,39 +197,26 @@ export class GameScene extends AnimatedTileSceneBase {
 
 
         this.map.layers.forEach((l, layerIndex) => {
-            const isPlainLayer = l.properties.find(({ name, value }) => {
-                return name === 'staticLayer' && value === true;
-            });
-
             const hasTileCollisions = l.properties.find(({ name, value }) => {
                 return name === 'physics' && value === true;
             });
 
-            if (isPlainLayer) {
-                const floorLayer = this.map.createLayer(l.name, 'tiles');
-                if (floorLayer) {
-                    this.visualLayers.push(floorLayer);
-                    // floorLayer.setPipeline('Light2D');
-                }
-            }
-
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
-                    let depth = this.depthForXY(t.pixelX, t.pixelY);
+                    let depth = t.pixelY;
                     if (t.properties.wall) {
                         depth += t.height - 10;
                     }
                     if (t.properties.above) {
                         depth += t.height * 2;
                     }
-                    if (!isPlainLayer) {
-                        this.add.image(t.pixelX, t.pixelY, 'tiles', t.index - 1)
-                            .setDepth(
-                                depth
-                            )
-                            .setOrigin(0, 0)
-                            .setPipeline('Light2D');
-                    }
+                    this.add.image(t.pixelX, t.pixelY, 'tiles', t.index - 1)
+                        .setDepth(
+                            depth
+                        )
+                        .setOrigin(0, 0)
+                        .setPipeline('Light2D');
+
                     if (hasTileCollisions) {
                         this.makeTileCollision(t);
                     }
@@ -262,7 +257,6 @@ export class GameScene extends AnimatedTileSceneBase {
 
         this.cameras.main.fadeIn(2000, 0, 0, 0);
 
-
         // ---------
         this.map.getObjectLayerNames().forEach(n => {
             if (n === 'lights') {
@@ -286,9 +280,7 @@ export class GameScene extends AnimatedTileSceneBase {
                     const blackboard = currLayer.properties.find(({ name }) => name === 'blackboard')
 
                     this.blackboard = JSON.parse(blackboard.value);
-
                 }
-
 
                 currLayer.objects.forEach(o => {
                     const pp = o;
@@ -351,27 +343,26 @@ export class GameScene extends AnimatedTileSceneBase {
                 console.log("objects in ", n, objects);
 
                 objects.forEach((t) => {
-                    const pp = t;
-                    let depth = this.depthForXY(pp.x, pp.y);
-
-                    const smartTile = this.matter.add.image(pp.x, pp.y - t.height, 'tiles', t.gid - 1)
+                    const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
                         .setDepth(
-                            depth
+                            t.y
                         )
                         .setOrigin(1, 1)
                         .setPipeline('Light2D')
-                        .setStatic(true);
+                        .setStatic(true)
+                        .setName(t.id.toString());
 
+                    console.log('-----props', t.properties);
 
                     const compoundBodyParts = this.makeTileCollision({
                         index: t.gid,
                         pixelX: 0,
                         pixelY: 0
-                    });
+                    }, t.properties)??[];
 
 
 
-                    if (compoundBodyParts?.length > 0) {
+                    if (compoundBodyParts.length > 0) {
                         const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
                             parts: compoundBodyParts
                         });
@@ -379,37 +370,23 @@ export class GameScene extends AnimatedTileSceneBase {
                         smartTile.setExistingBody(compoundBody);
                         smartTile.setIgnoreGravity(true);
                         smartTile.setStatic(true);
-                        smartTile.setPosition(pp.x + pp.width/2, pp.y )
+                        smartTile.setPosition(t.x + t.width / 2, t.y)
                     }
 
                 });
-
-                console.log(">>>>", objects);
             }
         });
-    }
-
-    depthForXY(worldX: number, worldY: number) {
-        return worldY
-        // return  y * 10000 + x;
-        // const tileHeight = 64;
-        // const tileWidth = 128;
-        // var y = ((worldY / (tileHeight / 2) - worldX / (tileWidth / 2)) / 2);
-        //
-        // return y;
     }
 
     makeTileCollision(tile: {
         index: number,
         pixelX: number,
         pixelY: number
-    }) {
-        const tileWorldPos = tile; // layer.tileToWorldXY(tile.x, tile.y);
+    }, objectProps:  { name: string, value: string | boolean }[] = [] ) {
+        const tileWorldPos = tile;
         const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
         if (!collisionGroup || collisionGroup.objects.length === 0) { return; }
-        // You can assign custom properties to the whole collision object layer (or even to
-        // individual objects within the layer). Here, use a custom property to change the color of
-        // the stroke.
+
         if (collisionGroup.properties && collisionGroup.properties.isInteractive) {
         }
         else {
@@ -433,8 +410,15 @@ export class GameScene extends AnimatedTileSceneBase {
                 physicsOptions.isSensor = true;
                 const onEnterEvent = props.find(({ name }) => name === 'onEnter');
 
+                const onEnterEventFromMainObject = objectProps.find(({ name }) => name === 'onEnter');
+
+                console.log('===>', onEnterEventFromMainObject);
+
                 if (onEnterEvent?.value) {
-                    physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
+                    physicsOptions.dialogue = {
+                        ...JSON.parse(onEnterEvent.value),
+                        ...JSON.parse(onEnterEventFromMainObject.value)
+                    };
                 }
             }
 
@@ -462,10 +446,6 @@ export class GameScene extends AnimatedTileSceneBase {
                 bodyParts.push(body);
             }
         }
-
-        // const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
-        //     parts: bodyParts
-        // });
 
         return bodyParts;
     }
@@ -532,7 +512,6 @@ export class GameScene extends AnimatedTileSceneBase {
             if (this.character.defaultAnimation !== 'slice') {
                 this.character.defaultAnimation = 'slice';
                 this.character.sprite.on(Phaser.Animations.Events.ANIMATION_REPEAT, () => {
-                    console.log('done±');
                     this.character.sprite.removeAllListeners();
                     this.character.defaultAnimation = 'idle';
                 }, this);
@@ -546,112 +525,6 @@ export class GameScene extends AnimatedTileSceneBase {
 
 
         this.cameras.main.centerOn(this.character.sprite.x, this.character.sprite.y);
-
-        // const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
-        // worldPoint && this.visualLayers.forEach((tileLayer) => {
-        //     if (this.input.manager.activePointer.isDown && tileLayer) {
-        //         // const tile = tileLayer.getIsoTileAtWorldXY(worldPoint.x, worldPoint.y, false);
-        //
-        //         // const tile = this.map.getLayer(tileLayer.name)?.tilemapLayer.getIsoTileAtWorldXY(this.player.x, this.player.y, false);
-        //         const tile = tileLayer.getIsoTileAtWorldXY(worldPoint.x, worldPoint.y, false);
-        //         if (tile) {
-        //             console.log(tile);
-        //         }
-        //     };
-        // });
-
-        // const highDepthTile = this.getDepthAtWorldXY(this.character.sprite.x, this.character.sprite.y);
-        const highDepthTile = this.depthForXY(this.character.sprite.x, this.character.sprite.y);
-
-        if (highDepthTile) {
-            this.character.sprite.setDepth(highDepthTile);
-        }
-
-        const butcherHighDepthTile = this.depthForXY(this.characterEnemy.sprite.x, this.characterEnemy.sprite.y);
-        if (butcherHighDepthTile) {
-            this.characterEnemy.sprite.setDepth(butcherHighDepthTile);
-        }
     }
 }
 
-class Character {
-    sprite: Phaser.Physics.Matter.Sprite;
-    textBubble: Phaser.GameObjects.Text;
-    lastDirection: Phaser.Types.Math.Vector2Like = { x: 0, y: 0 };
-    myLight: Phaser.GameObjects.Light;
-    imageFramePrefix: string;
-    defaultAnimation: string;
-    moveAnim: string;
-
-    constructor(scene: Phaser.Scene, x: number, y: number, imageFrame: string, imageFramePrefix: string) {
-
-        this.imageFramePrefix = imageFramePrefix;
-        this.sprite = scene.matter.add.sprite(x, y, imageFramePrefix + imageFrame);
-
-        this.sprite.play({ key: imageFramePrefix + imageFrame, repeat: -1 });
-        this.sprite.setCircle(17, { label: imageFramePrefix })
-            .setScale(0.9)
-            .setFixedRotation()
-            .setOrigin(0.5, 0.9)
-            .setPipeline('Light2D');
-
-        this.textBubble = scene.add.text(10, 10, "");
-        this.textBubble.setBackgroundColor("#000000");
-        this.textBubble.setAlign('center');
-        this.textBubble.setMaxLines(2);
-
-
-        this.myLight = scene.lights.addLight(
-            x,
-            y,
-            100
-        ).setColor(0xffffff)
-            .setIntensity(1.5);
-
-
-        // this.textBubble.setText("Bodies everywhere!");
-        this.defaultAnimation = 'idle';
-        this.moveAnim = 'run';
-    }
-
-    update() {
-
-        const playerVelocity = this.sprite.getVelocity();
-
-        const y = this.lastDirection.y ?? 0;
-        const xAnimFrame = this.lastDirection.x !== 0 ? 'E' : '';
-        const yAnimFrame = y > 0 ? 'S' : (y < 0 ? 'N' : '');
-        const animDirectionFrameBase = `${yAnimFrame}${xAnimFrame}`;
-        const animDirectionFrame = animDirectionFrameBase !== '' ? `-${animDirectionFrameBase}.png` : '-S.png';
-
-        if (playerVelocity.x !== 0 || playerVelocity.y !== 0) {
-            this.lastDirection = playerVelocity;
-            const walkAnimFrame = `${this.imageFramePrefix}${this.moveAnim}${animDirectionFrame}`;
-
-            this.sprite.flipX = (this.lastDirection.x ?? 0) < 0;
-            this.playAnimationFrame(walkAnimFrame);
-        } else {
-            const moveAnim = this.defaultAnimation;
-            const idleAnimFrame = `${this.imageFramePrefix}${moveAnim}${animDirectionFrame}`;
-            // console.log('>>>>>>', idleAnimFrame);
-            this.playAnimationFrame(idleAnimFrame);
-
-        }
-
-        this.textBubble.setPosition(this.sprite.x, this.sprite.y);
-        this.textBubble.setDepth(this.sprite.depth + 10000);
-
-        this.myLight.x = this.sprite.x;
-
-        this.myLight.y = this.sprite.y - 50;
-
-
-    }
-
-    playAnimationFrame(name: string) {
-        if (this.sprite.texture.key !== name) {
-            this.sprite.setTexture(name);
-            this.sprite.play({ key: name, repeat: -1 });
-        }
-    }
-}
