@@ -13,6 +13,13 @@
    <property name="above" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="6">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.425876" y="92.4151">
+    <polygon points="0,0 0,35.3477 127.337,35.7736 126.911,0"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="7">
   <properties>
    <property name="wall" type="bool" value="true"/>
@@ -57,6 +64,16 @@
    </object>
   </objectgroup>
  </tile>
+ <tile id="12">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="4.25876" y="115.412">
+    <polygon points="0,0 96.248,14.0539 128.189,-32.7925 21.2938,-56.6415"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="13">
   <properties>
    <property name="wall" type="bool" value="true"/>
@@ -66,6 +83,11 @@
     <polygon points="0,0 44.8195,17.8164 90.4741,0.835146 91.3093,-31.1788 45.0979,-44.8195 -0.278382,-33.9626"/>
    </object>
   </objectgroup>
+ </tile>
+ <tile id="14">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
  </tile>
  <tile id="15">
   <properties>
@@ -102,10 +124,67 @@
    </object>
    <object id="2" x="30.0652" y="124.993">
     <properties>
-     <property name="onEnter" value="{ &quot;player&quot;: &quot;Still locked ... Shit!&quot;}"/>
+     <property name="onEnter" value="{ }"/>
      <property name="sensor" type="bool" value="true"/>
     </properties>
     <polygon points="0,0 0,23.1057 63.1927,23.3841 63.1927,-1.11353"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="21">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="1.7035" y="68.992">
+    <polygon points="0,0 83.8976,58.7709 -0.425876,57.0674"/>
+   </object>
+   <object id="2" x="20.8679" y="0.851752">
+    <polygon points="0,0 74.1025,70.2696 74.1025,61.3262 4.25876,0"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="40">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.425876" y="127.763">
+    <polygon points="0,0 128.189,0 127.763,-22.9973 0.425876,-24.7008"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="41">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0" y="109.876">
+    <polygon points="0,0 0,18.7386 128.189,18.3127 127.337,-0.851752"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="42">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.851752" y="2.55526">
+    <polygon points="0,0 0.425876,125.208 17.8868,125.208 17.8868,0"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="44">
+  <properties>
+   <property name="isKinematic" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="28.5337" y="91.5634">
+    <properties>
+     <property name="isKinematic" type="bool" value="true"/>
+    </properties>
+    <polygon points="0,0 68.1402,3.83289 50.6793,-67.7143"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="45">
+  <properties>
+   <property name="isKinematic" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="51.1051" y="77.9354">
+    <properties>
+     <property name="isKinematic" type="bool" value="true"/>
+    </properties>
+    <polygon points="0,0 -20.0162,24.7008 23.4232,42.5876 45.9946,18.7386"/>
    </object>
   </objectgroup>
  </tile>

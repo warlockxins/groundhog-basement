@@ -11,6 +11,7 @@ import { Character } from './Character';
 
 type GameDialogue = {
     rulePre?: Record<string, unknown>;
+    rulePreFail?: GameDialogue;
     rulePost?: Record<string, unknown>;
     player?: string;
     playerTexture?: string;
@@ -23,6 +24,8 @@ type GameDialogue = {
     enemyCanChase?: boolean;
     removeTrigger: boolean;
     newDialogue?: GameDialogue[];
+
+    changeTileGameObjectToId?: number;
 };
 
 export class GameScene extends AnimatedTileSceneBase {
@@ -82,7 +85,7 @@ export class GameScene extends AnimatedTileSceneBase {
     /**
     * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
     **/
-    processGameDialogue(d: GameDialogue): boolean {
+    processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image): boolean {
         const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim } = d;
 
         if (rulePre) {
@@ -91,6 +94,9 @@ export class GameScene extends AnimatedTileSceneBase {
             if (!res) {
 
                 console.log(":::PREEEE:>>>", res);
+                if (d.rulePreFail) {
+                    return this.processGameDialogue(d.rulePreFail, gameObject);
+                }
                 return false;
             }
         }
@@ -117,6 +123,14 @@ export class GameScene extends AnimatedTileSceneBase {
 
         if (playerMoveAnim) {
             this.character.moveAnim = playerMoveAnim;
+        }
+
+        if (gameObject?.body && d.changeTileGameObjectToId !== undefined) {
+            ((gameObject.body as MatterJS.BodyType).parts ?? []).forEach((p) => {
+                this.matter.world.remove(p);
+            });
+
+            gameObject.setFrame(d.changeTileGameObjectToId);
         }
 
 
@@ -160,26 +174,32 @@ export class GameScene extends AnimatedTileSceneBase {
             const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
             let trigger: MatterJS.BodyType = null;
 
+            let actor = null;
             if (bodyA.dialogue) {
                 trigger = bodyA;
+                actor = bodyB;
             }
             if (bodyB.dialogue) {
                 trigger = bodyB;
+                actor = bodyA;
             }
 
-            if (trigger?.gameObject?.name) {
-                console.log('....', trigger);
+            if (!trigger) {
+                return;
             }
 
             if (dialogue) {
-                const wasProcessed = this.processGameDialogue(dialogue);
-                if (wasProcessed && dialogue.removeTrigger) {
-                    this.matter.world.remove(trigger);
+                const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image);
+                if (wasProcessed) {
+                    if (dialogue.removeTrigger) {
+                        this.matter.world.remove(trigger);
+                        return;
+                    }
                 }
-                else {
-                    Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
-                }
+            }
 
+            if (trigger.isSensor) {
+                Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
             }
         });
     }
@@ -256,6 +276,10 @@ export class GameScene extends AnimatedTileSceneBase {
         this.characterEnemy.myLight.intensity = 0.3;
 
         this.cameras.main.fadeIn(2000, 0, 0, 0);
+
+
+        this.cameras.main.setZoom(0.5);
+        this.cameras.main.zoomTo(1);
 
         // ---------
         this.map.getObjectLayerNames().forEach(n => {
@@ -343,34 +367,46 @@ export class GameScene extends AnimatedTileSceneBase {
                 console.log("objects in ", n, objects);
 
                 objects.forEach((t) => {
-                    const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
+                    // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
+
+                    const smartTile = (new SpriteWithDepth(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
                         .setDepth(
                             t.y
                         )
-                        .setOrigin(1, 1)
+                        .setOrigin(0, 0)
                         .setPipeline('Light2D')
-                        .setStatic(true)
                         .setName(t.id.toString());
 
-                    console.log('-----props', t.properties);
+                    // console.log('-----props', t);
 
-                    const compoundBodyParts = this.makeTileCollision({
+                    const tileCollision = this.makeTileCollision({
                         index: t.gid,
                         pixelX: 0,
-                        pixelY: 0
-                    }, t.properties)??[];
+                        pixelY: 0,
+                        allowStatic: false
+                    }, t.properties);
 
+                    if (!tileCollision) return;
 
+                    const { bodyParts: compoundBodyParts, kinematic } = tileCollision;
 
-                    if (compoundBodyParts.length > 0) {
+                    if (!kinematic && compoundBodyParts.length > 0) {
                         const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
-                            parts: compoundBodyParts
+                            parts: compoundBodyParts,
+                            inertia: Infinity
                         });
 
-                        smartTile.setExistingBody(compoundBody);
-                        smartTile.setIgnoreGravity(true);
+                        smartTile.setExistingBody(compoundBody, true);
                         smartTile.setStatic(true);
-                        smartTile.setPosition(t.x + t.width / 2, t.y)
+                        smartTile.setPosition(t.x + t.width / 2, t.y);
+                        // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
+                    }
+                    else {
+                        smartTile.setCircle(30);
+                        smartTile.setFixedRotation();
+                        smartTile.setMass(100);
+                        smartTile.setFrictionAir(1);
+                        // smartTile.setOrigin(0.5, 0.6);
                     }
 
                 });
@@ -382,10 +418,11 @@ export class GameScene extends AnimatedTileSceneBase {
         index: number,
         pixelX: number,
         pixelY: number
-    }, objectProps:  { name: string, value: string | boolean }[] = [] ) {
+        allowStatic: boolean
+    }, objectProps: { name: string, value: string | boolean }[] = []): { bodyParts: MatterJS.BodyType[], kinematic: boolean } | null {
         const tileWorldPos = tile;
         const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
-        if (!collisionGroup || collisionGroup.objects.length === 0) { return; }
+        if (!collisionGroup || collisionGroup.objects.length === 0) { return null; }
 
         if (collisionGroup.properties && collisionGroup.properties.isInteractive) {
         }
@@ -396,6 +433,9 @@ export class GameScene extends AnimatedTileSceneBase {
         // The group will have an array of objects - these are the individual collision shapes
         const objects = collisionGroup.objects;
 
+        let kinematic = false;
+        console.log("-----------", tile.index, collisionGroup);
+
         for (let i = 0; i < objects.length; i++) {
             const object = objects[i];
             const props: { name: string, value: string | boolean }[] = object.properties ?? [];
@@ -404,7 +444,20 @@ export class GameScene extends AnimatedTileSceneBase {
                 name === 'sensor'
             );
 
-            const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
+            const isKinematic = props.some(({ name }) =>
+                name === 'isKinematic'
+            );
+            console.log("==========KINEMATIC", isKinematic);
+            if (isKinematic) {
+                kinematic = true;
+            }
+
+            const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {
+                ignoreGravity: true
+            };
+            if (tile.allowStatic === undefined || tile.allowStatic === true) {
+                physicsOptions.isStatic = true;
+            }
 
             if (isSensor) {
                 physicsOptions.isSensor = true;
@@ -412,7 +465,6 @@ export class GameScene extends AnimatedTileSceneBase {
 
                 const onEnterEventFromMainObject = objectProps.find(({ name }) => name === 'onEnter');
 
-                console.log('===>', onEnterEventFromMainObject);
 
                 if (onEnterEvent?.value) {
                     physicsOptions.dialogue = {
@@ -442,12 +494,15 @@ export class GameScene extends AnimatedTileSceneBase {
                 }
 
                 const c = this.matter.verts.centre(visualPoints);
-                const body = this.matter.add.fromVertices(c.x, c.y, visualPoints, { ignoreGravity: true, isStatic: true, ...physicsOptions });
+                const body = this.matter.add.fromVertices(c.x, c.y, visualPoints, { ...physicsOptions });
                 bodyParts.push(body);
             }
         }
 
-        return bodyParts;
+        return {
+            bodyParts,
+            kinematic
+        };
     }
 
     update(time: number, delta: number) {
@@ -485,27 +540,27 @@ export class GameScene extends AnimatedTileSceneBase {
         if (this.cursors.left.isDown) {
             directionsPressed = true;
             this.character.sprite
-                .setVelocityX(-2);
+                .setVelocityX(-5);
         }
         else if (this.cursors.right.isDown) {
 
             directionsPressed = true;
             this.character.sprite
-                .setVelocityX(2);
+                .setVelocityX(5);
         }
 
         if (this.cursors.up.isDown) {
 
             directionsPressed = true;
             this.character.sprite
-                .setVelocityY(-2);
+                .setVelocityY(-5);
         }
         else if (this.cursors.down.isDown) {
 
             directionsPressed = true;
             this.character.sprite
                 //.setAngle(-180)
-                .setVelocityY(2);
+                .setVelocityY(5);
         }
 
         else if (!directionsPressed && this.cursors.space.isDown && this.character.imageFramePrefix === 'enemy') {
@@ -528,3 +583,17 @@ export class GameScene extends AnimatedTileSceneBase {
     }
 }
 
+class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
+    constructor(scene: Phaser.Scene, x, y, texture, frame) {
+        super(scene.matter.world, x, y, texture, frame);
+        this.setTexture(texture);
+        scene.add.existing(this);
+
+        this.setFrame(frame);
+    }
+
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta)
+        this.setDepth(this.y + 20);
+    }
+}
