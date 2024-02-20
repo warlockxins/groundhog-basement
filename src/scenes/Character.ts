@@ -36,6 +36,12 @@ export class Character {
         // this.textBubble.setText("Bodies everywhere!");
         this.defaultAnimation = 'idle';
         this.moveAnim = 'run';
+
+        this.sprite.on('damage', this.onDamage, this)
+    }
+    
+    onDamage(value: number) {
+        console.log("OOOOUCH", value);
     }
 
     update() {

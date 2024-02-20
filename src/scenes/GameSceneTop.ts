@@ -26,6 +26,9 @@ type GameDialogue = {
     newDialogue?: GameDialogue[];
 
     changeTileGameObjectToId?: number;
+    tween?: Record<string, unknown> & {
+        ids: string[]
+    }
 };
 
 export class GameScene extends AnimatedTileSceneBase {
@@ -85,7 +88,7 @@ export class GameScene extends AnimatedTileSceneBase {
     /**
     * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
     **/
-    processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image): boolean {
+    processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image, receiver: Phaser.GameObjects.GameObject): boolean {
         const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim } = d;
 
         if (rulePre) {
@@ -95,13 +98,20 @@ export class GameScene extends AnimatedTileSceneBase {
 
                 console.log(":::PREEEE:>>>", res);
                 if (d.rulePreFail) {
-                    return this.processGameDialogue(d.rulePreFail, gameObject);
+                    return this.processGameDialogue(d.rulePreFail, gameObject, receiver);
                 }
                 return false;
             }
         }
 
-        console.log('WHHHHHAAAAT?', rulePre);
+        if (receiver && d.actor) {
+            if (d.actor.events) {
+                console.log('WHHHHHAAAAT?', d.actor);
+                d.actor.events.forEach(({name, value}) => {
+                    receiver.emit(name, value);
+                });
+            }
+        }
 
         this.character.textBubble.setText(player ?? '');
 
@@ -131,6 +141,24 @@ export class GameScene extends AnimatedTileSceneBase {
             });
 
             gameObject.setFrame(d.changeTileGameObjectToId);
+        }
+
+        if (d.tween) {
+            const { ids, ...tween } = d.tween;
+
+            const gameObjects = (ids || []).map((id) => {
+                return this.children.getByName(id);
+            }).filter((o) => o !== null);
+
+            console.log("====woooooo", ids, gameObjects);
+            if (gameObjects.length > 0) {
+                this.tweens.add({
+                    targets: gameObjects,
+                    ...tween,
+                    ease: 'Sine.easeInOut',
+                    delay: this.tweens.stagger(500)
+                });
+            }
         }
 
 
@@ -165,7 +193,7 @@ export class GameScene extends AnimatedTileSceneBase {
     }
 
     addPhysicsListeners() {
-        this.matter.world.on('collisionstart', (event, bodyA, bodyB) => {
+        this.matter.world.on('collisionstart', (event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
             const isPlayerHere = [bodyA.label, bodyB.label].some(l => l === 'player');
             if (!isPlayerHere) {
                 return
@@ -189,7 +217,7 @@ export class GameScene extends AnimatedTileSceneBase {
             }
 
             if (dialogue) {
-                const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image);
+                const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
                 if (wasProcessed) {
                     if (dialogue.removeTrigger) {
                         this.matter.world.remove(trigger);
@@ -376,6 +404,7 @@ export class GameScene extends AnimatedTileSceneBase {
                         .setOrigin(0, 0)
                         .setPipeline('Light2D')
                         .setName(t.id.toString());
+                    console.log("----ID", t.id.toString());
 
                     // console.log('-----props', t);
 
@@ -388,7 +417,7 @@ export class GameScene extends AnimatedTileSceneBase {
 
                     if (!tileCollision) return;
 
-                    const { bodyParts: compoundBodyParts, kinematic } = tileCollision;
+                    const { bodyParts: compoundBodyParts, kinematic, tween, radius, dialogue } = tileCollision;
 
                     if (!kinematic && compoundBodyParts.length > 0) {
                         const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
@@ -402,11 +431,20 @@ export class GameScene extends AnimatedTileSceneBase {
                         // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
                     }
                     else {
-                        smartTile.setCircle(30);
+                        smartTile.setCircle(radius, { dialogue });
+                        // smartTile.body.dialogue = dialogue;
                         smartTile.setFixedRotation();
                         smartTile.setMass(100);
                         smartTile.setFrictionAir(1);
-                        // smartTile.setOrigin(0.5, 0.6);
+                        smartTile.setOrigin(0.5, 0.5);
+                        smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+
+                        if (tween) {
+                            this.tweens.add({
+                                targets: smartTile,
+                                ...tween
+                            });
+                        }
                     }
 
                 });
@@ -419,7 +457,7 @@ export class GameScene extends AnimatedTileSceneBase {
         pixelX: number,
         pixelY: number
         allowStatic: boolean
-    }, objectProps: { name: string, value: string | boolean }[] = []): { bodyParts: MatterJS.BodyType[], kinematic: boolean } | null {
+    }, objectProps: { name: string, value: string | boolean }[] = []): { dialogue: Record<string, unknown>, bodyParts: MatterJS.BodyType[], kinematic: boolean, radius: number, tween?: Record<string, unknown> } | null {
         const tileWorldPos = tile;
         const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
         if (!collisionGroup || collisionGroup.objects.length === 0) { return null; }
@@ -434,6 +472,9 @@ export class GameScene extends AnimatedTileSceneBase {
         const objects = collisionGroup.objects;
 
         let kinematic = false;
+        let radius = 30; // default for kinematic object
+        let objectTween: Record<string, unknown> | undefined = undefined;
+        let dialogue = {};
         console.log("-----------", tile.index, collisionGroup);
 
         for (let i = 0; i < objects.length; i++) {
@@ -447,6 +488,17 @@ export class GameScene extends AnimatedTileSceneBase {
             const isKinematic = props.some(({ name }) =>
                 name === 'isKinematic'
             );
+
+            const tween = props.find(({ name }) => name === 'tween');
+            if (tween) {
+                objectTween = JSON.parse(tween.value as string);
+            }
+
+            const kinematicRadius = props.find(({ name }) => name === 'radius');
+            if (kinematicRadius) {
+                radius = JSON.parse(kinematicRadius.value as number);
+            }
+
             console.log("==========KINEMATIC", isKinematic);
             if (isKinematic) {
                 kinematic = true;
@@ -459,17 +511,26 @@ export class GameScene extends AnimatedTileSceneBase {
                 physicsOptions.isStatic = true;
             }
 
+            const onEnterEvent = props.find(({ name }) => name === 'onEnter');
+
+            const onEnterEventFromMainObject = objectProps.find(({ name }) => name === 'onEnter');
+
+            if (onEnterEvent?.value) {
+                dialogue = {
+                    ...dialogue,
+                    ...JSON.parse(onEnterEvent.value as string),
+                    ...JSON.parse(onEnterEventFromMainObject?.value as string ?? "{}")
+
+                };
+            }
+
             if (isSensor) {
                 physicsOptions.isSensor = true;
-                const onEnterEvent = props.find(({ name }) => name === 'onEnter');
-
-                const onEnterEventFromMainObject = objectProps.find(({ name }) => name === 'onEnter');
-
 
                 if (onEnterEvent?.value) {
                     physicsOptions.dialogue = {
-                        ...JSON.parse(onEnterEvent.value),
-                        ...JSON.parse(onEnterEventFromMainObject.value)
+                        ...JSON.parse(onEnterEvent.value as string),
+                        ...JSON.parse(onEnterEventFromMainObject.value as string)
                     };
                 }
             }
@@ -501,7 +562,10 @@ export class GameScene extends AnimatedTileSceneBase {
 
         return {
             bodyParts,
-            kinematic
+            kinematic,
+            tween: objectTween,
+            radius,
+            dialogue
         };
     }
 
@@ -540,27 +604,27 @@ export class GameScene extends AnimatedTileSceneBase {
         if (this.cursors.left.isDown) {
             directionsPressed = true;
             this.character.sprite
-                .setVelocityX(-5);
+                .setVelocityX(-3);
         }
         else if (this.cursors.right.isDown) {
 
             directionsPressed = true;
             this.character.sprite
-                .setVelocityX(5);
+                .setVelocityX(3);
         }
 
         if (this.cursors.up.isDown) {
 
             directionsPressed = true;
             this.character.sprite
-                .setVelocityY(-5);
+                .setVelocityY(-3);
         }
         else if (this.cursors.down.isDown) {
 
             directionsPressed = true;
             this.character.sprite
                 //.setAngle(-180)
-                .setVelocityY(5);
+                .setVelocityY(3);
         }
 
         else if (!directionsPressed && this.cursors.space.isDown && this.character.imageFramePrefix === 'enemy') {
@@ -594,6 +658,6 @@ class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
 
     preUpdate(time, delta) {
         super.preUpdate(time, delta)
-        this.setDepth(this.y + 20);
+        this.setDepth(this.y + 1);
     }
 }

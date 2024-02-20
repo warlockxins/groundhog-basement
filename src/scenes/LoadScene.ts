@@ -24,7 +24,12 @@ const playerAnimationFiles = [
     "walkCrouch-E.png",
     "walkCrouch-N.png",
     "walkCrouch-NE.png",
-    "walkCrouch-S.png"
+    "walkCrouch-S.png",
+    "death-N.png",
+    "death-NE.png",
+    "death-E.png",
+    "death-SE.png",
+    "death-S.png"
 ];
 
 const enemyAnimationFiles = [

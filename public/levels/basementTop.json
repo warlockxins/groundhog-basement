@@ -74,12 +74,12 @@
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 33, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 31, 34, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 30, 34, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 34, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 30, 34, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 4, 31, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -104,6 +104,12 @@
          "id":7,
          "name":"bloodOnFloor",
          "opacity":1,
+         "properties":[
+                {
+                 "name":"physics",
+                 "type":"bool",
+                 "value":true
+                }],
          "type":"tilelayer",
          "visible":true,
          "width":20,
@@ -187,7 +193,7 @@
             0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 4, 43, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -318,7 +324,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":896,
+                 "x":1024,
                  "y":1920
                 }, 
                 {
@@ -330,7 +336,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":896,
+                 "x":1024,
                  "y":2048
                 }, 
                 {
@@ -342,7 +348,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":896,
+                 "x":1024,
                  "y":2176
                 }, 
                 {
@@ -354,7 +360,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":896,
+                 "x":1024,
                  "y":2304
                 }, 
                 {
@@ -366,7 +372,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":896,
+                 "x":1024,
                  "y":2432
                 }, 
                 {
@@ -378,7 +384,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":896,
+                 "x":1024,
                  "y":2560
                 }, 
                 {
@@ -390,7 +396,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1545.88098693759,
+                 "x":1280,
                  "y":2560
                 }, 
                 {
@@ -402,7 +408,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1545.88098693759,
+                 "x":1280,
                  "y":2432
                 }, 
                 {
@@ -414,7 +420,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1545.88098693759,
+                 "x":1280,
                  "y":2304
                 }, 
                 {
@@ -426,7 +432,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1545.88098693759,
+                 "x":1280,
                  "y":2176
                 }, 
                 {
@@ -438,7 +444,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1545.88098693759,
+                 "x":1280,
                  "y":2048
                 }, 
                 {
@@ -450,7 +456,7 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1545.88098693759,
+                 "x":1280,
                  "y":1920
                 }, 
                 {
@@ -462,7 +468,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{}"
+                         "value":"{\n  \"player\": \"LOCKED?! NOOOO\"\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -480,8 +486,8 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1089.0612244898,
-                 "y":4421.14285714286
+                 "x":1162.25618449398,
+                 "y":4091.76553712404
                 }, 
                 {
                  "gid":46,
@@ -492,8 +498,8 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":1689.0612244898,
-                 "y":3776.24489795918
+                 "x":1638.95774992276,
+                 "y":3941.80420522419
                 }, 
                 {
                  "gid":46,
@@ -656,8 +662,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1578.67,
-                 "y":2940.877
+                 "x":1218.67,
+                 "y":2795.42245454545
                 }, 
                 {
                  "height":0,
@@ -670,6 +676,30 @@
                  "width":0,
                  "x":951.020408163265,
                  "y":4300
+                }, 
+                {
+                 "height":0,
+                 "id":33,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1218.18181818182,
+                 "y":1861.81818181818
+                }, 
+                {
+                 "height":0,
+                 "id":36,
+                 "name":"",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1734.54545454545,
+                 "y":4532.72727272727
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -691,8 +721,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1235.13575033201,
-                 "y":2503.00228419655
+                 "x":1221.67933300014,
+                 "y":2703.61824891625
                 }, 
                 {
                  "height":0,
@@ -704,7 +734,7 @@
                  "visible":true,
                  "width":0,
                  "x":1598.08853658537,
-                 "y":3782.65317073171
+                 "y":3770.65
                 }, 
                 {
                  "ellipse":true,
@@ -715,7 +745,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"removeTrigger\":true,\n  \"enemy\": \"Here is a key\",\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  },\n  \"newDialogue\": [\n  {\n     \"enemy\": \"Go open the door\",\n     \"enemySpeed\":{\n        \"x\":-1,\n        \"y\":1\n     },\n     \"enemyIdle\":\"idle\"\n  }\n]\n}"
+                         "value":"{\n  \"removeTrigger\":true,\n  \"enemy\": \"Here is a key\",\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  },\n  \"newDialogue\": [\n  {\n     \"enemy\": \"Go open the door\",\n     \"enemySpeed\":{\n        \"x\":-1,\n        \"y\":1\n     },\n     \"enemyIdle\":\"idle\"\n  },\n  {\n    \"enemy\": \"You won't die here ...\\n this time\"\n  }\n]\n}"
                         }, 
                         {
                          "name":"sensor",
@@ -726,8 +756,77 @@
                  "type":"",
                  "visible":true,
                  "width":91.8972817008353,
-                 "x":1562.71794229309,
-                 "y":3837.71955960516
+                 "x":1602.71794229309,
+                 "y":3744.99228687789
+                }, 
+                {
+                 "ellipse":true,
+                 "height":128,
+                 "id":31,
+                 "name":"triggerSawCollapseLeft",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{\n  \"removeTrigger\":true,\n  \"player\": \"SHIT!\",\n  \"tween\": {\n     \"ids\": [\"19\", \"18\", \"17\", \"16\", \"15\", \"14\"],\n     \"x\": 1152,\n     \"duration\": 3000,\n            \"yoyo\": true,\n            \"ease\": \"Linear\",\n            \"repeat\": -1\n  }\n}"
+                        }, 
+                        {
+                         "name":"sensor",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":1161.09090909091,
+                 "y":2265.81818181818
+                }, 
+                {
+                 "ellipse":true,
+                 "height":128,
+                 "id":32,
+                 "name":"triggerSawCollapseRight",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{\n  \"removeTrigger\":true,\n  \"tween\": {\n     \"ids\": [\"20\", \"21\", \"22\", \"23\", \"24\", \"25\"],\n     \"x\": 1260,\n     \"duration\": 3000,\n            \"yoyo\": true,\n            \"ease\": \"Linear\",\n            \"repeat\": -1\n  }\n}"
+                        }, 
+                        {
+                         "name":"sensor",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":1183.27272727273,
+                 "y":2272.36363636364
+                }, 
+                {
+                 "ellipse":true,
+                 "height":128,
+                 "id":35,
+                 "name":"triggerSawCollapseRight",
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{\n  \"removeTrigger\":true,\n  \"player\": \"Door!\"\n}"
+                        }, 
+                        {
+                         "name":"sensor",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":1168.72727272727,
+                 "y":2092.36363636364
                 }],
          "opacity":1,
          "properties":[
@@ -793,7 +892,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":31,
+ "nextobjectid":37,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
@@ -821,7 +920,7 @@
                      "objects":[
                             {
                              "height":0,
-                             "id":1,
+                             "id":2,
                              "name":"",
                              "polygon":[
                                     {
@@ -829,23 +928,23 @@
                                      "y":0
                                     }, 
                                     {
-                                     "x":0,
-                                     "y":19.2083514571553
+                                     "x":0.42587624036455,
+                                     "y":19.5903070567693
                                     }, 
                                     {
-                                     "x":128.334058286211,
-                                     "y":19.2083514571553
+                                     "x":127.762872109365,
+                                     "y":18.7385545760402
                                     }, 
                                     {
-                                     "x":127.777294475859,
-                                     "y":0.278381905176161
+                                     "x":127.336995869,
+                                     "y":-0.425876240364545
                                     }],
                              "rotation":0,
                              "type":"",
                              "visible":true,
                              "width":0,
-                             "x":0.556763810352327,
-                             "y":108.84732492388
+                             "x":0.42587624036455,
+                             "y":109.450193773689
                             }],
                      "opacity":1,
                      "type":"objectgroup",
@@ -904,7 +1003,13 @@
                      "visible":true,
                      "x":0,
                      "y":0
-                    }
+                    },
+                 "properties":[
+                        {
+                         "name":"wall",
+                         "type":"bool",
+                         "value":true
+                        }]
                 }, 
                 {
                  "id":7,
@@ -1697,6 +1802,21 @@
                                      "name":"isKinematic",
                                      "type":"bool",
                                      "value":true
+                                    }, 
+                                    {
+                                     "name":"onEnter",
+                                     "type":"string",
+                                     "value":"{\n  \"actor\": {\n    \"events\": [{\n        \"name\": \"damage\", \"value\": 10\n    }]\n  }\n}"
+                                    }, 
+                                    {
+                                     "name":"radius",
+                                     "type":"float",
+                                     "value":60
+                                    }, 
+                                    {
+                                     "name":"tween",
+                                     "type":"string",
+                                     "value":"{\n  \"angle\": \"+=360\",\n  \"duration\": 1000,\n  \"repeat\": -1\n}"
                                     }],
                              "rotation":0,
                              "type":"",
@@ -1753,6 +1873,11 @@
                                      "name":"isKinematic",
                                      "type":"bool",
                                      "value":true
+                                    }, 
+                                    {
+                                     "name":"radius",
+                                     "type":"float",
+                                     "value":30
                                     }],
                              "rotation":0,
                              "type":"",

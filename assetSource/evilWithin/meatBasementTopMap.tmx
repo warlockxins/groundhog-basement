@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="11" nextobjectid="31">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="11" nextobjectid="37">
  <editorsettings>
   <export target="../../public/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -52,6 +52,9 @@
 </data>
  </layer>
  <layer id="7" name="bloodOnFloor" width="20" height="40">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -67,12 +70,12 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,4,0,4,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,33,34,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,31,34,29,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,30,34,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,34,29,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,30,34,29,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,4,31,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -166,7 +169,7 @@
 0,0,0,0,0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,43,0,4,43,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,0,
@@ -251,25 +254,27 @@
     <property name="wall" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="14" gid="45" x="896" y="1920" width="128" height="128"/>
-  <object id="15" gid="45" x="896" y="2048" width="128" height="128"/>
-  <object id="16" gid="45" x="896" y="2176" width="128" height="128"/>
-  <object id="17" gid="45" x="896" y="2304" width="128" height="128"/>
-  <object id="18" gid="45" x="896" y="2432" width="128" height="128"/>
-  <object id="19" gid="45" x="896" y="2560" width="128" height="128"/>
-  <object id="20" gid="45" x="1545.88" y="2560" width="128" height="128"/>
-  <object id="21" gid="45" x="1545.88" y="2432" width="128" height="128"/>
-  <object id="22" gid="45" x="1545.88" y="2304" width="128" height="128"/>
-  <object id="23" gid="45" x="1545.88" y="2176" width="128" height="128"/>
-  <object id="24" gid="45" x="1545.88" y="2048" width="128" height="128"/>
-  <object id="25" gid="45" x="1545.88" y="1920" width="128" height="128"/>
+  <object id="14" gid="45" x="1024" y="1920" width="128" height="128"/>
+  <object id="15" gid="45" x="1024" y="2048" width="128" height="128"/>
+  <object id="16" gid="45" x="1024" y="2176" width="128" height="128"/>
+  <object id="17" gid="45" x="1024" y="2304" width="128" height="128"/>
+  <object id="18" gid="45" x="1024" y="2432" width="128" height="128"/>
+  <object id="19" gid="45" x="1024" y="2560" width="128" height="128"/>
+  <object id="20" gid="45" x="1280" y="2560" width="128" height="128"/>
+  <object id="21" gid="45" x="1280" y="2432" width="128" height="128"/>
+  <object id="22" gid="45" x="1280" y="2304" width="128" height="128"/>
+  <object id="23" gid="45" x="1280" y="2176" width="128" height="128"/>
+  <object id="24" gid="45" x="1280" y="2048" width="128" height="128"/>
+  <object id="25" gid="45" x="1280" y="1920" width="128" height="128"/>
   <object id="26" gid="19" x="1152" y="1792" width="128" height="128">
    <properties>
-    <property name="onEnter" value="{}"/>
+    <property name="onEnter">{
+  &quot;player&quot;: &quot;LOCKED?! NOOOO&quot;
+}</property>
    </properties>
   </object>
-  <object id="28" gid="46" x="1089.06" y="4421.14" width="128" height="128"/>
-  <object id="29" gid="46" x="1689.06" y="3776.24" width="128" height="128"/>
+  <object id="28" gid="46" x="1162.26" y="4091.77" width="128" height="128"/>
+  <object id="29" gid="46" x="1638.96" y="3941.8" width="128" height="128"/>
   <object id="30" gid="46" x="1354.37" y="3759.92" width="128" height="128"/>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="20" height="40">
@@ -338,10 +343,16 @@
   <object id="6" x="436.039" y="2935.62">
    <point/>
   </object>
-  <object id="7" x="1578.67" y="2940.88">
+  <object id="7" x="1218.67" y="2795.42">
    <point/>
   </object>
   <object id="27" x="951.02" y="4300">
+   <point/>
+  </object>
+  <object id="33" x="1218.18" y="1861.82">
+   <point/>
+  </object>
+  <object id="36" x="1734.55" y="4532.73">
    <point/>
   </object>
  </objectgroup>
@@ -350,13 +361,13 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="1235.14" y="2503">
+  <object id="8" name="start" x="1221.68" y="2703.62">
    <point/>
   </object>
-  <object id="9" name="enemyStart" x="1598.09" y="3782.65">
+  <object id="9" name="enemyStart" x="1598.09" y="3770.65">
    <point/>
   </object>
-  <object id="10" name="triggerEnemyDialogue" x="1562.72" y="3837.72" width="91.8973" height="91.0064">
+  <object id="10" name="triggerEnemyDialogue" x="1602.72" y="3744.99" width="91.8973" height="91.0064">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
@@ -372,8 +383,56 @@
         &quot;y&quot;:1
      },
      &quot;enemyIdle&quot;:&quot;idle&quot;
+  },
+  {
+    &quot;enemy&quot;: &quot;You won't die here ...\n this time&quot;
   }
 ]
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="31" name="triggerSawCollapseLeft" x="1161.09" y="2265.82" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+  &quot;player&quot;: &quot;SHIT!&quot;,
+  &quot;tween&quot;: {
+     &quot;ids&quot;: [&quot;19&quot;, &quot;18&quot;, &quot;17&quot;, &quot;16&quot;, &quot;15&quot;, &quot;14&quot;],
+     &quot;x&quot;: 1152,
+     &quot;duration&quot;: 3000,
+            &quot;yoyo&quot;: true,
+            &quot;ease&quot;: &quot;Linear&quot;,
+            &quot;repeat&quot;: -1
+  }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="32" name="triggerSawCollapseRight" x="1183.27" y="2272.36" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+  &quot;tween&quot;: {
+     &quot;ids&quot;: [&quot;20&quot;, &quot;21&quot;, &quot;22&quot;, &quot;23&quot;, &quot;24&quot;, &quot;25&quot;],
+     &quot;x&quot;: 1260,
+     &quot;duration&quot;: 3000,
+            &quot;yoyo&quot;: true,
+            &quot;ease&quot;: &quot;Linear&quot;,
+            &quot;repeat&quot;: -1
+  }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="35" name="triggerSawCollapseRight" x="1168.73" y="2092.36" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+  &quot;player&quot;: &quot;Door!&quot;
 }</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>

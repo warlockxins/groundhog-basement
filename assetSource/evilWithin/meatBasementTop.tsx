@@ -3,8 +3,8 @@
  <image source="assets/tilesTop.png" trans="474747" width="1024" height="1024"/>
  <tile id="3">
   <objectgroup draworder="index" id="2">
-   <object id="1" x="0.556764" y="108.847">
-    <polygon points="0,0 0,19.2084 128.334,19.2084 127.777,0.278382"/>
+   <object id="2" x="0.425876" y="109.45">
+    <polygon points="0,0 0.425876,19.5903 127.763,18.7386 127.337,-0.425876"/>
    </object>
   </objectgroup>
  </tile>
@@ -14,6 +14,9 @@
   </properties>
  </tile>
  <tile id="6">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.425876" y="92.4151">
     <polygon points="0,0 0,35.3477 127.337,35.7736 126.911,0"/>
@@ -170,6 +173,19 @@
    <object id="1" x="28.5337" y="91.5634">
     <properties>
      <property name="isKinematic" type="bool" value="true"/>
+     <property name="onEnter">{
+  &quot;actor&quot;: {
+    &quot;events&quot;: [{
+        &quot;name&quot;: &quot;damage&quot;, &quot;value&quot;: 10
+    }]
+  }
+}</property>
+     <property name="radius" type="float" value="60"/>
+     <property name="tween">{
+  &quot;angle&quot;: &quot;+=360&quot;,
+  &quot;duration&quot;: 1000,
+  &quot;repeat&quot;: -1
+}</property>
     </properties>
     <polygon points="0,0 68.1402,3.83289 50.6793,-67.7143"/>
    </object>
@@ -183,6 +199,7 @@
    <object id="1" x="51.1051" y="77.9354">
     <properties>
      <property name="isKinematic" type="bool" value="true"/>
+     <property name="radius" type="float" value="30"/>
     </properties>
     <polygon points="0,0 -20.0162,24.7008 23.4232,42.5876 45.9946,18.7386"/>
    </object>
