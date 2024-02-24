@@ -7,7 +7,7 @@ import { CST } from "../constants/CST";
 import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
 // import { NavMesh } from "~/levelComponents/NavMesh";
 import jsonLogic from '../jsonLogic';
-import { Character } from './Character';
+import { Character, PlayerControlls, ButcherControlls } from './Character';
 
 type GameDialogue = {
     rulePre?: Record<string, unknown>;
@@ -41,7 +41,6 @@ export class GameScene extends AnimatedTileSceneBase {
     tileHalfHeight: number;
     character: Character;
     characterEnemy: Character;
-    enemyCanChase: boolean;
     scriptedDialogs: GameDialogue[];
 
     blackboard: Record<string, unknown> = {};
@@ -74,6 +73,34 @@ export class GameScene extends AnimatedTileSceneBase {
         jsonLogic.rm_operation('setVar');
         jsonLogic.add_operation('setVar', this.jsLogicSetBlackboardVar.bind(this));
         this.addPhysicsListeners();
+
+        this.events.on('characterDeath', this.onCharacterDeath, this);
+    }
+
+    onCharacterDeath(character: Character) {
+        console.log("KILLL CHARACTER", character.imageFramePrefix);
+        const bloodTileIndexInTilemap = 24;
+        const x = character.sprite.x;
+        const y = character.sprite.y;
+        const bloodTile = this.add.image(x, y, 'tiles', bloodTileIndexInTilemap)
+            .setDepth(y - 5)
+            .setOrigin(0.5, 0.5)
+            .setScale(0)
+            .setTint(0xff0000);
+
+
+        // https://labs.phaser.io/edit.html?src=src\tweens\tween%20text%20size.js
+        this.tweens.addCounter({
+            from: 0,
+            to: 0.5,
+            duration: 2000,
+            yoyo: false,
+            onUpdate: (tween) => {
+                const v = tween.getValue();
+                bloodTile.setScale(v);
+                this.cameras.main.setZoom(1 + v / 2);
+            }
+        });
     }
 
     jsLogicSetBlackboardVar(key: string, value: unknown) {
@@ -107,7 +134,7 @@ export class GameScene extends AnimatedTileSceneBase {
         if (receiver && d.actor) {
             if (d.actor.events) {
                 console.log('WHHHHHAAAAT?', d.actor);
-                d.actor.events.forEach(({name, value}) => {
+                d.actor.events.forEach(({ name, value }) => {
                     receiver.emit(name, value);
                 });
             }
@@ -125,7 +152,8 @@ export class GameScene extends AnimatedTileSceneBase {
         }
 
         if (enemyCanChase !== undefined) {
-            this.enemyCanChase = !!enemyCanChase;
+            const { sprite } = this.character;
+            this.characterEnemy.sprite.emit('chase', !!enemyCanChase, sprite.x, sprite.y, sprite);
         }
         if (playerTexture) {
             this.character.imageFramePrefix = playerTexture;
@@ -274,7 +302,7 @@ export class GameScene extends AnimatedTileSceneBase {
         });
 
 
-        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", "run-N", "run-NE", "run-E", "run-SE", "run-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S'].forEach((key) =>
+        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", "run-N", "run-NE", "run-E", "run-SE", "run-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'death-N', 'death-NE', 'death-E', 'death-SE', 'death-S'].forEach((key) =>
             this.anims.create({
                 key: 'player' + key + ".png", // texture key is same for animation key/filename - KISS
                 frames: this.anims.generateFrameNumbers('player' + key + ".png"),
@@ -291,8 +319,11 @@ export class GameScene extends AnimatedTileSceneBase {
 
 
         this.character = new Character(this, 400, 300, 'walk-NE.png', 'player');
+        this.character.controller = new PlayerControlls(this, this.character)
 
         this.characterEnemy = new Character(this, 400, 300, 'slice-NE.png', 'enemy');
+
+        this.characterEnemy.controller = new ButcherControlls(this, this.characterEnemy);
 
         this.characterEnemy.lastDirection.x = 1;
         this.characterEnemy.lastDirection.y = -1;
@@ -307,8 +338,8 @@ export class GameScene extends AnimatedTileSceneBase {
 
 
         this.cameras.main.setZoom(0.5);
+        this.cameras.main.startFollow(this.character.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
         this.cameras.main.zoomTo(1);
-
         // ---------
         this.map.getObjectLayerNames().forEach(n => {
             if (n === 'lights') {
@@ -340,6 +371,8 @@ export class GameScene extends AnimatedTileSceneBase {
                     if (o.name === 'start') {
                         this.character.sprite.x = pp.x;
                         this.character.sprite.y = pp.y;
+
+                        this.cameras.main.centerOn(pp.x, pp.y);
                     }
                     if (o.name === 'enemyStart') {
                         this.characterEnemy.sprite.x = pp.x;
@@ -570,80 +603,8 @@ export class GameScene extends AnimatedTileSceneBase {
     }
 
     update(time: number, delta: number) {
-
-        if (this.enemyCanChase) {
-            const dirX = this.character.sprite.x - this.characterEnemy.sprite.x;
-            const dirY = this.character.sprite.y - this.characterEnemy.sprite.y;
-
-            if (Math.abs(dirX) > 10) {
-                this.characterEnemy.sprite.setVelocityX(Math.abs(dirX) / dirX);
-            } else {
-                this.characterEnemy.sprite.setVelocityX(0);
-            }
-
-            if (Math.abs(dirY) > 10) {
-                this.characterEnemy.sprite.setVelocityY(Math.abs(dirY) / dirY);
-            } else {
-                this.characterEnemy.sprite.setVelocityY(0);
-            }
-
-            const dist = Math.sqrt(dirX * dirX + dirY * dirY);
-            if (dist < 30) {
-
-                this.enemyCanChase = false;
-                this.characterEnemy.defaultAnimation = 'slice';
-            }
-        }
-        else {
-            this.characterEnemy.sprite.setVelocity(0);
-        }
-        this.character.sprite.setVelocity(0);
-
-
-        let directionsPressed = false;
-        if (this.cursors.left.isDown) {
-            directionsPressed = true;
-            this.character.sprite
-                .setVelocityX(-3);
-        }
-        else if (this.cursors.right.isDown) {
-
-            directionsPressed = true;
-            this.character.sprite
-                .setVelocityX(3);
-        }
-
-        if (this.cursors.up.isDown) {
-
-            directionsPressed = true;
-            this.character.sprite
-                .setVelocityY(-3);
-        }
-        else if (this.cursors.down.isDown) {
-
-            directionsPressed = true;
-            this.character.sprite
-                //.setAngle(-180)
-                .setVelocityY(3);
-        }
-
-        else if (!directionsPressed && this.cursors.space.isDown && this.character.imageFramePrefix === 'enemy') {
-            if (this.character.defaultAnimation !== 'slice') {
-                this.character.defaultAnimation = 'slice';
-                this.character.sprite.on(Phaser.Animations.Events.ANIMATION_REPEAT, () => {
-                    this.character.sprite.removeAllListeners();
-                    this.character.defaultAnimation = 'idle';
-                }, this);
-
-            }
-        }
-
         this.character.update();
         this.characterEnemy.update();
-
-
-
-        this.cameras.main.centerOn(this.character.sprite.x, this.character.sprite.y);
     }
 }
 

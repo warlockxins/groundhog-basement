@@ -721,8 +721,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1221.67933300014,
-                 "y":2703.61824891625
+                 "x":1616.37796752116,
+                 "y":3972.08741896106
                 }, 
                 {
                  "height":0,
@@ -745,7 +745,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"removeTrigger\":true,\n  \"enemy\": \"Here is a key\",\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  },\n  \"newDialogue\": [\n  {\n     \"enemy\": \"Go open the door\",\n     \"enemySpeed\":{\n        \"x\":-1,\n        \"y\":1\n     },\n     \"enemyIdle\":\"idle\"\n  },\n  {\n    \"enemy\": \"You won't die here ...\\n this time\"\n  }\n]\n}"
+                         "value":"{\n  \"removeTrigger\":true,\n  \"enemy\": \"Here is a key\",\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  },\n  \"newDialogue\": [\n  {\n     \"enemy\": \"Go open the door\",\n     \"enemySpeed\":{\n        \"x\":-1,\n        \"y\":1\n     },\n     \"enemyIdle\":\"idle\"\n  },\n  {\n    \"enemy\": \"You won't die here ...\\n this time\",\n    \"enemyCanChase\": true\n  }\n]\n}"
                         }, 
                         {
                          "name":"sensor",
