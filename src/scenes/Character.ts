@@ -1,3 +1,63 @@
+import { GameDialogue } from './GameDialogue';
+import { sceneEventConstants } from './sceneEvents';
+
+class CharacterState {
+    character: Character;
+    constructor(character: Character) {
+        this.character = character;
+    }
+
+    update(_delta: number) {
+    }
+}
+
+class CharacterWithControllerState extends CharacterState {
+    update(delta: number) {
+        this.character.controller?.update(delta);
+    }
+}
+
+class CharacterWithGoToScheduledPointState extends CharacterState {
+    ids: string[] = [];
+    currentPointIndex = -1;
+
+    constructor(character: Character) {
+        super(character);
+
+        this.character.sprite.on(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint, this);
+    }
+
+    pickNextPoint() {
+        if (!this.ids.length) {
+            return;
+        }
+
+        this.currentPointIndex += 1;
+        if (this.currentPointIndex >= this.ids.length) {
+            // Todo: add if neeed to loop
+            // Todo: if no loop, notify parent
+
+            this.currentPointIndex = 0;
+        }
+        const idToFollow = this.ids[this.currentPointIndex];
+
+        this.character.sprite.scene.events.emit(sceneEventConstants.requestObjectPointFollow, this.character, idToFollow);
+
+    }
+
+    setIds(ids: string[]) {
+        this.ids = ids ?? [];
+        this.currentPointIndex = -1;
+    }
+
+    update(delta: number) {
+        if (this.currentPointIndex === -1) {
+            this.pickNextPoint();
+        }
+        this.character.controller?.update(delta);
+    }
+}
+
 export class Character {
     sprite: Phaser.Physics.Matter.Sprite;
     textBubble: Phaser.GameObjects.Text;
@@ -9,10 +69,14 @@ export class Character {
 
     isDead = false;
     controller?: Controlls;
+    shadow: Phaser.GameObjects.Ellipse;
+
+    currentState: CharacterState;
 
     // TODO - add id to sprite, for getting by id for scripts
     constructor(scene: Phaser.Scene, x: number, y: number, imageFrame: string, imageFramePrefix: string) {
 
+        this.currentState = new CharacterWithControllerState(this);
         this.imageFramePrefix = imageFramePrefix;
         this.sprite = scene.matter.add.sprite(x, y, imageFramePrefix + imageFrame);
 
@@ -27,6 +91,9 @@ export class Character {
         this.textBubble.setBackgroundColor("#000000");
         this.textBubble.setAlign('center');
         this.textBubble.setMaxLines(2);
+
+        this.shadow = scene.add.ellipse(x, y, 30, 15, 0x111111, 0.3);
+        this.shadow.setSmoothness(8);
 
 
         this.myLight = scene.lights.addLight(
@@ -44,6 +111,30 @@ export class Character {
         this.sprite.on('damage', this.onDamage, this)
     }
 
+    setAutoPathFollowSchedule(autoPathFollowSchedule: GameDialogue['schedule']) {
+        if (!autoPathFollowSchedule?.ids?.length) {
+            return;
+        }
+
+        const followPointState = new CharacterWithGoToScheduledPointState(this);
+        followPointState.setIds(autoPathFollowSchedule.ids);
+
+        this.currentState = followPointState;
+    }
+
+    bark(text: string = "") {
+        if (this.isDead) return;
+
+        this.textBubble.setText(text);
+
+        if (!text) return;
+
+        // clear text bubble
+        this.sprite.scene.time.delayedCall(2500, () => {
+            this.textBubble.setText("");
+        });
+    }
+
     onDamage(value: number) {
         if (this.isDead) return;
 
@@ -59,9 +150,15 @@ export class Character {
         }
     }
 
-    update() {
+    update(delta: number) {
         this.sprite.setDepth(this.sprite.y);
-        this.controller?.update();
+
+        this.currentState.update(delta);
+
+        this.shadow.x = this.sprite.x;
+        this.shadow.y = this.sprite.y - 5;
+        this.shadow.setDepth(this.sprite.y - 10);
+
         if (this.isDead) {
             return;
         }
@@ -116,16 +213,17 @@ class Controlls {
         this.character = character;
     }
 
-    update() { }
+    update(delta: number) { }
 }
 
 export class PlayerControlls extends Controlls {
-    update() {
+    update(delta: number) {
         this.character.sprite.setVelocity(0);
 
         if (this.character.isDead) return;
 
         let directionsPressed = false;
+
         if (this.scene.cursors.left.isDown) {
             directionsPressed = true;
             this.character.sprite
@@ -182,7 +280,7 @@ export class ButcherControlls extends Controlls {
         this.chaseSprite = chaseSprite;
     }
 
-    update() {
+    update(delta: number) {
         if (this.enemyCanChase) {
             // just check if sprite exists/not removed or whatever and update chase point
             if (this.chaseSprite?.x) {
@@ -207,12 +305,11 @@ export class ButcherControlls extends Controlls {
                 this.character.sprite.setVelocityY(0);
             }
 
-            // const dist = Math.sqrt(dirX * dirX + dirY * dirY);
-            // if (dist < 30) {
-            //
-            //     this.enemyCanChase = false;
-            //     this.character.defaultAnimation = 'slice';
-            // }
+            const dist = Math.sqrt(dirX * dirX + dirY * dirY);
+            if (dist < 50) {
+                this.enemyCanChase = false;
+                this.character.sprite.emit(sceneEventConstants.arrivedAtObjectPoint);
+            }
         }
         else {
             this.character.sprite.setVelocity(0);

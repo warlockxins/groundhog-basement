@@ -8,28 +8,8 @@ import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase"
 // import { NavMesh } from "~/levelComponents/NavMesh";
 import jsonLogic from '../jsonLogic';
 import { Character, PlayerControlls, ButcherControlls } from './Character';
-
-type GameDialogue = {
-    rulePre?: Record<string, unknown>;
-    rulePreFail?: GameDialogue;
-    rulePost?: Record<string, unknown>;
-    player?: string;
-    playerTexture?: string;
-    playerMoveAnim?: string;
-    enemy?: string;
-    enemySpeed?: {
-        x: number, y: number;
-    }
-    enemyIdle?: string;
-    enemyCanChase?: boolean;
-    removeTrigger: boolean;
-    newDialogue?: GameDialogue[];
-
-    changeTileGameObjectToId?: number;
-    tween?: Record<string, unknown> & {
-        ids: string[]
-    }
-};
+import { GameDialogue } from './GameDialogue';
+import { sceneEventConstants } from './sceneEvents';
 
 export class GameScene extends AnimatedTileSceneBase {
 
@@ -66,7 +46,7 @@ export class GameScene extends AnimatedTileSceneBase {
         this.cameras.main.setOrigin(0.1, 1);
 
         this.cursors = this.input.keyboard.createCursorKeys();
-        this.lights.enable().setAmbientColor(0x333333);
+        this.lights.enable().setAmbientColor(0x111111);
 
         this.scriptedDialogs = [];
 
@@ -75,15 +55,29 @@ export class GameScene extends AnimatedTileSceneBase {
         this.addPhysicsListeners();
 
         this.events.on('characterDeath', this.onCharacterDeath, this);
+        this.events.on(sceneEventConstants.requestObjectPointFollow, this.onRequestObjectPointFollow, this);
+    }
+
+    onRequestObjectPointFollow(character: Character, logicLayerObjectId: string) {
+        console.log("scene will find", logicLayerObjectId);
+        const logicObject = this.map.getObjectLayer('logic')?.objects.find(({id}) => {
+            return id.toString() === logicLayerObjectId
+        });
+
+        if (!logicObject) {
+            return;
+        }
+
+        character.sprite.emit('chase', true, logicObject.x, logicObject.y);
+
     }
 
     onCharacterDeath(character: Character) {
-        console.log("KILLL CHARACTER", character.imageFramePrefix);
+        // console.log("KILLL CHARACTER", character.imageFramePrefix);
         const bloodTileIndexInTilemap = 24;
         const x = character.sprite.x;
         const y = character.sprite.y;
         const bloodTile = this.add.image(x, y, 'tiles', bloodTileIndexInTilemap)
-            .setDepth(y - 5)
             .setOrigin(0.5, 0.5)
             .setScale(0)
             .setTint(0xff0000);
@@ -105,7 +99,7 @@ export class GameScene extends AnimatedTileSceneBase {
 
     jsLogicSetBlackboardVar(key: string, value: unknown) {
 
-        console.log('>>>>>MMM>>>', key, '|', value);
+        // console.log('>>>>>MMM>>>', key, '|', value);
         if (!key) {
             return;
         }
@@ -119,11 +113,11 @@ export class GameScene extends AnimatedTileSceneBase {
         const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim } = d;
 
         if (rulePre) {
-            console.log('RYYYYLE', rulePre);
+            // console.log('RYYYYLE', rulePre);
             const res = jsonLogic.apply(rulePre, this.blackboard);
             if (!res) {
 
-                console.log(":::PREEEE:>>>", res);
+                // console.log(":::PREEEE:>>>", res);
                 if (d.rulePreFail) {
                     return this.processGameDialogue(d.rulePreFail, gameObject, receiver);
                 }
@@ -133,16 +127,17 @@ export class GameScene extends AnimatedTileSceneBase {
 
         if (receiver && d.actor) {
             if (d.actor.events) {
-                console.log('WHHHHHAAAAT?', d.actor);
+                // console.log('WHHHHHAAAAT?', d.actor);
                 d.actor.events.forEach(({ name, value }) => {
                     receiver.emit(name, value);
                 });
             }
         }
 
-        this.character.textBubble.setText(player ?? '');
 
-        this.characterEnemy.textBubble.setText(enemy ?? '');
+        this.character.bark(player);
+        this.characterEnemy.bark(enemy);
+
         if (enemySpeed) {
             this.characterEnemy.lastDirection.x = enemySpeed.x;
             this.characterEnemy.lastDirection.y = enemySpeed.y;
@@ -178,7 +173,7 @@ export class GameScene extends AnimatedTileSceneBase {
                 return this.children.getByName(id);
             }).filter((o) => o !== null);
 
-            console.log("====woooooo", ids, gameObjects);
+            // console.log("====woooooo", ids, gameObjects);
             if (gameObjects.length > 0) {
                 this.tweens.add({
                     targets: gameObjects,
@@ -191,16 +186,12 @@ export class GameScene extends AnimatedTileSceneBase {
 
 
         if (rulePost) {
-            console.log('RYYYYLE POOOOST', rulePost);
+            // console.log('RYYYYLE POOOOST', rulePost);
             const res = jsonLogic.apply(rulePost, this.blackboard);
-            console.log(":::Pooooooost:>>>", res);
+            // console.log(":::Pooooooost:>>>", res);
         }
 
         this.time.delayedCall(2500, () => {
-            this.character.textBubble.setText('');
-
-            this.characterEnemy.textBubble.setText('');
-
             if (newDialogue) {
                 this.scriptedDialogs = newDialogue;
             }
@@ -279,12 +270,12 @@ export class GameScene extends AnimatedTileSceneBase {
 
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
-                    let depth = t.pixelY;
+                    let depth = 0;
                     if (t.properties.wall) {
-                        depth += t.height - 10;
+                        depth += t.pixelY + t.height - 10;
                     }
                     if (t.properties.above) {
-                        depth += t.height * 2;
+                        depth += t.pixelY + t.height * 2;
                     }
                     this.add.image(t.pixelX, t.pixelY, 'tiles', t.index - 1)
                         .setDepth(
@@ -321,18 +312,18 @@ export class GameScene extends AnimatedTileSceneBase {
         this.character = new Character(this, 400, 300, 'walk-NE.png', 'player');
         this.character.controller = new PlayerControlls(this, this.character)
 
-        this.characterEnemy = new Character(this, 400, 300, 'slice-NE.png', 'enemy');
+        this.characterEnemy = new Character(this, 400, 300, 'walk-NE.png', 'enemy');
 
         this.characterEnemy.controller = new ButcherControlls(this, this.characterEnemy);
 
         this.characterEnemy.lastDirection.x = 1;
         this.characterEnemy.lastDirection.y = -1;
 
-        this.characterEnemy.defaultAnimation = 'slice';
+        // this.characterEnemy.defaultAnimation = 'slice';
         this.characterEnemy.moveAnim = 'walk';
 
 
-        this.characterEnemy.myLight.intensity = 0.3;
+        // this.characterEnemy.myLight.intensity = 0.3;
 
         this.cameras.main.fadeIn(2000, 0, 0, 0);
 
@@ -377,6 +368,14 @@ export class GameScene extends AnimatedTileSceneBase {
                     if (o.name === 'enemyStart') {
                         this.characterEnemy.sprite.x = pp.x;
                         this.characterEnemy.sprite.y = pp.y - 50;
+
+
+                        const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
+                        if (onInitEvent) {
+                            this.characterEnemy.setAutoPathFollowSchedule(
+                                (JSON.parse(onInitEvent.value) as GameDialogue).schedule
+                            )
+                        }
                     }
 
                     const isSensor = o.properties?.some(({ name }) => {
@@ -425,7 +424,7 @@ export class GameScene extends AnimatedTileSceneBase {
                 };
                 const objects: CustomTileObject[] = (this.map.getObjectLayer(n)?.objects ?? []) as unknown as CustomTileObject[];
 
-                console.log("objects in ", n, objects);
+                // console.log("objects in ", n, objects);
 
                 objects.forEach((t) => {
                     // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
@@ -437,7 +436,7 @@ export class GameScene extends AnimatedTileSceneBase {
                         .setOrigin(0, 0)
                         .setPipeline('Light2D')
                         .setName(t.id.toString());
-                    console.log("----ID", t.id.toString());
+                    // console.log("----ID", t.id.toString());
 
                     // console.log('-----props', t);
 
@@ -508,7 +507,7 @@ export class GameScene extends AnimatedTileSceneBase {
         let radius = 30; // default for kinematic object
         let objectTween: Record<string, unknown> | undefined = undefined;
         let dialogue = {};
-        console.log("-----------", tile.index, collisionGroup);
+        // console.log("-----------", tile.index, collisionGroup);
 
         for (let i = 0; i < objects.length; i++) {
             const object = objects[i];
@@ -532,7 +531,7 @@ export class GameScene extends AnimatedTileSceneBase {
                 radius = JSON.parse(kinematicRadius.value as number);
             }
 
-            console.log("==========KINEMATIC", isKinematic);
+            // console.log("==========KINEMATIC", isKinematic);
             if (isKinematic) {
                 kinematic = true;
             }
@@ -603,8 +602,8 @@ export class GameScene extends AnimatedTileSceneBase {
     }
 
     update(time: number, delta: number) {
-        this.character.update();
-        this.characterEnemy.update();
+        this.character.update(delta);
+        this.characterEnemy.update(delta);
     }
 }
 

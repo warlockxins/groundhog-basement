@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="11" nextobjectid="37">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="11" nextobjectid="40">
  <editorsettings>
   <export target="../../public/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -361,34 +361,27 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="1616.38" y="3972.09">
+  <object id="8" name="start" x="1618.96" y="4031.71">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="1598.09" y="3770.65">
+   <properties>
+    <property name="onInit">{
+  &quot;schedule&quot;: {
+    &quot;ids&quot;: [&quot;37&quot;, &quot;38&quot;, &quot;39&quot;]
+  }
+}</property>
+   </properties>
    <point/>
   </object>
-  <object id="10" name="triggerEnemyDialogue" x="1602.72" y="3744.99" width="91.8973" height="91.0064">
+  <object id="10" name="triggerEnemyDialogue" x="1800.33" y="3760.46" width="91.8973" height="91.0064">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
-  &quot;enemy&quot;: &quot;Here is a key&quot;,
+  &quot;enemyCanChase&quot;: true,
   &quot;rulePost&quot;: {
      &quot;setVar&quot;: [&quot;talkedToEnemy&quot;, true]
-  },
-  &quot;newDialogue&quot;: [
-  {
-     &quot;enemy&quot;: &quot;Go open the door&quot;,
-     &quot;enemySpeed&quot;:{
-        &quot;x&quot;:-1,
-        &quot;y&quot;:1
-     },
-     &quot;enemyIdle&quot;:&quot;idle&quot;
-  },
-  {
-    &quot;enemy&quot;: &quot;You won't die here ...\n this time&quot;,
-    &quot;enemyCanChase&quot;: true
   }
-]
 }</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
@@ -429,7 +422,7 @@
    </properties>
    <ellipse/>
   </object>
-  <object id="35" name="triggerSawCollapseRight" x="1168.73" y="2092.36" width="128" height="128">
+  <object id="35" name="runToDoor" x="1168.73" y="2092.36" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
@@ -438,6 +431,15 @@
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
+  </object>
+  <object id="37" name="scheduleEnemy1" x="2188.11" y="3532.07">
+   <point/>
+  </object>
+  <object id="38" name="scheduleEnemy3" x="1581" y="3762.01">
+   <point/>
+  </object>
+  <object id="39" name="scheduleEnemy2" x="1308.54" y="3518.3">
+   <point/>
   </object>
  </objectgroup>
  <layer id="6" name="alwaysAbove" width="20" height="40">

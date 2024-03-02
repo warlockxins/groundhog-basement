@@ -30,13 +30,13 @@ import { GameScene } from "./scenes/GameSceneTop";
         antialiasGL: false,
         antialias: false,
         pixelArt: true,
-        roundPixels: true
+        // roundPixels: true
     },
     physics: {
         default: "matter",
         matter: {
             // enableSleeping: true,
-            // debug: true,
+            debug: true,
             gravity: { x: 0, y: 0 },
         }
         

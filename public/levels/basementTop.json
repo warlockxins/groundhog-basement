@@ -721,14 +721,20 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1616.37796752116,
-                 "y":3972.08741896106
+                 "x":1618.96456047636,
+                 "y":4031.71476239556
                 }, 
                 {
                  "height":0,
                  "id":9,
                  "name":"enemyStart",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"onInit",
+                         "type":"string",
+                         "value":"{\n  \"schedule\": {\n    \"ids\": [\"37\", \"38\", \"39\"]\n  }\n}"
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -745,7 +751,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"removeTrigger\":true,\n  \"enemy\": \"Here is a key\",\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  },\n  \"newDialogue\": [\n  {\n     \"enemy\": \"Go open the door\",\n     \"enemySpeed\":{\n        \"x\":-1,\n        \"y\":1\n     },\n     \"enemyIdle\":\"idle\"\n  },\n  {\n    \"enemy\": \"You won't die here ...\\n this time\",\n    \"enemyCanChase\": true\n  }\n]\n}"
+                         "value":"{\n  \"removeTrigger\":true,\n  \"enemyCanChase\": true,\n  \"rulePost\": {\n     \"setVar\": [\"talkedToEnemy\", true]\n  }\n}"
                         }, 
                         {
                          "name":"sensor",
@@ -756,8 +762,8 @@
                  "type":"",
                  "visible":true,
                  "width":91.8972817008353,
-                 "x":1602.71794229309,
-                 "y":3744.99228687789
+                 "x":1800.32942094246,
+                 "y":3760.45753303306
                 }, 
                 {
                  "ellipse":true,
@@ -809,7 +815,7 @@
                  "ellipse":true,
                  "height":128,
                  "id":35,
-                 "name":"triggerSawCollapseRight",
+                 "name":"runToDoor",
                  "properties":[
                         {
                          "name":"onEnter",
@@ -827,6 +833,42 @@
                  "width":128,
                  "x":1168.72727272727,
                  "y":2092.36363636364
+                }, 
+                {
+                 "height":0,
+                 "id":37,
+                 "name":"scheduleEnemy1",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":2188.11491538764,
+                 "y":3532.07398661944
+                }, 
+                {
+                 "height":0,
+                 "id":38,
+                 "name":"scheduleEnemy3",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1580.99613620049,
+                 "y":3762.01407146726
+                }, 
+                {
+                 "height":0,
+                 "id":39,
+                 "name":"scheduleEnemy2",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1308.53994490358,
+                 "y":3518.29988193625
                 }],
          "opacity":1,
          "properties":[
@@ -892,7 +934,7 @@
          "y":0
         }],
  "nextlayerid":11,
- "nextobjectid":37,
+ "nextobjectid":40,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
