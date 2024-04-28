@@ -1,5 +1,6 @@
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
+import { Controlls } from './Controlls';
 
 class CharacterState {
     character: Character;
@@ -150,6 +151,15 @@ export class Character {
         }
     }
 
+    animationDirectionFromSpeed(): string {
+        const y = this.lastDirection.y ?? 0;
+        const xAnimFrame = this.lastDirection.x !== 0 ? 'E' : '';
+        const yAnimFrame = y > 0 ? 'S' : (y < 0 ? 'N' : '');
+        const animDirectionFrameBase = `${yAnimFrame}${xAnimFrame}`;
+        const animDirectionFrame = animDirectionFrameBase !== '' ? `-${animDirectionFrameBase}.png` : '-S.png';
+        return animDirectionFrame;
+    }
+
     update(delta: number) {
         this.sprite.setDepth(this.sprite.y);
 
@@ -165,11 +175,7 @@ export class Character {
 
         const playerVelocity = this.sprite.getVelocity();
 
-        const y = this.lastDirection.y ?? 0;
-        const xAnimFrame = this.lastDirection.x !== 0 ? 'E' : '';
-        const yAnimFrame = y > 0 ? 'S' : (y < 0 ? 'N' : '');
-        const animDirectionFrameBase = `${yAnimFrame}${xAnimFrame}`;
-        const animDirectionFrame = animDirectionFrameBase !== '' ? `-${animDirectionFrameBase}.png` : '-S.png';
+        const animDirectionFrame = this.animationDirectionFromSpeed();
 
         if (playerVelocity.x !== 0 || playerVelocity.y !== 0) {
             this.lastDirection = playerVelocity;
@@ -205,114 +211,4 @@ export class Character {
     }
 }
 
-class Controlls {
-    scene: Phaser.Scene;
-    character: Character;
-    constructor(scene: Phaser.Scene, character: Character) {
-        this.scene = scene;
-        this.character = character;
-    }
 
-    update(delta: number) { }
-}
-
-export class PlayerControlls extends Controlls {
-    update(delta: number) {
-        this.character.sprite.setVelocity(0);
-
-        if (this.character.isDead) return;
-
-        let directionsPressed = false;
-
-        if (this.scene.cursors.left.isDown) {
-            directionsPressed = true;
-            this.character.sprite
-                .setVelocityX(-3);
-        }
-        else if (this.scene.cursors.right.isDown) {
-
-            directionsPressed = true;
-            this.character.sprite
-                .setVelocityX(3);
-        }
-
-        if (this.scene.cursors.up.isDown) {
-
-            directionsPressed = true;
-            this.character.sprite
-                .setVelocityY(-3);
-        }
-        else if (this.scene.cursors.down.isDown) {
-
-            directionsPressed = true;
-            this.character.sprite
-                //.setAngle(-180)
-                .setVelocityY(3);
-        }
-
-        // else if (!directionsPressed && this.scene.cursors.space.isDown && this.character.imageFramePrefix === 'enemy') {
-        //     if (this.character.defaultAnimation !== 'slice') {
-        //         this.character.defaultAnimation = 'slice';
-        //         this.character.sprite.on(Phaser.Animations.Events.ANIMATION_REPEAT, () => {
-        //             this.character.sprite.removeAllListeners();
-        //             this.character.defaultAnimation = 'idle';
-        //         }, this);
-        //
-        //     }
-        // }
-    }
-}
-
-export class ButcherControlls extends Controlls {
-    enemyCanChase: boolean = false;
-    chasePoint: { x: number, y: number } = { x: 0, y: 0 };
-    chaseSprite?: Phaser.Physics.Matter.Sprite;
-
-    constructor(scene: Phaser.Scene, character: Character) {
-        super(scene, character);
-
-        this.character.sprite.on('chase', this.followPoint, this);
-    }
-
-    followPoint(canChase: boolean, x: number, y: number, chaseSprite: Phaser.Physics.Matter.Sprite | undefined) {
-        this.enemyCanChase = canChase;
-        this.chasePoint = { x, y };
-        this.chaseSprite = chaseSprite;
-    }
-
-    update(delta: number) {
-        if (this.enemyCanChase) {
-            // just check if sprite exists/not removed or whatever and update chase point
-            if (this.chaseSprite?.x) {
-                this.chasePoint = {
-                    x: this.chaseSprite.x,
-                    y: this.chaseSprite.y
-                }
-            }
-
-            const dirX = this.chasePoint.x - this.character.sprite.x;
-            const dirY = this.chasePoint.y - this.character.sprite.y;
-
-            if (Math.abs(dirX) > 10) {
-                this.character.sprite.setVelocityX(Math.abs(dirX) / dirX);
-            } else {
-                this.character.sprite.setVelocityX(0);
-            }
-
-            if (Math.abs(dirY) > 10) {
-                this.character.sprite.setVelocityY(Math.abs(dirY) / dirY);
-            } else {
-                this.character.sprite.setVelocityY(0);
-            }
-
-            const dist = Math.sqrt(dirX * dirX + dirY * dirY);
-            if (dist < 50) {
-                this.enemyCanChase = false;
-                this.character.sprite.emit(sceneEventConstants.arrivedAtObjectPoint);
-            }
-        }
-        else {
-            this.character.sprite.setVelocity(0);
-        }
-    }
-}

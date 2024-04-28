@@ -10,9 +10,9 @@ import Phaser from "phaser";
 
 import { LoadScene } from "./scenes/LoadScene";
 import { MenuScene } from "./scenes/MenuScene";
-import { GameScene } from "./scenes/GameSceneTop";
+import { GameSceneTop } from "./scenes/GameSceneTop";
 
- const config: Phaser.Types.Core.GameConfig = {
+const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: 800,
     height: 500,
@@ -36,12 +36,12 @@ import { GameScene } from "./scenes/GameSceneTop";
         default: "matter",
         matter: {
             // enableSleeping: true,
-            debug: true,
+            // debug: true,
             gravity: { x: 0, y: 0 },
         }
-        
+
     },
-    scene: [LoadScene, MenuScene, GameScene],
+    scene: [LoadScene, MenuScene, GameSceneTop],
 };
 
 new Phaser.Game(config);

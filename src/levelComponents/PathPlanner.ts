@@ -23,10 +23,15 @@ export type PathPoint = {
     y: number;
 }
 
+export type EdgeOfPathPoint = Record<string, {
+    to: string, cost: number
+}>
+
+
 export class PathPlanner {
     unvisited: string[];
     vertexes: NavMeshPointMap;
-    edges: any;
+    edges: Record<string, EdgeOfPathPoint[]>;
     pathTable: {};
     visited: any[];
     /**

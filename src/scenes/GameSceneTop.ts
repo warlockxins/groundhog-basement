@@ -4,27 +4,93 @@
 // https://medium.com/@junhongwang/tiled-generated-map-with-phaser-3-d2c16ffe75b6
 import { CST } from "../constants/CST";
 
-import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-// import { NavMesh } from "~/levelComponents/NavMesh";
+// import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
+import { NavMesh, NavMeshPoint, NavMeshPointMap } from "~/levelComponents/NavMesh";
 import jsonLogic from '../jsonLogic';
-import { Character, PlayerControlls, ButcherControlls } from './Character';
+import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
+import { PlayerControlls, ButcherControlls } from './Controlls';
+import { EdgeOfPathPoint, PathPlanner, PathPoint } from '~/levelComponents/PathPlanner';
 
-export class GameScene extends AnimatedTileSceneBase {
+class PawnHandler {
+    characters: Record<string, Character> = {}
 
+    add(key: string, c: Character) {
+        this.characters[key] = c
+    }
+
+    update(_time: number, delta: number) {
+        for (const c of Object.values(this.characters)) {
+            c.update(delta)
+        }
+    }
+}
+
+type SceneNavigationMesh = {
+    vertices: NavMeshPointMap;
+    edges: Record<string, EdgeOfPathPoint[]>;
+}
+
+class NavMeshSceneTop {
+    mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
+    edges: Record<string, EdgeOfPathPoint[]> = {};
+
+    waypoints: Record<string, {
+        x: number, y: number,
+        size: number
+    }> = {};
+
+
+    getPath(from: PathPoint, to: PathPoint) {
+        const planner = new PathPlanner(
+            new Map(Object.entries(this.waypoints)),
+            this.edges
+        );
+
+        // const result = planner.execute(start, end)
+
+        return {
+            from: this.closest(from),
+            to: this.closest(to)
+        }
+
+    }
+
+    closest(p: PathPoint): string | null {
+        let minDistance = 10000000;
+        let closestPoint: string | null = null;
+        for (let a in this.waypoints) {
+            const distance = Math.sqrt((p.x - this.waypoints[a].x) * (p.x - this.waypoints[a].x) + (p.y - this.waypoints[a].y) * (p.y - this.waypoints[a].y));
+
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPoint = a;
+            }
+        }
+        return closestPoint;
+    }
+
+}
+
+export class GameSceneTop extends Phaser.Scene {
+
+    map!: Phaser.Tilemaps.Tilemap;
     // navMesh!: NavMesh;
 
-    graphics: Phaser.GameObjects.Graphics;
+    graphics!: Phaser.GameObjects.Graphics;
     // controls: Phaser.Cameras.Controls.SmoothedKeyControl;
     visualLayers: Phaser.Tilemaps.TilemapLayer[] = [];
-    tileHalfHeight: number;
-    character: Character;
-    characterEnemy: Character;
-    scriptedDialogs: GameDialogue[];
+    scriptedDialogs: GameDialogue[] = [];
 
     blackboard: Record<string, unknown> = {};
-    cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    tileset!: Phaser.Tilemaps.Tileset;
+
+    pawnHandler = new PawnHandler();
+
+    navMesh = new NavMeshSceneTop()
+    pathEnd: { x: number; y: number; };
+    pathStart: { x: number; y: number; };
 
     constructor() {
         super({
@@ -32,23 +98,60 @@ export class GameScene extends AnimatedTileSceneBase {
         });
     }
 
-    init(data) {
-        console.log("data passed to this scene", data);
+    init(sceneMessagePayload: any) {
+        console.log("data passed to this scene", sceneMessagePayload);
     }
 
     preload() {
     }
 
+    showWaypoints() {
+        console.log(">>>>>>", this.navMesh.waypoints);
+        const graphics = this.add.graphics({ lineStyle: { color: 0xff0000 } });
+        let maxDepth = 0;
+        for (const w of Object.values(this.navMesh.waypoints)) {
+            const circle = new Phaser.Geom.Circle(0, 0, 5);
+            // circle.setPosition(w.x + w.size / 2, w.y + w.size / 2);
+            //
+            circle.setPosition(w.x, w.y);
+
+            graphics.strokeCircleShape(circle);
+            maxDepth = Math.max(maxDepth, w.y)
+        }
+
+        console.time("start rude nav path");
+
+        const toDrawPAth = this.navMesh.getPath(this.pathStart, this.pathEnd);
+
+        console.timeEnd("start rude nav path");
+        console.log("goooooooooooo", toDrawPAth);
+        if (toDrawPAth.from && toDrawPAth.to) {
+
+            console.time("queryPoints");
+            const p1 = this.navMesh.waypoints[toDrawPAth.from]
+            const p2 = this.navMesh.waypoints[toDrawPAth.to]
+            const bodies = this.matter.intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
+                // @ts-ignore    here we know for a fact these parameters exist
+                .filter((b) => !b.isSensor && b.isStatic);
+
+            console.timeEnd("queryPoints");
+            console.log("bodies ------", bodies);
+        }
+        setTimeout(() => {
+            // const line = new Phaser.Geom.Line(toDrawPAth.to.
+        }, 300)
+
+        graphics.setDepth(maxDepth + 10);
+
+    }
     create() {
-        this.addLevelFloorAndLights();
+        this.addLevelFloorAndLightsGetWaypoints();
+
+        this.showWaypoints();
 
         // this.createAnimatedTiles();
         this.cameras.main.setOrigin(0.1, 1);
-
-        this.cursors = this.input.keyboard.createCursorKeys();
         this.lights.enable().setAmbientColor(0x111111);
-
-        this.scriptedDialogs = [];
 
         jsonLogic.rm_operation('setVar');
         jsonLogic.add_operation('setVar', this.jsLogicSetBlackboardVar.bind(this));
@@ -59,8 +162,8 @@ export class GameScene extends AnimatedTileSceneBase {
     }
 
     onRequestObjectPointFollow(character: Character, logicLayerObjectId: string) {
-        console.log("scene will find", logicLayerObjectId);
-        const logicObject = this.map.getObjectLayer('logic')?.objects.find(({id}) => {
+        // console.log("scene will find", logicLayerObjectId);
+        const logicObject = this.map.getObjectLayer('logic')?.objects.find(({ id }) => {
             return id.toString() === logicLayerObjectId
         });
 
@@ -134,28 +237,30 @@ export class GameScene extends AnimatedTileSceneBase {
             }
         }
 
+        const playerPawn = this.pawnHandler.characters['player'];
+        playerPawn.bark(player);
 
-        this.character.bark(player);
-        this.characterEnemy.bark(enemy);
+        const enemyPawn = this.pawnHandler.characters['butcher'];
+        enemyPawn.bark(enemy);
 
         if (enemySpeed) {
-            this.characterEnemy.lastDirection.x = enemySpeed.x;
-            this.characterEnemy.lastDirection.y = enemySpeed.y;
+            enemyPawn.lastDirection.x = enemySpeed.x;
+            enemyPawn.lastDirection.y = enemySpeed.y;
         }
         if (enemyIdle) {
-            this.characterEnemy.defaultAnimation = enemyIdle;
+            enemyPawn.defaultAnimation = enemyIdle;
         }
 
         if (enemyCanChase !== undefined) {
-            const { sprite } = this.character;
-            this.characterEnemy.sprite.emit('chase', !!enemyCanChase, sprite.x, sprite.y, sprite);
+            const { sprite } = playerPawn;
+            enemyPawn.sprite.emit('chase', !!enemyCanChase, sprite.x, sprite.y, sprite);
         }
         if (playerTexture) {
-            this.character.imageFramePrefix = playerTexture;
+            playerPawn.imageFramePrefix = playerTexture;
         }
 
         if (playerMoveAnim) {
-            this.character.moveAnim = playerMoveAnim;
+            playerPawn.moveAnim = playerMoveAnim;
         }
 
         if (gameObject?.body && d.changeTileGameObjectToId !== undefined) {
@@ -251,7 +356,7 @@ export class GameScene extends AnimatedTileSceneBase {
         });
     }
 
-    addLevelFloorAndLights() {
+    addLevelFloorAndLightsGetWaypoints() {
 
         this.map = this.add.tilemap("map");
         //
@@ -262,7 +367,6 @@ export class GameScene extends AnimatedTileSceneBase {
             "tiles"
         );
 
-
         this.map.layers.forEach((l, layerIndex) => {
             const hasTileCollisions = l.properties.find(({ name, value }) => {
                 return name === 'physics' && value === true;
@@ -270,6 +374,20 @@ export class GameScene extends AnimatedTileSceneBase {
 
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
+
+                    const wayPointKey = `${t.pixelX}_${t.pixelY}`;
+                    // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
+                    // Note - probably need to move into separate function
+                    if (!t.properties.above) {
+                        if (!this.navMesh.waypoints[wayPointKey]) {
+                            this.navMesh.waypoints[wayPointKey] = {
+                                x: t.pixelX + t.width / 2,
+                                y: t.pixelY + t.height / 2,
+                                size: t.width,
+                            }
+                        }
+                    }
+
                     let depth = 0;
                     if (t.properties.wall) {
                         depth += t.pixelY + t.height - 10;
@@ -309,27 +427,11 @@ export class GameScene extends AnimatedTileSceneBase {
 
 
 
-        this.character = new Character(this, 400, 300, 'walk-NE.png', 'player');
-        this.character.controller = new PlayerControlls(this, this.character)
-
-        this.characterEnemy = new Character(this, 400, 300, 'walk-NE.png', 'enemy');
-
-        this.characterEnemy.controller = new ButcherControlls(this, this.characterEnemy);
-
-        this.characterEnemy.lastDirection.x = 1;
-        this.characterEnemy.lastDirection.y = -1;
-
-        // this.characterEnemy.defaultAnimation = 'slice';
-        this.characterEnemy.moveAnim = 'walk';
-
-
-        // this.characterEnemy.myLight.intensity = 0.3;
 
         this.cameras.main.fadeIn(2000, 0, 0, 0);
 
 
         this.cameras.main.setZoom(0.5);
-        this.cameras.main.startFollow(this.character.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
         this.cameras.main.zoomTo(1);
         // ---------
         this.map.getObjectLayerNames().forEach(n => {
@@ -346,56 +448,9 @@ export class GameScene extends AnimatedTileSceneBase {
 
                 });
             } else if (n === 'logic') {
-                const currLayer = this.map.getObjectLayer(n);
-                if (!currLayer) {
-                    return
-                }
-                if (currLayer.properties) {
-                    const blackboard = currLayer.properties.find(({ name }) => name === 'blackboard')
-
-                    this.blackboard = JSON.parse(blackboard.value);
-                }
-
-                currLayer.objects.forEach(o => {
-                    const pp = o;
-
-                    if (o.name === 'start') {
-                        this.character.sprite.x = pp.x;
-                        this.character.sprite.y = pp.y;
-
-                        this.cameras.main.centerOn(pp.x, pp.y);
-                    }
-                    if (o.name === 'enemyStart') {
-                        this.characterEnemy.sprite.x = pp.x;
-                        this.characterEnemy.sprite.y = pp.y - 50;
-
-
-                        const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
-                        if (onInitEvent) {
-                            this.characterEnemy.setAutoPathFollowSchedule(
-                                (JSON.parse(onInitEvent.value) as GameDialogue).schedule
-                            )
-                        }
-                    }
-
-                    const isSensor = o.properties?.some(({ name }) => {
-                        return name === 'sensor'
-                    });
-                    if (isSensor) {
-                        const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
-                        physicsOptions.isSensor = true;
-                        const onEnterEvent = o.properties.find(({ name }) => name === 'onEnter');
-
-                        if (onEnterEvent?.value) {
-                            physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
-                            this.matter.add.circle(
-                                pp.x, pp.y, o.width ?? 30,
-                                { ignoreGravity: true, isStatic: true, ...physicsOptions }
-                            );
-                        }
-                    }
-                });
-
+                this.processLogicLayerObjects(
+                    this.map.getObjectLayer(n)
+                );
             }
             else if (n === 'tileLogic') {
 
@@ -484,6 +539,115 @@ export class GameScene extends AnimatedTileSceneBase {
         });
     }
 
+    processLogicLayerObjects(currLayer: Phaser.Tilemaps.ObjectLayer | null) {
+        if (!currLayer) {
+            return
+        }
+
+        if (currLayer.name !== 'logic') {
+            throw "passed incorrect layer to 'Logic' object processor"
+        }
+        if (currLayer.properties) {
+            // layer properties is actually an array of name to value objects
+
+            /**
+             * @typedef {Object} layerObjectPropItem
+             * @property {string} name - property name, hoping to get Blackboard
+             * @protected {string} value - of a blackboard in Json string, needs to be parsed
+             */
+
+            /**
+             * @type { LogicLayerObjectPropItem[] }
+             */
+            const properties = currLayer.properties as Record<string, string>[];
+            const blackboard = properties.find(({ name }) => name === 'blackboard')
+            if (!blackboard) {
+                throw "Logic layer doesn't have Blackboard property - a json object"
+            }
+
+            this.blackboard = JSON.parse(blackboard.value);
+        }
+
+        currLayer.objects.forEach(o => {
+            const pp = o;
+
+            if (o.name === 'start') {
+                this.spawnPlayableCharacter(o);
+            }
+            if (o.name === 'enemyStart') {
+                this.spawnNonPlayableCharacter(o);
+
+            }
+
+            const isSensor = o.properties?.some(({ name }) => {
+                return name === 'sensor'
+            });
+            if (isSensor) {
+                const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
+                physicsOptions.isSensor = true;
+                const onEnterEvent = o.properties.find(({ name }) => name === 'onEnter');
+
+                if (onEnterEvent?.value) {
+                    physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
+                    this.matter.add.circle(
+                        pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
+                        { ignoreGravity: true, isStatic: true, ...physicsOptions }
+                    );
+                }
+            }
+        });
+    }
+
+    spawnNonPlayableCharacter(o: Phaser.Types.Tilemaps.TiledObject) {
+        if (o.name !== 'enemyStart') {
+            throw "Not spawning from correct Logic TiledObject, expecting 'enemyStart'"
+        }
+
+        const pawn = new Character(this, o.x ?? 0, (o.y ?? 0) - 50, 'walk-NE.png', 'enemy');
+        pawn.controller = new ButcherControlls(this, pawn);
+        pawn.lastDirection.x = 1;
+        pawn.lastDirection.y = -1;
+        pawn.moveAnim = 'walk';
+        this.pawnHandler.add('butcher', pawn);
+
+        const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
+        if (onInitEvent) {
+            pawn.setAutoPathFollowSchedule(
+                (JSON.parse(onInitEvent.value) as GameDialogue).schedule
+            )
+        }
+
+
+        this.pathEnd = { x: o.x ?? 0, y: o.y ?? 0 }
+    }
+
+    spawnPlayableCharacter(o: Phaser.Types.Tilemaps.TiledObject) {
+        if (o.name !== 'start') {
+            throw "Not spawning from correct Logic TiledObject, expecting 'start'"
+        }
+
+        const pawn = new Character(this, o.x ?? 0, o.y ?? 0, 'walk-NE.png', 'player');
+        pawn.controller = new PlayerControlls(this, pawn)
+
+        this.pawnHandler.add('player', pawn);
+
+        this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
+        this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
+
+
+        this.pathStart = { x: o.x ?? 0, y: o.y ?? 0 }
+    }
+
+    /*
+     * @description Check if tile has any sub objects that contain collision shape information. Disregarding if sensor or anything else
+    */
+    tileHasCollisions(tile: {
+        index: number
+    }) {
+        const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
+        // @ts-ignore
+        return !(!collisionGroup || collisionGroup.objects.length === 0)
+    }
     makeTileCollision(tile: {
         index: number,
         pixelX: number,
@@ -491,14 +655,12 @@ export class GameScene extends AnimatedTileSceneBase {
         allowStatic: boolean
     }, objectProps: { name: string, value: string | boolean }[] = []): { dialogue: Record<string, unknown>, bodyParts: MatterJS.BodyType[], kinematic: boolean, radius: number, tween?: Record<string, unknown> } | null {
         const tileWorldPos = tile;
+
+        if (!this.tileHasCollisions(tile)) {
+            return null;
+        }
+
         const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
-        if (!collisionGroup || collisionGroup.objects.length === 0) { return null; }
-
-        if (collisionGroup.properties && collisionGroup.properties.isInteractive) {
-        }
-        else {
-        }
-
         const bodyParts: MatterJS.BodyType[] = [];
         // The group will have an array of objects - these are the individual collision shapes
         const objects = collisionGroup.objects;
@@ -602,8 +764,7 @@ export class GameScene extends AnimatedTileSceneBase {
     }
 
     update(time: number, delta: number) {
-        this.character.update(delta);
-        this.characterEnemy.update(delta);
+        this.pawnHandler.update(time, delta);
     }
 }
 
