@@ -41,6 +41,50 @@ class NavMeshSceneTop {
         size: number
     }> = {};
 
+    getOrCreateEdgePathPointList(key: string) {
+        if (!this.edges[key]) {
+            this.edges[key] = [];
+        }
+        return this.edges[key];
+    }
+    calculatePointEdges(scene: Phaser.Scene) {
+        for (const [key, wp] of Object.entries(this.waypoints)) {
+            const wayPointKeyTop = `${wp.x}_${wp.y - wp.size}`;
+            const wayPointKeyRight = `${wp.x + wp.size}_${wp.y}`;
+            this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
+            this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
+        }
+
+        console.log("EDGES---", this.edges);
+    }
+
+    tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: string, keyTo: string) {
+        if (!this.waypoints[keyTo]) {
+            return
+        }
+
+        const p1 = this.waypoints[keyFrom];
+        const p2 = this.waypoints[keyTo];
+        const bodies = scene.matter.intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
+            // @ts-ignore    here we know for a fact these parameters exist, only interested in static objects, as path goes between WALLS
+            .filter((b) => !b.isSensor && b.isStatic);
+
+        // path is free to walk
+        if (bodies.length === 0) {
+            this.getOrCreateEdgePathPointList(keyFrom).push(
+                {
+                    to: keyTo, cost: 1
+                }
+            )
+
+            this.getOrCreateEdgePathPointList(keyTo).push(
+                {
+                    to: keyFrom, cost: 1
+                }
+            )
+        }
+    }
+
 
     getPath(from: PathPoint, to: PathPoint) {
         const planner = new PathPlanner(
@@ -48,13 +92,19 @@ class NavMeshSceneTop {
             this.edges
         );
 
-        // const result = planner.execute(start, end)
+        let fromKey = this.closest(from);
+        let toKey = this.closest(to);
 
-        return {
-            from: this.closest(from),
-            to: this.closest(to)
+        if (!fromKey || !toKey) {
+            return null;
         }
+        const result = planner.execute(
+            fromKey,
+            toKey
+        );
 
+        console.log("=======>>>>>>> path", result);
+        return result;
     }
 
     closest(p: PathPoint): string | null {
@@ -107,39 +157,57 @@ export class GameSceneTop extends Phaser.Scene {
 
     showWaypoints() {
         console.log(">>>>>>", this.navMesh.waypoints);
+        this.navMesh.calculatePointEdges(this);
+
         const graphics = this.add.graphics({ lineStyle: { color: 0xff0000 } });
         let maxDepth = 0;
         for (const w of Object.values(this.navMesh.waypoints)) {
             const circle = new Phaser.Geom.Circle(0, 0, 5);
-            // circle.setPosition(w.x + w.size / 2, w.y + w.size / 2);
-            //
             circle.setPosition(w.x, w.y);
-
             graphics.strokeCircleShape(circle);
             maxDepth = Math.max(maxDepth, w.y)
         }
 
-        console.time("start rude nav path");
 
-        const toDrawPAth = this.navMesh.getPath(this.pathStart, this.pathEnd);
+        for (const edgeFromPointKey in this.navMesh.edges) {
+            const from = this.navMesh.waypoints[edgeFromPointKey];
 
-        console.timeEnd("start rude nav path");
-        console.log("goooooooooooo", toDrawPAth);
-        if (toDrawPAth.from && toDrawPAth.to) {
-
-            console.time("queryPoints");
-            const p1 = this.navMesh.waypoints[toDrawPAth.from]
-            const p2 = this.navMesh.waypoints[toDrawPAth.to]
-            const bodies = this.matter.intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
-                // @ts-ignore    here we know for a fact these parameters exist
-                .filter((b) => !b.isSensor && b.isStatic);
-
-            console.timeEnd("queryPoints");
-            console.log("bodies ------", bodies);
+            for (const e of this.navMesh.edges[edgeFromPointKey]) {
+                const to = this.navMesh.waypoints[e.to];
+                const l = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
+                graphics.strokeLineShape(l);
+            }
         }
-        setTimeout(() => {
-            // const line = new Phaser.Geom.Line(toDrawPAth.to.
-        }, 300)
+
+        // TODO - move this to character follow
+        const playerPos = this.pawnHandler.characters['player'].sprite;
+        const butcherPos = this.pawnHandler.characters['butcher'].sprite;
+        const pathGraphics = this.add.graphics({ lineStyle: { color: 0x00ff00 } });
+
+
+        setInterval(() => {
+
+            // const playerPos = this.pawnHandler.characters['player'].sprite;
+            // const butcherPos = this.pawnHandler.characters['butcher'].sprite;
+            const toDrawPAth = this.navMesh.getPath(playerPos, butcherPos);
+
+            pathGraphics.clear();
+            if (toDrawPAth) {
+
+                let lastPoint: NavMeshPoint | null = null
+                for (const p of toDrawPAth) {
+                    if (lastPoint) {
+                        const l = new Phaser.Geom.Line(lastPoint.x, lastPoint.y, p.x, p.y);
+                        pathGraphics.strokeLineShape(l);
+                    }
+                    lastPoint = p;
+                }
+
+            }
+
+        }, 2000);
+
+        pathGraphics.setDepth(maxDepth + 10);
 
         graphics.setDepth(maxDepth + 10);
 
@@ -375,7 +443,8 @@ export class GameSceneTop extends Phaser.Scene {
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
 
-                    const wayPointKey = `${t.pixelX}_${t.pixelY}`;
+                    // Todo key gen should be in navmesh
+                    const wayPointKey = `${t.pixelX + t.width / 2}_${t.pixelY + t.height / 2}`;
                     // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
                     // Note - probably need to move into separate function
                     if (!t.properties.above) {
@@ -383,7 +452,7 @@ export class GameSceneTop extends Phaser.Scene {
                             this.navMesh.waypoints[wayPointKey] = {
                                 x: t.pixelX + t.width / 2,
                                 y: t.pixelY + t.height / 2,
-                                size: t.width,
+                                size: t.width, // needed to calculate neighbour position
                             }
                         }
                     }

@@ -23,10 +23,9 @@ export type PathPoint = {
     y: number;
 }
 
-export type EdgeOfPathPoint = Record<string, {
+export type EdgeOfPathPoint = {
     to: string, cost: number
-}>
-
+}
 
 export class PathPlanner {
     unvisited: string[];
@@ -137,7 +136,8 @@ export class PathPlanner {
         }
         const p = path.reverse();
 
-        return simplifyPath(p);
+        return p;
+        // return simplifyPath(p);
     }
 
     execute(from: string, to: string): NavMeshPoint[] {

@@ -361,10 +361,10 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="1755.24" y="3815.2">
+  <object id="8" name="start" x="828.556" y="4272.49">
    <point/>
   </object>
-  <object id="9" name="enemyStart" x="1598.09" y="3770.65">
+  <object id="9" name="enemyStart" x="1590.27" y="3543.85">
    <properties>
     <property name="onInit">{
   &quot;schedule&quot;: {

@@ -16,8 +16,8 @@ export function simplifyPath(p) {
             const newP = p[i - 1];
             if (sameYAsPrev) {
                 newP.navLabel = 0; // walk - navLabelType 
-            } 
-            if (p[i-1].y > p[i].y){
+            }
+            if (p[i - 1].y > p[i].y) {
                 newP.navLabel = 1; // jump
             }
             newPath.push(newP);

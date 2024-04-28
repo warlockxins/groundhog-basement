@@ -73,7 +73,7 @@
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="4.25876" y="115.412">
-    <polygon points="0,0 96.248,14.0539 128.189,-32.7925 21.2938,-56.6415"/>
+    <polygon points="0,0 96.248,14.0539 128.189,-32.7925 16.8828,-36.5914"/>
    </object>
   </objectgroup>
  </tile>
@@ -83,7 +83,7 @@
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="23.6625" y="109.404">
-    <polygon points="0,0 44.8195,17.8164 90.4741,0.835146 91.3093,-31.1788 45.0979,-44.8195 -0.278382,-33.9626"/>
+    <polygon points="0,0 44.8195,17.8164 90.4741,0.835146 85.6953,-20.7527 40.2859,-35.1954 -0.278382,-26.3436"/>
    </object>
   </objectgroup>
  </tile>
