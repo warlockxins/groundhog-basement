@@ -181,7 +181,9 @@ export class GameSceneTop extends Phaser.Scene {
 
         // TODO - move this to character follow
         const playerPos = this.pawnHandler.characters['player'].sprite;
-        const butcherPos = this.pawnHandler.characters['butcher'].sprite;
+
+        const butcher = this.pawnHandler.characters['butcher'];
+        const butcherPos = butcher.sprite;
         const pathGraphics = this.add.graphics({ lineStyle: { color: 0x00ff00 } });
 
 
@@ -193,13 +195,15 @@ export class GameSceneTop extends Phaser.Scene {
 
             pathGraphics.clear();
             if (toDrawPAth) {
+                butcher.setAutoPathFollowSchedule(toDrawPAth);
+                let lastPoint: NavMeshPoint | null = null;
 
-                let lastPoint: NavMeshPoint | null = null
                 for (const p of toDrawPAth) {
                     if (lastPoint) {
                         const l = new Phaser.Geom.Line(lastPoint.x, lastPoint.y, p.x, p.y);
                         pathGraphics.strokeLineShape(l);
                     }
+
                     lastPoint = p;
                 }
 
@@ -226,22 +230,25 @@ export class GameSceneTop extends Phaser.Scene {
         this.addPhysicsListeners();
 
         this.events.on('characterDeath', this.onCharacterDeath, this);
-        this.events.on(sceneEventConstants.requestObjectPointFollow, this.onRequestObjectPointFollow, this);
+        // this.events.on(sceneEventConstants.requestObjectPointFollow, this.onRequestObjectPointFollow, this);
     }
 
-    onRequestObjectPointFollow(character: Character, logicLayerObjectId: string) {
-        // console.log("scene will find", logicLayerObjectId);
+    getLogicObjectFromLayer(logicLayerObjectId: string) {
         const logicObject = this.map.getObjectLayer('logic')?.objects.find(({ id }) => {
             return id.toString() === logicLayerObjectId
         });
-
-        if (!logicObject) {
-            return;
-        }
-
-        character.sprite.emit('chase', true, logicObject.x, logicObject.y);
-
+        return logicObject;
     }
+
+    // onRequestObjectPointFollow(character: Character, logicLayerObjectId: string) {
+    //     const logicObject = this.getLogicObjectFromLayer(logicLayerObjectId);
+    //     if (!logicObject) {
+    //         return;
+    //     }
+    //
+    //     character.sprite.emit('chase', true, logicObject.x, logicObject.y);
+    //
+    // }
 
     onCharacterDeath(character: Character) {
         // console.log("KILLL CHARACTER", character.imageFramePrefix);
@@ -681,8 +688,24 @@ export class GameSceneTop extends Phaser.Scene {
 
         const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
         if (onInitEvent) {
+            const scheduleIds = (JSON.parse(onInitEvent.value) as GameDialogue).schedule?.ids ?? [];
+
+            const schedulePointsOrNull: (NavMeshPoint | null)[] = scheduleIds.map((id: string) => {
+                const logicObject = this.getLogicObjectFromLayer(id);
+                if (!logicObject) {
+                    return null;
+                }
+
+                return {
+                    x: logicObject.x ?? 0,
+                    y: logicObject.y ?? 0,
+                }
+            });
+
+
             pawn.setAutoPathFollowSchedule(
-                (JSON.parse(onInitEvent.value) as GameDialogue).schedule
+                schedulePointsOrNull
+                    .filter(o => o !== null) as NavMeshPoint[]
             )
         }
 

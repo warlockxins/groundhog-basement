@@ -134,9 +134,8 @@ export class PathPlanner {
             }
             currentNode = this.pathTable[currentNode].from;
         }
-        const p = path.reverse();
 
-        return p;
+        return path;
         // return simplifyPath(p);
     }
 

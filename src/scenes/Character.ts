@@ -1,6 +1,7 @@
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
 import { Controlls } from './Controlls';
+import { NavMeshPoint } from '~/levelComponents/NavMesh';
 
 class CharacterState {
     character: Character;
@@ -19,7 +20,7 @@ class CharacterWithControllerState extends CharacterState {
 }
 
 class CharacterWithGoToScheduledPointState extends CharacterState {
-    ids: string[] = [];
+    autoFollowPathPoints: NavMeshPoint[] = [];
     currentPointIndex = -1;
 
     constructor(character: Character) {
@@ -29,25 +30,42 @@ class CharacterWithGoToScheduledPointState extends CharacterState {
     }
 
     pickNextPoint() {
-        if (!this.ids.length) {
+        if (!this.autoFollowPathPoints.length) {
             return;
         }
 
+
+
         this.currentPointIndex += 1;
-        if (this.currentPointIndex >= this.ids.length) {
+        if (this.currentPointIndex >= this.autoFollowPathPoints.length) {
             // Todo: add if neeed to loop
             // Todo: if no loop, notify parent
 
             this.currentPointIndex = 0;
         }
-        const idToFollow = this.ids[this.currentPointIndex];
 
-        this.character.sprite.scene.events.emit(sceneEventConstants.requestObjectPointFollow, this.character, idToFollow);
+        const point = this.autoFollowPathPoints[this.currentPointIndex];
+        if (point) {
+            this.character.sprite.emit('chase', true, point.x, point.y);
+        } {
+            console.log("not finding path");
+        }
+        // this.character.sprite.on('chase', this.followPoint, this);
+        // const idToFollow = this.autoFollowPathPoints[this.currentPointIndex];
+
+        // this.character.sprite.scene.events.emit(sceneEventConstants.requestObjectPointFollow, this.character, idToFollow);
 
     }
 
-    setIds(ids: string[]) {
-        this.ids = ids ?? [];
+    setAutoFollowPathPoints(ids: NavMeshPoint[]) {
+        this.autoFollowPathPoints = ids ?? [];
+
+        if (this.autoFollowPathPoints.length > 0) {
+            this.autoFollowPathPoints[0] = {
+                x: this.character.sprite.x,
+                y: this.character.sprite.y
+            }
+        }
         this.currentPointIndex = -1;
     }
 
@@ -112,13 +130,9 @@ export class Character {
         this.sprite.on('damage', this.onDamage, this)
     }
 
-    setAutoPathFollowSchedule(autoPathFollowSchedule: GameDialogue['schedule']) {
-        if (!autoPathFollowSchedule?.ids?.length) {
-            return;
-        }
-
+    setAutoPathFollowSchedule(autoPathFollowSchedule: NavMeshPoint[]) {
         const followPointState = new CharacterWithGoToScheduledPointState(this);
-        followPointState.setIds(autoPathFollowSchedule.ids);
+        followPointState.setAutoFollowPathPoints(autoPathFollowSchedule);
 
         this.currentState = followPointState;
     }
