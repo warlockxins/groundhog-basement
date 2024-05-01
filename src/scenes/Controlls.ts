@@ -15,7 +15,7 @@ export class Controlls {
 export class ButcherControlls extends Controlls {
     enemyCanChase: boolean = false;
     chasePoint: { x: number, y: number } = { x: 0, y: 0 };
-    chaseSprite?: Phaser.Physics.Matter.Sprite;
+    // chaseSprite?: Phaser.Physics.Matter.Sprite;
 
     constructor(scene: Phaser.Scene, character: Character) {
         super(scene, character);
@@ -23,21 +23,21 @@ export class ButcherControlls extends Controlls {
         this.character.sprite.on('chase', this.followPoint, this);
     }
 
-    followPoint(canChase: boolean, x: number, y: number, chaseSprite: Phaser.Physics.Matter.Sprite | undefined) {
+    followPoint(canChase: boolean, x: number, y: number) {
         this.enemyCanChase = canChase;
         this.chasePoint = { x, y };
-        this.chaseSprite = chaseSprite;
+        // this.chaseSprite = chaseSprite;
     }
 
     update(delta: number) {
         if (this.enemyCanChase) {
             // just check if sprite exists/not removed or whatever and update chase point
-            if (this.chaseSprite?.x) {
-                this.chasePoint = {
-                    x: this.chaseSprite.x,
-                    y: this.chaseSprite.y
-                }
-            }
+            // if (this.chaseSprite?.x) {
+            //     this.chasePoint = {
+            //         x: this.chaseSprite.x,
+            //         y: this.chaseSprite.y
+            //     }
+            // }
 
             const dirX = this.chasePoint.x - this.character.sprite.x;
             const dirY = this.chasePoint.y - this.character.sprite.y;

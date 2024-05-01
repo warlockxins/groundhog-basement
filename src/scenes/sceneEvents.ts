@@ -1,5 +1,5 @@
 export const sceneEventConstants = {
-    requestObjectPointFollow: 'requestObjectPointFollow',
+    requestCharacterFollowPath: 'requestCharacterFollowPath',
     arrivedAtObjectPoint: 'arrivedAtObjectPoint'
 };
 

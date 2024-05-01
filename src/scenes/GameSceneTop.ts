@@ -139,8 +139,6 @@ export class GameSceneTop extends Phaser.Scene {
     pawnHandler = new PawnHandler();
 
     navMesh = new NavMeshSceneTop()
-    pathEnd: { x: number; y: number; };
-    pathStart: { x: number; y: number; };
 
     constructor() {
         super({
@@ -180,22 +178,22 @@ export class GameSceneTop extends Phaser.Scene {
         }
 
         // TODO - move this to character follow
-        const playerPos = this.pawnHandler.characters['player'].sprite;
-
         const butcher = this.pawnHandler.characters['butcher'];
-        const butcherPos = butcher.sprite;
         const pathGraphics = this.add.graphics({ lineStyle: { color: 0x00ff00 } });
 
 
         setInterval(() => {
+            // @ts-ignore
+            if (!(butcher.currentState?.autoFollowPathPoints)) {
+                return;
+            }
 
-            // const playerPos = this.pawnHandler.characters['player'].sprite;
-            // const butcherPos = this.pawnHandler.characters['butcher'].sprite;
-            const toDrawPAth = this.navMesh.getPath(playerPos, butcherPos);
+            // @ts-ignore
+            const toDrawPAth = butcher.currentState.autoFollowPathPoints;
 
+            // debugger
             pathGraphics.clear();
             if (toDrawPAth) {
-                butcher.setAutoPathFollowSchedule(toDrawPAth);
                 let lastPoint: NavMeshPoint | null = null;
 
                 for (const p of toDrawPAth) {
@@ -209,7 +207,7 @@ export class GameSceneTop extends Phaser.Scene {
 
             }
 
-        }, 2000);
+        }, 1000);
 
         pathGraphics.setDepth(maxDepth + 10);
 
@@ -230,7 +228,7 @@ export class GameSceneTop extends Phaser.Scene {
         this.addPhysicsListeners();
 
         this.events.on('characterDeath', this.onCharacterDeath, this);
-        // this.events.on(sceneEventConstants.requestObjectPointFollow, this.onRequestObjectPointFollow, this);
+        this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
     }
 
     getLogicObjectFromLayer(logicLayerObjectId: string) {
@@ -240,15 +238,22 @@ export class GameSceneTop extends Phaser.Scene {
         return logicObject;
     }
 
-    // onRequestObjectPointFollow(character: Character, logicLayerObjectId: string) {
-    //     const logicObject = this.getLogicObjectFromLayer(logicLayerObjectId);
-    //     if (!logicObject) {
-    //         return;
-    //     }
-    //
-    //     character.sprite.emit('chase', true, logicObject.x, logicObject.y);
-    //
-    // }
+    onRequestCharacterFollowPath(character: Character, characterId: string) {
+        const pawn = this.pawnHandler.characters[characterId];
+        if (!pawn) {
+            // Todo - inform characterPawn: path finished/not found
+            return;
+        }
+        if (pawn === character) {
+            return
+        }
+
+        // debugger
+
+        // console.log("======>>>>", character.sprite, pawn.sprite);
+        const toDrawPAth = this.navMesh.getPath(pawn.sprite, character.sprite) || [];
+        character.setAutoPathFollowSchedule(toDrawPAth);
+    }
 
     onCharacterDeath(character: Character) {
         // console.log("KILLL CHARACTER", character.imageFramePrefix);
@@ -328,7 +333,7 @@ export class GameSceneTop extends Phaser.Scene {
 
         if (enemyCanChase !== undefined) {
             const { sprite } = playerPawn;
-            enemyPawn.sprite.emit('chase', !!enemyCanChase, sprite.x, sprite.y, sprite);
+            enemyPawn.sprite.emit('chase', !!enemyCanChase, sprite.x, sprite.y);
         }
         if (playerTexture) {
             playerPawn.imageFramePrefix = playerTexture;
@@ -685,6 +690,7 @@ export class GameSceneTop extends Phaser.Scene {
         pawn.lastDirection.y = -1;
         pawn.moveAnim = 'walk';
         this.pawnHandler.add('butcher', pawn);
+        pawn.id = "butcher";
 
         const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
         if (onInitEvent) {
@@ -710,7 +716,6 @@ export class GameSceneTop extends Phaser.Scene {
         }
 
 
-        this.pathEnd = { x: o.x ?? 0, y: o.y ?? 0 }
     }
 
     spawnPlayableCharacter(o: Phaser.Types.Tilemaps.TiledObject) {
@@ -722,12 +727,12 @@ export class GameSceneTop extends Phaser.Scene {
         pawn.controller = new PlayerControlls(this, pawn)
 
         this.pawnHandler.add('player', pawn);
+        pawn.id = 'player';
 
         this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
         this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
 
 
-        this.pathStart = { x: o.x ?? 0, y: o.y ?? 0 }
     }
 
     /*
