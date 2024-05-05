@@ -27,12 +27,10 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     currentPointIndex = -1;
 
     fetchFollowPathEvent: Phaser.Time.TimerEvent;
+    pathGraphicsDebugInfo: Phaser.GameObjects.Graphics;
 
     constructor(character: Character) {
         super(character);
-
-        // this.character.sprite.on(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint, this);
-
         this.character.sprite.on(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint, this);
 
         // todo move to separate function to be able to remove from events when state is removed
@@ -45,11 +43,42 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         });
         this.character.sprite.scene.time.addEvent(this.fetchFollowPathEvent);
 
+
+        this.pathGraphicsDebugInfo = this.character.sprite.scene.add.graphics({ lineStyle: { color: 0x00ff00 } });
+    }
+
+    updatePathDebugInfo() {
+
+        const toDrawPAth = this.autoFollowPathPoints;
+        let maxDepth = 0;
+
+        this.pathGraphicsDebugInfo.clear();
+        if (toDrawPAth) {
+            let lastPoint: NavMeshPoint | null = null;
+
+            for (const p of toDrawPAth) {
+                if (lastPoint) {
+                    const l = new Phaser.Geom.Line(lastPoint.x, lastPoint.y, p.x, p.y);
+                    this.pathGraphicsDebugInfo.strokeLineShape(l);
+                }
+
+                lastPoint = p;
+
+                maxDepth = Math.max(maxDepth, p.y)
+            }
+
+        }
+
+        this.pathGraphicsDebugInfo.setDepth(maxDepth * 10);
     }
 
     destroy() {
-        // this.character.sprite.off(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint)
+        this.character.sprite.off(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint)
         this.character.sprite.scene.time.removeEvent(this.fetchFollowPathEvent)
+
+        if (this.pathGraphicsDebugInfo) {
+            this.pathGraphicsDebugInfo.destroy()
+        }
     }
 
     pickNextPoint() {
@@ -61,17 +90,11 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         if (this.currentPointIndex >= this.autoFollowPathPoints.length) {
             // Todo: add if neeed to loop
             // Todo: if no loop, notify parent
-
-            // this.currentPointIndex = 0;
             console.log("-----> reached end");
         } else {
 
             const point = this.autoFollowPathPoints[this.currentPointIndex];
-            this.character.sprite.emit('chase', true, point.x, point.y);
-            // this.character.sprite.on('chase', this.followPoint, this);
-            // const idToFollow = this.autoFollowPathPoints[this.currentPointIndex];
-
-            // this.character.sprite.scene.events.emit(sceneEventConstants.requestObjectPointFollow, this.character, idToFollow);
+            this.character.sprite.emit(sceneEventConstants.chase, true, point.x, point.y);
         }
     }
 
@@ -85,6 +108,8 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             }
         }
         this.currentPointIndex = -1;
+
+        this.updatePathDebugInfo();
     }
 
     update(delta: number) {
@@ -183,7 +208,7 @@ export class Character {
             this.sprite.setTexture(deathAnim);
             this.sprite.play({ key: deathAnim });
 
-            this.sprite.scene.events.emit('characterDeath', this);
+            this.sprite.scene.events.emit(sceneEventConstants.characterDeath, this);
         }
     }
 

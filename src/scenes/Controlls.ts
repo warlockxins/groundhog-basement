@@ -20,7 +20,7 @@ export class ButcherControlls extends Controlls {
     constructor(scene: Phaser.Scene, character: Character) {
         super(scene, character);
 
-        this.character.sprite.on('chase', this.followPoint, this);
+        this.character.sprite.on(sceneEventConstants.chase, this.followPoint, this);
     }
 
     followPoint(canChase: boolean, x: number, y: number) {

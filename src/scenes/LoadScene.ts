@@ -60,19 +60,22 @@ export class LoadScene extends Phaser.Scene {
     init() { }
 
     preload() {
-        this.load.spritesheet("tiles", "levels/tilesTop.png", { frameWidth: 128, frameHeight: 128 });
 
-        // this.load.spritesheet('walk-ne', 'images/walk-ne.png', { frameWidth: 128, frameHeight: 128 });
-        // this.load.spritesheet('idle-ne', 'images/idle-ne.png', { frameWidth: 128, frameHeight: 128 });
 
         playerAnimationFiles.forEach((file) => {
-         this.load.spritesheet('player' +file, `images/player/${file}`, { frameWidth: 128, frameHeight: 128 });
+            this.load.spritesheet('player' + file, `images/player/${file}`, { frameWidth: 128, frameHeight: 128 });
         });
 
         enemyAnimationFiles.forEach((file) => {
-         this.load.spritesheet('enemy' + file, `images/enemy/${file}`, { frameWidth: 128, frameHeight: 128 });
+            this.load.spritesheet('enemy' + file, `images/enemy/${file}`, { frameWidth: 128, frameHeight: 128 });
         });
 
+        // experiment with cleating active maps texture
+        this.cache.binary.getKeys();
+        this.load.spritesheet("tiles", "levels/tilesTop.png", { frameWidth: 128, frameHeight: 128 });
+        console.log("key entries", this.cache.binary.getKeys());
+        // experiment with clearing active map
+        this.cache.tilemap.remove("map");
         this.load.tilemapTiledJSON("map", "levels/basementTop.json");
 
         let loadingBar = this.add.graphics({
@@ -91,8 +94,6 @@ export class LoadScene extends Phaser.Scene {
         });
     }
     create() {
-        // setTimeout(() => {
-        this.scene.start(CST.SCENES.MENU, { message: "from load scene" });
-        // }, 500);
+        this.scene.start(CST.SCENES.START_MENU, { message: "from load scene" });
     }
 }

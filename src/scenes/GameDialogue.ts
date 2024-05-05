@@ -1,4 +1,6 @@
 export type GameDialogue = {
+    goScene?: string;
+    toggleLight?: string[]; // id of light
     rulePre?: Record<string, unknown>;
     rulePreFail?: GameDialogue;
     rulePost?: Record<string, unknown>;

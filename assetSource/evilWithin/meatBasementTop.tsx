@@ -165,6 +165,24 @@
    </object>
   </objectgroup>
  </tile>
+ <tile id="43">
+  <properties>
+   <property name="onEnter" value="{}"/>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="12.4311" y="123.108">
+    <properties>
+     <property name="onEnter" value="{ }"/>
+     <property name="sensor" type="bool" value="true"/>
+    </properties>
+    <polygon points="0,0 15.2381,39.3784 80.6015,40.1003 96.6416,-2.40602"/>
+   </object>
+   <object id="2" x="39.2982" y="111.078">
+    <polygon points="0,0 -0.401003,19.6491 51.3283,19.6491 50.9273,-4.41103"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="44">
   <properties>
    <property name="isKinematic" type="bool" value="true"/>
@@ -204,5 +222,25 @@
     <polygon points="0,0 -20.0162,24.7008 23.4232,42.5876 45.9946,18.7386"/>
    </object>
   </objectgroup>
+ </tile>
+ <tile id="46">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="6.41604" y="69.3734">
+    <polygon points="0,0 12.4311,41.3033 47.7193,58.1454 87.0175,38.8972 95.4386,-3.60902"/>
+   </object>
+  </objectgroup>
+ </tile>
+ <tile id="48">
+  <properties>
+   <property name="above" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="49">
+  <properties>
+   <property name="above" type="bool" value="true"/>
+  </properties>
  </tile>
 </tileset>

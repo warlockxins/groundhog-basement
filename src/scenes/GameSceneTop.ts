@@ -32,14 +32,16 @@ type SceneNavigationMesh = {
     edges: Record<string, EdgeOfPathPoint[]>;
 }
 
+type Waypoint = {
+    x: number, y: number,
+    size: number
+}
 class NavMeshSceneTop {
     mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
     edges: Record<string, EdgeOfPathPoint[]> = {};
 
-    waypoints: Record<string, {
-        x: number, y: number,
-        size: number
-    }> = {};
+    waypoints: Record<string, Waypoint> = {};
+    graphics!: Phaser.GameObjects.Graphics;
 
     getOrCreateEdgePathPointList(key: string) {
         if (!this.edges[key]) {
@@ -49,13 +51,15 @@ class NavMeshSceneTop {
     }
     calculatePointEdges(scene: Phaser.Scene) {
         for (const [key, wp] of Object.entries(this.waypoints)) {
-            const wayPointKeyTop = `${wp.x}_${wp.y - wp.size}`;
-            const wayPointKeyRight = `${wp.x + wp.size}_${wp.y}`;
-            this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
-            this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
+            this.calculateWaypointEdgeToRightAndBottom(key, wp, scene)
         }
+    }
 
-        console.log("EDGES---", this.edges);
+    calculateWaypointEdgeToRightAndBottom(key: string, wp: Waypoint, scene: Phaser.Scene) {
+        const wayPointKeyTop = `${wp.x}_${wp.y - wp.size}`;
+        const wayPointKeyRight = `${wp.x + wp.size}_${wp.y}`;
+        this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
+        this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
     }
 
     tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: string, keyTo: string) {
@@ -71,20 +75,28 @@ class NavMeshSceneTop {
 
         // path is free to walk
         if (bodies.length === 0) {
-            this.getOrCreateEdgePathPointList(keyFrom).push(
-                {
-                    to: keyTo, cost: 1
-                }
-            )
+            this.getOrCreateEdgePathPointList(keyFrom).push({
+                to: keyTo, cost: 1
+            })
 
-            this.getOrCreateEdgePathPointList(keyTo).push(
-                {
-                    to: keyFrom, cost: 1
-                }
-            )
+            this.getOrCreateEdgePathPointList(keyTo).push({
+                to: keyFrom, cost: 1
+            })
         }
     }
 
+    recalculateAt(x: number, y: number, scene: Phaser.Scene) {
+        const from = this.closest({
+            x, y
+        });
+
+        if (!from) {
+            return
+        }
+        this.calculateWaypointEdgeToRightAndBottom(from, this.waypoints[from], scene)
+
+        this.showWaypoints(scene)
+    }
 
     getPath(from: PathPoint, to: PathPoint) {
         const planner = new PathPlanner(
@@ -103,11 +115,17 @@ class NavMeshSceneTop {
             toKey
         );
 
-        console.log("=======>>>>>>> path", result);
+        // console.log("=======>>>>>>> path", result);
+        if (result.length > 1) {
+            result[result.length - 1] = from;
+        }
+
         return result;
     }
 
     closest(p: PathPoint): string | null {
+        // tree search example - TODO try
+        // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
         let minDistance = 10000000;
         let closestPoint: string | null = null;
         for (let a in this.waypoints) {
@@ -121,24 +139,56 @@ class NavMeshSceneTop {
         return closestPoint;
     }
 
+
+    showWaypoints(scene: Phaser.Scene) {
+        console.log(">>>>>>", this.waypoints);
+        this.calculatePointEdges(scene);
+
+        if (!this.graphics) {
+            this.graphics = scene.add.graphics({ lineStyle: { color: 0xff0000 } });
+        } else {
+            this.graphics.clear();
+        }
+
+        let maxDepth = 0;
+        for (const w of Object.values(this.waypoints)) {
+            const circle = new Phaser.Geom.Circle(0, 0, 5);
+            circle.setPosition(w.x, w.y);
+            this.graphics.strokeCircleShape(circle);
+            maxDepth = Math.max(maxDepth, w.y)
+        }
+
+
+        for (const edgeFromPointKey in this.edges) {
+            const from = this.waypoints[edgeFromPointKey];
+
+            for (const e of this.edges[edgeFromPointKey]) {
+                const to = this.waypoints[e.to];
+                const l = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
+                this.graphics.strokeLineShape(l);
+            }
+        }
+
+        this.graphics.setDepth(maxDepth + 10);
+
+    }
+
 }
 
 export class GameSceneTop extends Phaser.Scene {
+    smartLights: Record<string, Phaser.GameObjects.Light>
 
     map!: Phaser.Tilemaps.Tilemap;
     // navMesh!: NavMesh;
 
     graphics!: Phaser.GameObjects.Graphics;
-    // controls: Phaser.Cameras.Controls.SmoothedKeyControl;
-    visualLayers: Phaser.Tilemaps.TilemapLayer[] = [];
     scriptedDialogs: GameDialogue[] = [];
 
     blackboard: Record<string, unknown> = {};
     tileset!: Phaser.Tilemaps.Tileset;
+    pawnHandler!: PawnHandler;
 
-    pawnHandler = new PawnHandler();
-
-    navMesh = new NavMeshSceneTop()
+    navMesh!: NavMeshSceneTop;
 
     constructor() {
         super({
@@ -148,76 +198,27 @@ export class GameSceneTop extends Phaser.Scene {
 
     init(sceneMessagePayload: any) {
         console.log("data passed to this scene", sceneMessagePayload);
+
+
+        this.navMesh = new NavMeshSceneTop()
+        this.pawnHandler = new PawnHandler();
+        this.blackboard = {};
+        this.smartLights = {};
     }
 
     preload() {
     }
 
-    showWaypoints() {
-        console.log(">>>>>>", this.navMesh.waypoints);
-        this.navMesh.calculatePointEdges(this);
 
-        const graphics = this.add.graphics({ lineStyle: { color: 0xff0000 } });
-        let maxDepth = 0;
-        for (const w of Object.values(this.navMesh.waypoints)) {
-            const circle = new Phaser.Geom.Circle(0, 0, 5);
-            circle.setPosition(w.x, w.y);
-            graphics.strokeCircleShape(circle);
-            maxDepth = Math.max(maxDepth, w.y)
-        }
-
-
-        for (const edgeFromPointKey in this.navMesh.edges) {
-            const from = this.navMesh.waypoints[edgeFromPointKey];
-
-            for (const e of this.navMesh.edges[edgeFromPointKey]) {
-                const to = this.navMesh.waypoints[e.to];
-                const l = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
-                graphics.strokeLineShape(l);
-            }
-        }
-
-        // TODO - move this to character follow
-        const butcher = this.pawnHandler.characters['butcher'];
-        const pathGraphics = this.add.graphics({ lineStyle: { color: 0x00ff00 } });
-
-
-        setInterval(() => {
-            // @ts-ignore
-            if (!(butcher.currentState?.autoFollowPathPoints)) {
-                return;
-            }
-
-            // @ts-ignore
-            const toDrawPAth = butcher.currentState.autoFollowPathPoints;
-
-            // debugger
-            pathGraphics.clear();
-            if (toDrawPAth) {
-                let lastPoint: NavMeshPoint | null = null;
-
-                for (const p of toDrawPAth) {
-                    if (lastPoint) {
-                        const l = new Phaser.Geom.Line(lastPoint.x, lastPoint.y, p.x, p.y);
-                        pathGraphics.strokeLineShape(l);
-                    }
-
-                    lastPoint = p;
-                }
-
-            }
-
-        }, 1000);
-
-        pathGraphics.setDepth(maxDepth + 10);
-
-        graphics.setDepth(maxDepth + 10);
-
-    }
     create() {
+
+        console.log('CREATE------');
+
+        this.scene.launch(CST.SCENES.GAME_HUD);
+
         this.addLevelFloorAndLightsGetWaypoints();
 
-        this.showWaypoints();
+        this.navMesh.showWaypoints(this);
 
         // this.createAnimatedTiles();
         this.cameras.main.setOrigin(0.1, 1);
@@ -227,8 +228,13 @@ export class GameSceneTop extends Phaser.Scene {
         jsonLogic.add_operation('setVar', this.jsLogicSetBlackboardVar.bind(this));
         this.addPhysicsListeners();
 
-        this.events.on('characterDeath', this.onCharacterDeath, this);
+        this.events.on(sceneEventConstants.characterDeath, this.onCharacterDeath, this);
         this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
+
+        this.game.events.once(sceneEventConstants.stopGameplayScene, () => {
+            console.log("try destroy");
+            this.scene.stop();
+        })
     }
 
     getLogicObjectFromLayer(logicLayerObjectId: string) {
@@ -248,9 +254,6 @@ export class GameSceneTop extends Phaser.Scene {
             return
         }
 
-        // debugger
-
-        // console.log("======>>>>", character.sprite, pawn.sprite);
         const toDrawPAth = this.navMesh.getPath(pawn.sprite, character.sprite) || [];
         character.setAutoPathFollowSchedule(toDrawPAth);
     }
@@ -293,7 +296,7 @@ export class GameSceneTop extends Phaser.Scene {
     * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
     **/
     processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image, receiver: Phaser.GameObjects.GameObject): boolean {
-        const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim } = d;
+        const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim, toggleLight } = d;
 
         if (rulePre) {
             // console.log('RYYYYLE', rulePre);
@@ -317,6 +320,11 @@ export class GameSceneTop extends Phaser.Scene {
             }
         }
 
+        toggleLight?.forEach((lightId) => {
+            const light = this.smartLights[lightId];
+            light.setVisible(!light.visible)
+        });
+
         const playerPawn = this.pawnHandler.characters['player'];
         playerPawn.bark(player);
 
@@ -333,7 +341,7 @@ export class GameSceneTop extends Phaser.Scene {
 
         if (enemyCanChase !== undefined) {
             const { sprite } = playerPawn;
-            enemyPawn.sprite.emit('chase', !!enemyCanChase, sprite.x, sprite.y);
+            enemyPawn.sprite.emit(sceneEventConstants.chase, !!enemyCanChase, sprite.x, sprite.y);
         }
         if (playerTexture) {
             playerPawn.imageFramePrefix = playerTexture;
@@ -349,6 +357,7 @@ export class GameSceneTop extends Phaser.Scene {
             });
 
             gameObject.setFrame(d.changeTileGameObjectToId);
+            this.navMesh.recalculateAt(gameObject.x, gameObject.y, this);
         }
 
         if (d.tween) {
@@ -507,8 +516,6 @@ export class GameSceneTop extends Phaser.Scene {
             }));
 
 
-
-
         this.cameras.main.fadeIn(2000, 0, 0, 0);
 
 
@@ -520,12 +527,17 @@ export class GameSceneTop extends Phaser.Scene {
                 this.map.getObjectLayer(n)?.objects.forEach(o => {
                     const pp = o;
 
-                    this.lights.addLight(
+                    const l = this.lights.addLight(
                         pp.x,
                         pp.y,
                         o.width ? o.width : 300
                     ).setColor(0xffff00)
                         .setIntensity(3.0);
+
+                    this.smartLights[o.id] = l;
+
+                    const isLightOn = o.properties?.find(({ name }) => name === 'isOn')?.value;
+                    l.setVisible(isLightOn);
 
                 });
             } else if (n === 'logic') {
@@ -689,8 +701,12 @@ export class GameSceneTop extends Phaser.Scene {
         pawn.lastDirection.x = 1;
         pawn.lastDirection.y = -1;
         pawn.moveAnim = 'walk';
-        this.pawnHandler.add('butcher', pawn);
-        pawn.id = "butcher";
+
+        const enemyId = o.properties.find(({ name }) => name === 'id')?.value;
+        this.pawnHandler.add(enemyId ?? 'butcher', pawn);
+
+        pawn.id = enemyId;
+        console.log("the enemy id", enemyId);
 
         const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
         if (onInitEvent) {
@@ -757,6 +773,8 @@ export class GameSceneTop extends Phaser.Scene {
             return null;
         }
 
+        console.log("1");
+
         const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
         const bodyParts: MatterJS.BodyType[] = [];
         // The group will have an array of objects - these are the individual collision shapes
@@ -768,6 +786,7 @@ export class GameSceneTop extends Phaser.Scene {
         let dialogue = {};
         // console.log("-----------", tile.index, collisionGroup);
 
+        console.log("2");
         for (let i = 0; i < objects.length; i++) {
             const object = objects[i];
             const props: { name: string, value: string | boolean }[] = object.properties ?? [];
@@ -804,14 +823,13 @@ export class GameSceneTop extends Phaser.Scene {
 
             const onEnterEvent = props.find(({ name }) => name === 'onEnter');
 
-            const onEnterEventFromMainObject = objectProps.find(({ name }) => name === 'onEnter');
+            const onEnterEventFromMainObjectOrEmpty: string = (objectProps.find(({ name }) => name === 'onEnter')?.value ?? "{ }") as string;
 
             if (onEnterEvent?.value) {
                 dialogue = {
                     ...dialogue,
                     ...JSON.parse(onEnterEvent.value as string),
-                    ...JSON.parse(onEnterEventFromMainObject?.value as string ?? "{}")
-
+                    ...JSON.parse(onEnterEventFromMainObjectOrEmpty)
                 };
             }
 
@@ -821,7 +839,7 @@ export class GameSceneTop extends Phaser.Scene {
                 if (onEnterEvent?.value) {
                     physicsOptions.dialogue = {
                         ...JSON.parse(onEnterEvent.value as string),
-                        ...JSON.parse(onEnterEventFromMainObject.value as string)
+                        ...JSON.parse(onEnterEventFromMainObjectOrEmpty)
                     };
                 }
             }
