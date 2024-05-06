@@ -32,6 +32,27 @@ type SceneNavigationMesh = {
     edges: Record<string, EdgeOfPathPoint[]>;
 }
 
+
+function closestPointInRecords(p: PathPoint, points: Record<string, PathPoint>, predicateToIncludeCallback?: (val: any, d: number) => boolean): string | null {
+    // tree search example - TODO try
+    // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
+    let minDistance = 10000000;
+    let closestPoint: string | null = null;
+    for (let a in points) {
+        const distance = Math.sqrt((p.x - points[a].x) * (p.x - points[a].x) + (p.y - points[a].y) * (p.y - points[a].y));
+
+        if (predicateToIncludeCallback && !predicateToIncludeCallback(points[a], distance)) {
+            continue
+        }
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestPoint = a;
+        }
+    }
+    return closestPoint;
+}
+
 type Waypoint = {
     x: number, y: number,
     size: number
@@ -124,25 +145,18 @@ class NavMeshSceneTop {
     }
 
     closest(p: PathPoint): string | null {
-        // tree search example - TODO try
-        // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
-        let minDistance = 10000000;
-        let closestPoint: string | null = null;
-        for (let a in this.waypoints) {
-            const distance = Math.sqrt((p.x - this.waypoints[a].x) * (p.x - this.waypoints[a].x) + (p.y - this.waypoints[a].y) * (p.y - this.waypoints[a].y));
-
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestPoint = a;
-            }
-        }
-        return closestPoint;
+        return closestPointInRecords(p, this.waypoints);
     }
 
 
     showWaypoints(scene: Phaser.Scene) {
-        console.log(">>>>>>", this.waypoints);
+        // console.log(">>>>>>", this.waypoints);
         this.calculatePointEdges(scene);
+
+
+        if (!scene.matter.world.drawDebug) {
+            return
+        }
 
         if (!this.graphics) {
             this.graphics = scene.add.graphics({ lineStyle: { color: 0xff0000 } });
@@ -189,6 +203,7 @@ export class GameSceneTop extends Phaser.Scene {
     pawnHandler!: PawnHandler;
 
     navMesh!: NavMeshSceneTop;
+    sanityCheckTimer: Phaser.Time.TimerEvent;
 
     constructor() {
         super({
@@ -235,6 +250,33 @@ export class GameSceneTop extends Phaser.Scene {
             console.log("try destroy");
             this.scene.stop();
         })
+
+
+
+        // sanity meter
+
+        if (this.sanityCheckTimer) {
+            this.time.removeEvent(this.sanityCheckTimer);
+        }
+        this.sanityCheckTimer = new Phaser.Time.TimerEvent({
+            delay: 1000,
+            loop: true,
+            callback: this.checkSanitiBasedOnDistanceToClosestLight,
+            callbackScope: this
+        });
+
+
+        this.time.addEvent(this.sanityCheckTimer);
+    }
+
+    checkSanitiBasedOnDistanceToClosestLight() {
+        const { x, y } = this.pawnHandler.characters['player'].sprite;
+        const closestLightId = closestPointInRecords(
+            { x, y },
+            this.smartLights,
+            (it: Phaser.GameObjects.Light, distance) => it.visible && distance < 256 // dist is 2 X tileWidth
+        );
+        console.log("check sanity", closestLightId);
     }
 
     getLogicObjectFromLayer(logicLayerObjectId: string) {
@@ -244,17 +286,23 @@ export class GameSceneTop extends Phaser.Scene {
         return logicObject;
     }
 
-    onRequestCharacterFollowPath(character: Character, characterId: string) {
-        const pawn = this.pawnHandler.characters[characterId];
-        if (!pawn) {
-            // Todo - inform characterPawn: path finished/not found
-            return;
-        }
-        if (pawn === character) {
-            return
+    onRequestCharacterFollowPath(character: Character, { characterId, point }: { characterId: string | null, point: { x: number, y: number } }) {
+        let pointTo = point;
+        if (characterId) {
+            const pawn = this.pawnHandler.characters[characterId];
+            if (!pawn) {
+                // Todo - inform characterPawn: path finished/not found
+                return;
+            }
+            if (pawn === character) {
+                return
+            }
+
+            pointTo = pawn.sprite;
         }
 
-        const toDrawPAth = this.navMesh.getPath(pawn.sprite, character.sprite) || [];
+        const toDrawPAth = this.navMesh.getPath(pointTo, character.sprite) || [];
+        // console.log("here is new path", toDrawPAth);
         character.setAutoPathFollowSchedule(toDrawPAth);
     }
 
@@ -706,7 +754,6 @@ export class GameSceneTop extends Phaser.Scene {
         this.pawnHandler.add(enemyId ?? 'butcher', pawn);
 
         pawn.id = enemyId;
-        console.log("the enemy id", enemyId);
 
         const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
         if (onInitEvent) {
@@ -773,7 +820,6 @@ export class GameSceneTop extends Phaser.Scene {
             return null;
         }
 
-        console.log("1");
 
         const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
         const bodyParts: MatterJS.BodyType[] = [];
@@ -786,7 +832,6 @@ export class GameSceneTop extends Phaser.Scene {
         let dialogue = {};
         // console.log("-----------", tile.index, collisionGroup);
 
-        console.log("2");
         for (let i = 0; i < objects.length; i++) {
             const object = objects[i];
             const props: { name: string, value: string | boolean }[] = object.properties ?? [];

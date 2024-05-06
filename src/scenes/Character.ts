@@ -29,6 +29,17 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     fetchFollowPathEvent: Phaser.Time.TimerEvent;
     pathGraphicsDebugInfo: Phaser.GameObjects.Graphics;
 
+    followingCharacter: string | null = null
+
+    schedulePoints: {
+        originalScheduleForWalking: NavMeshPoint[],
+        currentIndex: number
+    } = {
+            originalScheduleForWalking: [],
+            currentIndex: -1
+        }
+    nextPoint!: NavMeshPoint;
+
     constructor(character: Character) {
         super(character);
         this.character.sprite.on(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint, this);
@@ -38,8 +49,12 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             delay: 1000,
             loop: true,
             callback: () => {
-                this.character.sprite.scene.events.emit(sceneEventConstants.requestCharacterFollowPath, this.character, 'player');
-            }
+                this.character.sprite.scene.events.emit(sceneEventConstants.requestCharacterFollowPath, this.character, {
+                    characterId: this.followingCharacter,
+                    point: this.nextPoint,
+                });
+            },
+            callbackScope: this
         });
         this.character.sprite.scene.time.addEvent(this.fetchFollowPathEvent);
 
@@ -48,6 +63,11 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     }
 
     updatePathDebugInfo() {
+
+        if (!this.character.sprite.scene.matter.world.drawDebug) {
+            return
+        }
+
 
         const toDrawPAth = this.autoFollowPathPoints;
         let maxDepth = 0;
@@ -82,20 +102,35 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     }
 
     pickNextPoint() {
-        if (!this.autoFollowPathPoints.length) {
-            return;
-        }
-
         this.currentPointIndex += 1;
         if (this.currentPointIndex >= this.autoFollowPathPoints.length) {
             // Todo: add if neeed to loop
             // Todo: if no loop, notify parent
-            console.log("-----> reached end");
+            // console.log("-----> reached end");
+            if (!this.followingCharacter) {
+                this.schedulePoints.currentIndex += 1;
+                if (this.schedulePoints.currentIndex >= this.schedulePoints.originalScheduleForWalking.length) {
+                    this.schedulePoints.currentIndex = 0;
+                }
+                this.nextPoint = this.schedulePoints.originalScheduleForWalking[this.schedulePoints.currentIndex];
+            }
         } else {
-
             const point = this.autoFollowPathPoints[this.currentPointIndex];
             this.character.sprite.emit(sceneEventConstants.chase, true, point.x, point.y);
         }
+    }
+
+
+    setWalkingSchedule(ids: NavMeshPoint[]) {
+        this.schedulePoints.originalScheduleForWalking = ids ?? [];
+        this.schedulePoints.currentIndex = -1;
+        if (this.schedulePoints.originalScheduleForWalking.length > 0) {
+            this.schedulePoints.currentIndex = -1;
+            this.nextPoint = this.schedulePoints.originalScheduleForWalking[0]
+        }
+        this.updatePathDebugInfo();
+
+        this.setAutoFollowPathPoints(ids);
     }
 
     setAutoFollowPathPoints(ids: NavMeshPoint[]) {
@@ -179,9 +214,11 @@ export class Character {
         if (!(this.currentState instanceof CharacterWithGoToScheduledPointState)) {
             this.currentState.destroy();
             this.currentState = new CharacterWithGoToScheduledPointState(this);
-        }
 
-        (this.currentState as CharacterWithGoToScheduledPointState).setAutoFollowPathPoints(autoPathFollowSchedule);
+            (this.currentState as CharacterWithGoToScheduledPointState).setWalkingSchedule(autoPathFollowSchedule);
+        } else {
+            (this.currentState as CharacterWithGoToScheduledPointState).setAutoFollowPathPoints(autoPathFollowSchedule);
+        }
     }
 
     bark(text: string = "") {

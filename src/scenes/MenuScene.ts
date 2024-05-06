@@ -17,11 +17,12 @@ export class MenuScene extends Phaser.Scene {
 
     preload() { }
     create() {
-        this.clickButton = this.add.text(400, 100, "Start!", {
+        this.clickButton = this.add.text(400, 300, "Start!", {
             align: 'center',
             color: '#00a6ed',
             fontFamily: 'Arial Black', fontSize: 34,
         }).setOrigin(0.5, 0);
+
         this.clickButton
             .setInteractive()
             .on("pointerdown", () => this.startPressed())
@@ -29,7 +30,8 @@ export class MenuScene extends Phaser.Scene {
             .on("pointerout", () => this.enterButtonRestState());
 
 
-        const text = this.add.text(25, 250, 'Dream Butcher', { fontFamily: 'Arial Black', fontSize: 60 });
+        const text = this.add.text(400, 150, 'Dream Butcher', { fontFamily: 'Arial Black', fontSize: 60 })
+            .setOrigin(0.5, 0);
         text.setStroke('#000000', 4);
 
         //  Apply the gradient fill.

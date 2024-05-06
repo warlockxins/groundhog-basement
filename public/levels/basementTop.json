@@ -901,7 +901,7 @@
                         {
                          "name":"onInit",
                          "type":"string",
-                         "value":"{\n  \"schedule\": {\n    \"ids\": [\"37\", \"38\", \"39\"]\n  }\n}"
+                         "value":"{\n  \"schedule\": {\n    \"ids\": [\"52\", \"53\", \"54\"]\n  }\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1060,6 +1060,42 @@
                  "width":0,
                  "x":1717.93534932221,
                  "y":3808.65484880083
+                }, 
+                {
+                 "height":0,
+                 "id":52,
+                 "name":"2ndButcherSchedulePoint2",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1829.20279830334,
+                 "y":4704.00710093989
+                }, 
+                {
+                 "height":0,
+                 "id":53,
+                 "name":"2ndButcherSchedulePoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1812.70314460392,
+                 "y":4937.41905772388
+                }, 
+                {
+                 "height":0,
+                 "id":54,
+                 "name":"2ndButcherSchedulePoint",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":2074.01212628058,
+                 "y":4783.60861384069
                 }],
          "opacity":1,
          "properties":[
@@ -1176,7 +1212,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":52,
+ "nextobjectid":55,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
