@@ -38,6 +38,7 @@ export class MenuScene extends Phaser.Scene {
         const gradient = text.context.createLinearGradient(0, 0, 0, text.height);
         gradient.addColorStop(0, '#111111');
         gradient.addColorStop(0.5, '#ffffff');
+
         gradient.addColorStop(0.5, '#aaaaaa');
         gradient.addColorStop(1, '#111111');
         this.gradient = gradient;

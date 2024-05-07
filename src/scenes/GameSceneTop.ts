@@ -203,7 +203,9 @@ export class GameSceneTop extends Phaser.Scene {
     pawnHandler!: PawnHandler;
 
     navMesh!: NavMeshSceneTop;
-    sanityCheckTimer: Phaser.Time.TimerEvent;
+    sanityCheckTimer!: Phaser.Time.TimerEvent;
+
+    sanityScore: number = 0;
 
     constructor() {
         super({
@@ -267,8 +269,11 @@ export class GameSceneTop extends Phaser.Scene {
 
 
         this.time.addEvent(this.sanityCheckTimer);
+        this.sanityScore = 10;
+        this.registry.set('sanity', this.sanityScore);
     }
 
+    // This potentially needs to be in Player controller - but it is a global gameplay part tied to main player
     checkSanitiBasedOnDistanceToClosestLight() {
         const { x, y } = this.pawnHandler.characters['player'].sprite;
         const closestLightId = closestPointInRecords(
@@ -276,7 +281,27 @@ export class GameSceneTop extends Phaser.Scene {
             this.smartLights,
             (it: Phaser.GameObjects.Light, distance) => it.visible && distance < 256 // dist is 2 X tileWidth
         );
-        console.log("check sanity", closestLightId);
+
+        if (closestLightId) {
+            this.sanityScore += 1.5;
+
+            this.sanityScore = Math.min(this.sanityScore, 10);
+        } else {
+
+            this.sanityScore -= 1;
+
+            if (this.sanityScore < 5 && this.sanityScore > 2) {
+                this.pawnHandler.characters['player'].bark('So dark!');
+            }
+            if (this.sanityScore < 0) {
+                this.pawnHandler.characters['player'].onMadeInsane();
+
+                this.time.removeEvent(this.sanityCheckTimer);
+            }
+            this.sanityScore = Math.max(this.sanityScore, 0);
+        }
+
+        this.registry.set('sanity', this.sanityScore);
     }
 
     getLogicObjectFromLayer(logicLayerObjectId: string) {
@@ -306,7 +331,9 @@ export class GameSceneTop extends Phaser.Scene {
         character.setAutoPathFollowSchedule(toDrawPAth);
     }
 
-    onCharacterDeath(character: Character) {
+    onCharacterDeath(character: Character, cause: 'insane' | 'damage') {
+        if (cause !== 'damage') return;
+
         // console.log("KILLL CHARACTER", character.imageFramePrefix);
         const bloodTileIndexInTilemap = 24;
         const x = character.sprite.x;
