@@ -2,6 +2,8 @@ import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
 import { Controlls } from './Controlls';
 import { NavMeshPoint } from '~/levelComponents/NavMesh';
+import { GameSceneTopPossibilities } from './GameSceneTopInterface';
+import { Animations } from 'phaser';
 
 class CharacterState {
     character: Character;
@@ -28,16 +30,63 @@ class CharacterWithControllerState extends CharacterState {
 
 
 class ButcherAttackState extends CharacterState {
+
+    pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
     start() {
         // console.log("look at me, I am attacking");
 
+        if (this.character.sprite.scene.matter.world.drawDebug) {
+            this.pathGraphicsDebugInfo = this.character.sprite.scene.add.graphics({ lineStyle: { color: 0x00ff00 } });
+        }
+
         this.character.bark("kill");
         this.character.playAnimationFrameOnLastDirection('slice', 0);
-        this.character.sprite.once('animationcomplete', () => {
+        this.character.sprite.once(Animations.Events.ANIMATION_COMPLETE, () => {
             // console.log('time to walk again');
             this.character.setAutoPathFollowSchedule([]);
+
+            this.pathGraphicsDebugInfo?.destroy();
+            this.pathGraphicsDebugInfo = null;
         });
+
+        const { x, y } = this.character.sprite;
+        const normalizedDirection = new Phaser.Math.Vector2(this.character.lastDirection)
+            .normalize()
+            .scale(30);
+
+        const diameter = 30;
+        const rX = x + normalizedDirection.x - diameter;
+        const rY = y + normalizedDirection.y - diameter;
+
+        const bodies = this.character.sprite.scene.matter.intersectRect(
+            rX, rY,
+            diameter * 2, diameter * 2
+        ).filter((b) => {
+            // @ts-ignore
+            return !b.isStatic && b.label === 'player'
+        })
+
+        if (bodies.length > 0) {
+            const playerBody = bodies[0];
+
+            // @ts-ignore
+            playerBody.gameObject.emit('damage', 100)
+
+            this.character.followPathState.setEnemyFollowId(null);
+
+        }
+
+        if (this.character.sprite.scene.matter.world.drawDebug) {
+            this.pathGraphicsDebugInfo?.strokeRect(rX, rY, diameter * 2, diameter * 2);
+            this.pathGraphicsDebugInfo?.setDepth(this.pathGraphicsDebugInfo.y + 100);
+        }
     }
+
+    destroy() {
+        this.pathGraphicsDebugInfo?.destroy();
+        this.pathGraphicsDebugInfo = null;
+    }
+
     update() {
 
         this.character.sprite.setVelocity(0);
@@ -71,10 +120,14 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             delay: 901,
             loop: true,
             callback: () => {
-                this.character.sprite.scene.events.emit(sceneEventConstants.requestCharacterFollowPath, this.character, {
+                const scene = this.character.sprite.scene as unknown as GameSceneTopPossibilities;
+                const newPath = scene.onRequestCharacterFollowPath(this.character.sprite, {
                     characterId: this.followingCharacter,
                     point: this.nextPoint,
                 });
+
+
+                this.setAutoFollowPathPoints(newPath);
             },
             callbackScope: this
         });
@@ -86,7 +139,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         }
     }
 
-    setEnemyFollowId(id: string) {
+    setEnemyFollowId(id: string | null) {
         this.followingCharacter = id;
     }
 
@@ -140,7 +193,6 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             // Todo: if no loop, notify parent
             // console.log("-----> reached end");
             if (this.followingCharacter) {
-                // console.log(' NEXT TO character');
                 this.character.setAttackSchedule();
             } else {
                 this.schedulePoints.currentIndex += 1;
@@ -168,8 +220,8 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         this.setAutoFollowPathPoints(ids);
     }
 
-    setAutoFollowPathPoints(ids: NavMeshPoint[]) {
-        this.autoFollowPathPoints = ids ?? [];
+    setAutoFollowPathPoints(ids: NavMeshPoint[] = []) {
+        this.autoFollowPathPoints = ids;
 
         if (this.autoFollowPathPoints.length > 0) {
             this.autoFollowPathPoints[0] = {
@@ -306,7 +358,7 @@ export class Character {
         if (this.isDead) return;
 
         this.isDead = true;
-        console.log("OOOOUCH", value);
+        // console.log("OOOOUCH", value);
 
         const deathAnim = 'playerdeath-S.png'
         if (this.sprite.texture.key !== deathAnim) {

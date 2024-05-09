@@ -17,9 +17,11 @@ export class ButcherControlls extends Controlls {
 
     circleSearchCharacterEvent: Phaser.Time.TimerEvent;
 
+
     constructor(scene: Phaser.Scene, character: Character) {
         super(scene, character);
         this.character.sprite.on(sceneEventConstants.chase, this.followPoint, this);
+
 
         this.circleSearchCharacterEvent = new Phaser.Time.TimerEvent({
             delay: 1110,
@@ -40,7 +42,7 @@ export class ButcherControlls extends Controlls {
                     this.character.bark('I see you');
                     this.character.sprite.scene.time.removeEvent(this.circleSearchCharacterEvent);
 
-                    this.character.sprite.emit(sceneEventConstants.foundEnemyId, 'player');
+                    this.character.followPathState.setEnemyFollowId('player')
                 }
 
             },

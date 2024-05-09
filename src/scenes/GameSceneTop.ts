@@ -5,13 +5,15 @@
 import { CST } from "../constants/CST";
 
 // import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-import { NavMesh, NavMeshPoint, NavMeshPointMap } from "~/levelComponents/NavMesh";
+import { NavMeshPoint, NavMeshPointMap } from "~/levelComponents/NavMesh";
 import jsonLogic from '../jsonLogic';
 import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
 import { PlayerControlls, ButcherControlls } from './Controlls';
 import { EdgeOfPathPoint, PathPlanner, PathPoint } from '~/levelComponents/PathPlanner';
+
+import { GameSceneTopPossibilities } from './GameSceneTopInterface';
 
 class PawnHandler {
     characters: Record<string, Character> = {}
@@ -189,8 +191,8 @@ class NavMeshSceneTop {
 
 }
 
-export class GameSceneTop extends Phaser.Scene {
-    smartLights: Record<string, Phaser.GameObjects.Light>
+export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilities {
+    smartLights!: Record<string, Phaser.GameObjects.Light>
 
     map!: Phaser.Tilemaps.Tilemap;
     // navMesh!: NavMesh;
@@ -246,7 +248,7 @@ export class GameSceneTop extends Phaser.Scene {
         this.addPhysicsListeners();
 
         this.events.on(sceneEventConstants.characterDeath, this.onCharacterDeath, this);
-        this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
+        // this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
 
         this.game.events.once(sceneEventConstants.stopGameplayScene, () => {
             console.log("try destroy");
@@ -311,24 +313,19 @@ export class GameSceneTop extends Phaser.Scene {
         return logicObject;
     }
 
-    onRequestCharacterFollowPath(character: Character, { characterId, point }: { characterId: string | null, point: { x: number, y: number } }) {
+    onRequestCharacterFollowPath(from: NavMeshPoint, { characterId, point }: { characterId: string | null, point: { x: number, y: number } }) {
         let pointTo = point;
         if (characterId) {
             const pawn = this.pawnHandler.characters[characterId];
             if (!pawn) {
                 // Todo - inform characterPawn: path finished/not found
-                return;
-            }
-            if (pawn === character) {
-                return
+                return null;
             }
 
             pointTo = pawn.sprite;
         }
 
-        const toDrawPAth = this.navMesh.getPath(pointTo, character.sprite) || [];
-        // console.log("here is new path", toDrawPAth);
-        character.setAutoPathFollowSchedule(toDrawPAth);
+        return this.navMesh.getPath(pointTo, from) || [];
     }
 
     onCharacterDeath(character: Character, cause: 'insane' | 'damage') {

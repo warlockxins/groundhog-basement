@@ -1,9 +1,9 @@
 export const sceneEventConstants = {
     stopGameplayScene: 'stopGameplayScene',
-    requestCharacterFollowPath: 'requestCharacterFollowPath',
+    // requestCharacterFollowPath: 'requestCharacterFollowPath',
     arrivedAtObjectPoint: 'arrivedAtObjectPoint',
     arrivedAtEnemyPoint: 'arrivedAtEnemyPoint',
-    foundEnemyId: 'foundEnemyId',
+    // foundEnemyId: 'foundEnemyId',
     chase: 'chase',
     characterDeath: 'characterDeath'
 };
