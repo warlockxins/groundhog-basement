@@ -13,31 +13,52 @@ export class Controlls {
 
 
 export class ButcherControlls extends Controlls {
-    enemyCanChase: boolean = false;
-    chasePoint: { x: number, y: number } = { x: 0, y: 0 };
-    // chaseSprite?: Phaser.Physics.Matter.Sprite;
+    chasePoint: { x: number, y: number } | null = null;
+
+    circleSearchCharacterEvent: Phaser.Time.TimerEvent;
 
     constructor(scene: Phaser.Scene, character: Character) {
         super(scene, character);
-
         this.character.sprite.on(sceneEventConstants.chase, this.followPoint, this);
+
+        this.circleSearchCharacterEvent = new Phaser.Time.TimerEvent({
+            delay: 1110,
+            loop: true,
+            callback: () => {
+                const { x, y } = this.character.sprite;
+                const diameter = 150;
+                const bodies = this.character.sprite.scene.matter.intersectRect(
+                    x - diameter, y - diameter,
+                    diameter * 2, diameter * 2
+                ).filter((b) => {
+                    // @ts-ignore
+                    return !b.isStatic && b.label === 'player'
+                })
+
+                if (bodies.length > 0) {
+                    // from this point enemy will forever chase player, no need to constantly check
+                    this.character.bark('I see you');
+                    this.character.sprite.scene.time.removeEvent(this.circleSearchCharacterEvent);
+
+                    this.character.sprite.emit(sceneEventConstants.foundEnemyId, 'player');
+                }
+
+            },
+            callbackScope: this
+        });
+
+
+        this.character.sprite.scene.time.addEvent(this.circleSearchCharacterEvent);
     }
 
+
+
     followPoint(canChase: boolean, x: number, y: number) {
-        this.enemyCanChase = canChase;
         this.chasePoint = { x, y };
-        // this.chaseSprite = chaseSprite;
     }
 
     update(delta: number) {
-        if (this.enemyCanChase) {
-            // just check if sprite exists/not removed or whatever and update chase point
-            // if (this.chaseSprite?.x) {
-            //     this.chasePoint = {
-            //         x: this.chaseSprite.x,
-            //         y: this.chaseSprite.y
-            //     }
-            // }
+        if (this.chasePoint) {
 
             const dirX = this.chasePoint.x - this.character.sprite.x;
             const dirY = this.chasePoint.y - this.character.sprite.y;
@@ -56,7 +77,8 @@ export class ButcherControlls extends Controlls {
 
             const dist = Math.sqrt(dirX * dirX + dirY * dirY);
             if (dist < 50) {
-                this.enemyCanChase = false;
+                // stop now and ask for next instructions
+                this.chasePoint = null;
                 this.character.sprite.emit(sceneEventConstants.arrivedAtObjectPoint);
             }
         }
@@ -80,6 +102,10 @@ export class PlayerControlls extends Controlls {
         if (this.character.isDead) return;
 
         let directionsPressed = false;
+
+        if (this.cursors.shift.isDown) {
+            console.log("run")
+        }
 
         if (this.cursors.left.isDown) {
             directionsPressed = true;

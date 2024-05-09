@@ -22,7 +22,7 @@ class PawnHandler {
 
     update(_time: number, delta: number) {
         for (const c of Object.values(this.characters)) {
-            c.update(delta)
+            c.currentState.update(delta)
         }
     }
 }

@@ -9,6 +9,9 @@ class CharacterState {
         this.character = character;
     }
 
+    start() {
+    }
+
     update(_delta: number) {
     }
 
@@ -19,6 +22,25 @@ class CharacterState {
 class CharacterWithControllerState extends CharacterState {
     update(delta: number) {
         this.character.controller?.update(delta);
+        this.character.updatePositionAndDirectionBasedOnSpeed(delta)
+    }
+}
+
+
+class ButcherAttackState extends CharacterState {
+    start() {
+        // console.log("look at me, I am attacking");
+
+        this.character.bark("kill");
+        this.character.playAnimationFrameOnLastDirection('slice', 0);
+        this.character.sprite.once('animationcomplete', () => {
+            // console.log('time to walk again');
+            this.character.setAutoPathFollowSchedule([]);
+        });
+    }
+    update() {
+
+        this.character.sprite.setVelocity(0);
     }
 }
 
@@ -27,7 +49,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     currentPointIndex = -1;
 
     fetchFollowPathEvent: Phaser.Time.TimerEvent;
-    pathGraphicsDebugInfo: Phaser.GameObjects.Graphics;
+    pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
 
     followingCharacter: string | null = null
 
@@ -40,13 +62,13 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         }
     nextPoint!: NavMeshPoint;
 
-    constructor(character: Character) {
-        super(character);
+    start() {
         this.character.sprite.on(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint, this);
+        this.character.sprite.on(sceneEventConstants.foundEnemyId, this.setEnemyFollowId, this);
 
         // todo move to separate function to be able to remove from events when state is removed
         this.fetchFollowPathEvent = new Phaser.Time.TimerEvent({
-            delay: 1000,
+            delay: 901,
             loop: true,
             callback: () => {
                 this.character.sprite.scene.events.emit(sceneEventConstants.requestCharacterFollowPath, this.character, {
@@ -59,7 +81,13 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         this.character.sprite.scene.time.addEvent(this.fetchFollowPathEvent);
 
 
-        this.pathGraphicsDebugInfo = this.character.sprite.scene.add.graphics({ lineStyle: { color: 0x00ff00 } });
+        if (this.character.sprite.scene.matter.world.drawDebug) {
+            this.pathGraphicsDebugInfo = this.character.sprite.scene.add.graphics({ lineStyle: { color: 0x00ff00 } });
+        }
+    }
+
+    setEnemyFollowId(id: string) {
+        this.followingCharacter = id;
     }
 
     updatePathDebugInfo() {
@@ -68,6 +96,9 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             return
         }
 
+        if (!this.pathGraphicsDebugInfo) {
+            return
+        }
 
         const toDrawPAth = this.autoFollowPathPoints;
         let maxDepth = 0;
@@ -94,6 +125,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
 
     destroy() {
         this.character.sprite.off(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint)
+        this.character.sprite.off(sceneEventConstants.foundEnemyId, this.setEnemyFollowId);
         this.character.sprite.scene.time.removeEvent(this.fetchFollowPathEvent)
 
         if (this.pathGraphicsDebugInfo) {
@@ -107,7 +139,10 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             // Todo: add if neeed to loop
             // Todo: if no loop, notify parent
             // console.log("-----> reached end");
-            if (!this.followingCharacter) {
+            if (this.followingCharacter) {
+                // console.log(' NEXT TO character');
+                this.character.setAttackSchedule();
+            } else {
                 this.schedulePoints.currentIndex += 1;
                 if (this.schedulePoints.currentIndex >= this.schedulePoints.originalScheduleForWalking.length) {
                     this.schedulePoints.currentIndex = 0;
@@ -152,6 +187,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             this.pickNextPoint();
         }
         this.character.controller?.update(delta);
+        this.character.updatePositionAndDirectionBasedOnSpeed(delta)
     }
 }
 
@@ -169,8 +205,12 @@ export class Character {
     shadow: Phaser.GameObjects.Ellipse;
 
     currentState: CharacterState;
+    // list of states that can take place in currentState above
+    followPathState!: CharacterWithGoToScheduledPointState;
+    attackState!: ButcherAttackState;
 
     id: string = "";
+    lastDirectionAnimationFrame: string;
 
     // TODO - add id to sprite, for getting by id for scripts
     constructor(scene: Phaser.Scene, x: number, y: number, imageFrame: string, imageFramePrefix: string) {
@@ -211,14 +251,42 @@ export class Character {
     }
 
     setAutoPathFollowSchedule(autoPathFollowSchedule: NavMeshPoint[]) {
+        if (!this.followPathState) {
+            this.followPathState = new CharacterWithGoToScheduledPointState(this);
+
+            this.followPathState.setWalkingSchedule(autoPathFollowSchedule);
+        }
+
         if (!(this.currentState instanceof CharacterWithGoToScheduledPointState)) {
             this.currentState.destroy();
-            this.currentState = new CharacterWithGoToScheduledPointState(this);
 
-            (this.currentState as CharacterWithGoToScheduledPointState).setWalkingSchedule(autoPathFollowSchedule);
+            this.followPathState.start();
+
         } else {
-            (this.currentState as CharacterWithGoToScheduledPointState).setAutoFollowPathPoints(autoPathFollowSchedule);
+            this.followPathState.setAutoFollowPathPoints(autoPathFollowSchedule);
         }
+
+        this.currentState = this.followPathState;
+    }
+
+    setAttackSchedule() {
+        if (!this.attackState) {
+            this.attackState = new ButcherAttackState(this);
+        }
+
+
+        if (!(this.currentState instanceof ButcherAttackState)) {
+            this.currentState.destroy();
+
+        }
+
+        this.currentState = this.attackState
+        this.sprite.scene.time.addEvent({
+            delay: 100,
+            callback: () => {
+                this.attackState.start();
+            }, callbackScope: this
+        })
     }
 
     bark(text: string = "") {
@@ -269,13 +337,14 @@ export class Character {
         const yAnimFrame = y > 0 ? 'S' : (y < 0 ? 'N' : '');
         const animDirectionFrameBase = `${yAnimFrame}${xAnimFrame}`;
         const animDirectionFrame = animDirectionFrameBase !== '' ? `-${animDirectionFrameBase}.png` : '-S.png';
+        this.lastDirectionAnimationFrame = animDirectionFrame;
         return animDirectionFrame;
     }
 
-    update(delta: number) {
+    updatePositionAndDirectionBasedOnSpeed(delta: number) {
         this.sprite.setDepth(this.sprite.y);
 
-        this.currentState.update(delta);
+        // this.currentState.update(delta);
 
         this.shadow.x = this.sprite.x;
         this.shadow.y = this.sprite.y - 5;
@@ -287,21 +356,17 @@ export class Character {
 
         const playerVelocity = this.sprite.getVelocity();
 
-        const animDirectionFrame = this.animationDirectionFromSpeed();
+        this.animationDirectionFromSpeed();
 
         if (playerVelocity.x !== 0 || playerVelocity.y !== 0) {
             this.lastDirection = playerVelocity;
-            const walkAnimFrame = `${this.imageFramePrefix}${this.moveAnim}${animDirectionFrame}`;
 
             this.sprite.flipX = (this.lastDirection.x ?? 0) < 0;
-            this.playAnimationFrame(walkAnimFrame);
+            this.playAnimationFrameOnLastDirection(this.moveAnim);
         }
         else {
             const moveAnim = this.defaultAnimation;
-            const idleAnimFrame = `${this.imageFramePrefix}${moveAnim}${animDirectionFrame}`;
-            // console.log('>>>>>>', idleAnimFrame);
-            this.playAnimationFrame(idleAnimFrame);
-
+            this.playAnimationFrameOnLastDirection(moveAnim);
         }
 
         this.textBubble.setPosition(this.sprite.x, this.sprite.y);
@@ -310,15 +375,18 @@ export class Character {
         this.myLight.x = this.sprite.x;
 
         this.myLight.y = this.sprite.y - 50;
-
-
-
     }
 
-    playAnimationFrame(name: string) {
+    playAnimationFrameOnLastDirection(name: string, repeat = -1) {
+        const animFrame = `${this.imageFramePrefix}${name}${this.lastDirectionAnimationFrame}`;
+        this.playAnimationFrame(animFrame, repeat);
+    }
+
+    playAnimationFrame(name: string, repeat = -1) {
         if (this.sprite.texture.key !== name) {
+            // console.log('>>>>>>', name);
             this.sprite.setTexture(name);
-            this.sprite.play({ key: name, repeat: -1 });
+            this.sprite.play({ key: name, repeat: repeat });
         }
     }
 }
