@@ -185,12 +185,12 @@
  </tile>
  <tile id="44">
   <properties>
-   <property name="isKinematic" type="bool" value="true"/>
+   <property name="isKinematic" type="bool" value="false"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="28.5337" y="91.5634">
     <properties>
-     <property name="isKinematic" type="bool" value="true"/>
+     <property name="isKinematic" type="bool" value="false"/>
      <property name="onEnter">{
   &quot;actor&quot;: {
     &quot;events&quot;: [{
@@ -198,7 +198,8 @@
     }]
   }
 }</property>
-     <property name="radius" type="float" value="60"/>
+     <property name="radius" type="float" value="55"/>
+     <property name="sensor" type="bool" value="true"/>
      <property name="tween">{
   &quot;angle&quot;: &quot;+=360&quot;,
   &quot;duration&quot;: 1000,

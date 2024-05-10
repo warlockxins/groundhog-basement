@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="55">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="20" height="40" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="57">
  <editorsettings>
   <export target="../../public/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -41,7 +41,7 @@
 0,0,0,0,0,0,2,0,0,0,1,1,1,1,1,1,12,0,0,0,
 0,0,0,0,0,0,2,11,11,11,1,1,1,1,1,1,11,11,12,0,
 0,0,0,0,0,0,2,2,2,2,1,1,1,1,1,1,1,1,12,0,
-0,0,0,0,0,0,2,2,2,2,0,1,1,1,1,1,1,1,12,0,
+0,0,0,0,0,0,2,9,9,2,0,1,1,1,1,1,1,1,12,0,
 0,0,0,0,0,0,2,2,2,2,11,1,1,1,1,1,1,1,12,0,
 0,0,0,0,0,0,2,2,2,2,2,1,1,1,1,1,1,1,12,0,
 0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,0,
@@ -135,7 +135,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,8,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,
-0,0,0,0,0,0,7,0,7,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,8,8,0,12,0,0,0,0,0,0,8,8,0,0,
 0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -260,7 +260,11 @@
   <object id="17" gid="45" x="1024" y="2304" width="128" height="128"/>
   <object id="18" gid="45" x="1024" y="2432" width="128" height="128"/>
   <object id="19" gid="45" x="1024" y="2560" width="128" height="128"/>
-  <object id="20" gid="45" x="1280" y="2560" width="128" height="128"/>
+  <object id="20" gid="45" x="1280" y="2560" width="128" height="128">
+   <properties>
+    <property name="isKinematic" type="bool" value="false"/>
+   </properties>
+  </object>
   <object id="21" gid="45" x="1280" y="2432" width="128" height="128"/>
   <object id="22" gid="45" x="1280" y="2304" width="128" height="128"/>
   <object id="23" gid="45" x="1280" y="2176" width="128" height="128"/>
@@ -314,6 +318,14 @@
     <property name="onEnter">{
   &quot;player&quot;: &quot;Turn on light&quot;,
   &quot;toggleLight&quot;: [&quot;3&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="56" gid="44" x="896.657" y="4237.23" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;player&quot;: &quot;Turns on the light&quot;,
+   &quot;toggleLight&quot;: [&quot;27&quot;]
 }</property>
    </properties>
   </object>
@@ -384,7 +396,7 @@
   <object id="7" x="1218.67" y="2795.42">
    <point/>
   </object>
-  <object id="27" x="830.664" y="4301.33">
+  <object id="27" x="823.423" y="4295.3">
    <properties>
     <property name="isOn" type="bool" value="true"/>
    </properties>
@@ -396,7 +408,7 @@
   <object id="36" x="1731.72" y="4497.8">
    <point/>
   </object>
-  <object id="41" x="834.435" y="3696.43">
+  <object id="41" x="834.435" y="3579.37">
    <properties>
     <property name="isOn" type="bool" value="false"/>
    </properties>
@@ -417,13 +429,19 @@
    </properties>
    <point/>
   </object>
+  <object id="55" x="1213.73" y="2460.78">
+   <properties>
+    <property name="isOn" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="9" name="logic">
   <properties>
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="970.846" y="4246.96">
+  <object id="8" name="start" x="876.818" y="4426.18">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="2030.03" y="4835.28">
@@ -449,7 +467,7 @@
    </properties>
    <ellipse/>
   </object>
-  <object id="31" name="triggerSawCollapseLeft" x="1161.09" y="2265.82" width="128" height="128">
+  <object id="31" name="triggerSawCollapseLeft" x="1147.81" y="2267.03" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
@@ -467,7 +485,7 @@
    </properties>
    <ellipse/>
   </object>
-  <object id="32" name="triggerSawCollapseRight" x="1183.27" y="2272.36" width="128" height="128">
+  <object id="32" name="triggerSawCollapseRight" x="1214.65" y="2262.71" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
@@ -597,8 +615,8 @@
 0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,

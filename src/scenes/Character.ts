@@ -97,7 +97,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     autoFollowPathPoints: NavMeshPoint[] = [];
     currentPointIndex = -1;
 
-    fetchFollowPathEvent: Phaser.Time.TimerEvent;
+    fetchFollowPathEvent!: Phaser.Time.TimerEvent;
     pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
 
     followingCharacter: string | null = null
@@ -113,7 +113,6 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
 
     start() {
         this.character.sprite.on(sceneEventConstants.arrivedAtObjectPoint, this.pickNextPoint, this);
-        this.character.sprite.on(sceneEventConstants.foundEnemyId, this.setEnemyFollowId, this);
 
         // todo move to separate function to be able to remove from events when state is removed
         this.fetchFollowPathEvent = new Phaser.Time.TimerEvent({

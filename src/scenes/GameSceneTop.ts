@@ -669,7 +669,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
                     if (!tileCollision) return;
 
-                    const { bodyParts: compoundBodyParts, kinematic, tween, radius, dialogue } = tileCollision;
+                    const { bodyParts: compoundBodyParts, kinematic, tween, radius, dialogue, sensor } = tileCollision;
 
                     if (!kinematic && compoundBodyParts.length > 0) {
                         const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
@@ -683,7 +683,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                         // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
                     }
                     else {
-                        smartTile.setCircle(radius, { dialogue });
+                        smartTile.setCircle(radius, { dialogue, isSensor: sensor });
                         // smartTile.body.dialogue = dialogue;
                         smartTile.setFixedRotation();
                         smartTile.setMass(100);
@@ -837,7 +837,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         pixelX: number,
         pixelY: number
         allowStatic: boolean
-    }, objectProps: { name: string, value: string | boolean }[] = []): { dialogue: Record<string, unknown>, bodyParts: MatterJS.BodyType[], kinematic: boolean, radius: number, tween?: Record<string, unknown> } | null {
+    }, objectProps: { name: string, value: string | boolean }[] = []): { dialogue: Record<string, unknown>, bodyParts: MatterJS.BodyType[], kinematic: boolean, sensor: boolean, radius: number, tween?: Record<string, unknown> } | null {
         const tileWorldPos = tile;
 
         if (!this.tileHasCollisions(tile)) {
@@ -854,6 +854,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         let radius = 30; // default for kinematic object
         let objectTween: Record<string, unknown> | undefined = undefined;
         let dialogue = {};
+        let hasSensor = false;
         // console.log("-----------", tile.index, collisionGroup);
 
         for (let i = 0; i < objects.length; i++) {
@@ -903,6 +904,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             }
 
             if (isSensor) {
+                hasSensor = true;
                 physicsOptions.isSensor = true;
 
                 if (onEnterEvent?.value) {
@@ -939,6 +941,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         }
 
         return {
+            sensor: hasSensor,
             bodyParts,
             kinematic,
             tween: objectTween,
