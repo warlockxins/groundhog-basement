@@ -85,6 +85,7 @@ export class LoadScene extends Phaser.Scene {
         });
 
         this.load.on("progress", (progress) => {
+            loadingBar.clear();
             loadingBar.fillRect(
                 0,
                 this.game.renderer.height / 2,
@@ -94,6 +95,23 @@ export class LoadScene extends Phaser.Scene {
         });
     }
     create() {
+        this.initAllCharacterAnimations();
         this.scene.start(CST.SCENES.START_MENU, { message: "from load scene" });
+    }
+
+    initAllCharacterAnimations() {
+        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", "run-N", "run-NE", "run-E", "run-SE", "run-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'death-N', 'death-NE', 'death-E', 'death-SE', 'death-S'].forEach((key) =>
+            this.anims.create({
+                key: 'player' + key + ".png", // texture key is same for animation key/filename - KISS
+                frames: this.anims.generateFrameNumbers('player' + key + ".png"),
+                frameRate: 8
+            }));
+
+        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'slice-N', 'slice-NE', 'slice-E', 'slice-SE', 'slice-S'].forEach((key) =>
+            this.anims.create({
+                key: 'enemy' + key + ".png", // texture key is same for animation key/filename - KISS
+                frames: this.anims.generateFrameNumbers('enemy' + key + ".png"),
+                frameRate: 8
+            }));
     }
 }

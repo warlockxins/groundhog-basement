@@ -191,6 +191,24 @@ class NavMeshSceneTop {
 
 }
 
+export type LevelConfig = { tilesetName: string; tilesetKey: string; tilesetSprite: string; level: string };
+
+const Levels: { [key: string]: LevelConfig } = {
+    basement: {
+        tilesetName: "tilesTop",
+        tilesetKey: "tiles",
+        tilesetSprite: "levels/tilesTop.png",
+        level: "levels/basementTop.json"
+    },
+    bloodPool: {
+        tilesetName: "tilesTop",
+        tilesetKey: "tiles",
+        tilesetSprite: "levels/tilesTop.png",
+        level: "levels/bloodPool.json"
+
+    }
+}
+
 export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilities {
     smartLights!: Record<string, Phaser.GameObjects.Light>
 
@@ -208,6 +226,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     sanityCheckTimer!: Phaser.Time.TimerEvent;
 
     sanityScore: number = 0;
+    tilesetConfig!: LevelConfig;
+    loadingBar!: Phaser.GameObjects.Graphics;
 
     constructor() {
         super({
@@ -215,9 +235,18 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         });
     }
 
-    init(sceneMessagePayload: any) {
-        console.log("data passed to this scene", sceneMessagePayload);
+    init({ levelId }: { levelId: string }) {
 
+        const { tilesetKey, tilesetSprite, tilesetName, level } = Levels[levelId];
+
+        this.tilesetConfig = {
+            tilesetName: tilesetName,
+            tilesetKey: tilesetKey,
+            tilesetSprite: tilesetSprite,
+            level: level
+        }
+
+        console.log("data passed to this scene", this.tilesetConfig);
 
         this.navMesh = new NavMeshSceneTop()
         this.pawnHandler = new PawnHandler();
@@ -226,11 +255,35 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
     preload() {
+        console.log("lets load!");
+
+        this.load.spritesheet(this.tilesetConfig.tilesetKey, this.tilesetConfig.tilesetSprite, { frameWidth: 128, frameHeight: 128 });
+        console.log("key entries", this.cache.binary.getKeys());
+        // experiment with clearing active map
+        this.cache.tilemap.remove("map");
+        this.load.tilemapTiledJSON("map", this.tilesetConfig.level);
+
+        this.loadingBar = this.add.graphics({
+            fillStyle: {
+                color: 0xffffff,
+            },
+        });
+
+        this.load.on("progress", (progress) => {
+            this.loadingBar.clear();
+            this.loadingBar.fillRect(
+                0,
+                this.game.renderer.height / 2,
+                this.game.renderer.width * progress,
+                50
+            );
+        });
     }
 
 
     create() {
 
+        this.loadingBar.clear().destroy()
         console.log('CREATE------');
 
         this.scene.launch(CST.SCENES.GAME_HUD);
@@ -368,7 +421,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
     **/
     processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image, receiver: Phaser.GameObjects.GameObject): boolean {
-        const { player, enemy, enemySpeed, enemyIdle, enemyCanChase, newDialogue, rulePre, rulePost, playerTexture, playerMoveAnim, toggleLight } = d;
+        const { goScene, character, newDialogue, rulePre, rulePost, toggleLight } = d;
 
         if (rulePre) {
             // console.log('RYYYYLE', rulePre);
@@ -397,30 +450,16 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             light.setVisible(!light.visible)
         });
 
-        const playerPawn = this.pawnHandler.characters['player'];
-        playerPawn.bark(player);
-
-        const enemyPawn = this.pawnHandler.characters['butcher'];
-        enemyPawn.bark(enemy);
-
-        if (enemySpeed) {
-            enemyPawn.lastDirection.x = enemySpeed.x;
-            enemyPawn.lastDirection.y = enemySpeed.y;
-        }
-        if (enemyIdle) {
-            enemyPawn.defaultAnimation = enemyIdle;
+        if (character) {
+            const playerPawn = this.pawnHandler.characters[character.id];
+            character.actions.forEach((a) => {
+                playerPawn.bark(a.bark);
+            })
         }
 
-        if (enemyCanChase !== undefined) {
-            const { sprite } = playerPawn;
-            enemyPawn.sprite.emit(sceneEventConstants.chase, !!enemyCanChase, sprite.x, sprite.y);
-        }
-        if (playerTexture) {
-            playerPawn.imageFramePrefix = playerTexture;
-        }
-
-        if (playerMoveAnim) {
-            playerPawn.moveAnim = playerMoveAnim;
+        if (goScene) {
+            this.scene.restart({ levelId: goScene })
+            return true;
         }
 
         if (gameObject?.body && d.changeTileGameObjectToId !== undefined) {
@@ -524,8 +563,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         // // The first parameter is the name of the tileset in Tiled and the second parameter is the key
         // // of the tileset image used when loading the file in preload.
         this.tileset = this.map.addTilesetImage(
-            "tilesTop",
-            "tiles"
+            this.tilesetConfig.tilesetName,
+            this.tilesetConfig.tilesetKey
         );
 
         this.map.layers.forEach((l, layerIndex) => {
@@ -572,25 +611,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             }, undefined, undefined, undefined, undefined, undefined, undefined, l.name);
         });
 
-
-        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", "run-N", "run-NE", "run-E", "run-SE", "run-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'death-N', 'death-NE', 'death-E', 'death-SE', 'death-S'].forEach((key) =>
-            this.anims.create({
-                key: 'player' + key + ".png", // texture key is same for animation key/filename - KISS
-                frames: this.anims.generateFrameNumbers('player' + key + ".png"),
-                frameRate: 8
-            }));
-
-        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'slice-N', 'slice-NE', 'slice-E', 'slice-SE', 'slice-S'].forEach((key) =>
-            this.anims.create({
-                key: 'enemy' + key + ".png", // texture key is same for animation key/filename - KISS
-                frames: this.anims.generateFrameNumbers('enemy' + key + ".png"),
-                frameRate: 8
-            }));
-
-
         this.cameras.main.fadeIn(2000, 0, 0, 0);
-
-
         this.cameras.main.setZoom(0.5);
         this.cameras.main.zoomTo(1);
         // ---------

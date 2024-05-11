@@ -62,7 +62,7 @@ export class MenuScene extends Phaser.Scene {
     // Todo = start intro
     // https://labs.phaser.io/edit.html?src=src\game%20objects\text\align%20text.js
     startPressed() {
-        this.scene.start(CST.SCENES.GAME);
+        this.scene.start(CST.SCENES.GAME, { levelId: 'basement' });
         this.scene.stop();
     }
 

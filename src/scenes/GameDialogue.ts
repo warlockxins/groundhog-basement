@@ -4,15 +4,10 @@ export type GameDialogue = {
     rulePre?: Record<string, unknown>;
     rulePreFail?: GameDialogue;
     rulePost?: Record<string, unknown>;
-    player?: string;
-    playerTexture?: string;
-    playerMoveAnim?: string;
-    enemy?: string;
-    enemySpeed?: {
-        x: number; y: number;
+    character?: {
+        id: string;
+        actions: Record<'bark', string>[]
     };
-    enemyIdle?: string;
-    enemyCanChase?: boolean;
     removeTrigger: boolean;
     newDialogue?: GameDialogue[];
 
