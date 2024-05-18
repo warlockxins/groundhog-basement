@@ -125,8 +125,11 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
                     point: this.nextPoint,
                 });
 
-
+                // if (this.followingCharacter && newPath?.length > 10) {
+                // this.setEnemyFollowId(null);
+                // } else {
                 this.setAutoFollowPathPoints(newPath);
+                // }
             },
             callbackScope: this
         });
