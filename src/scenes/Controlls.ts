@@ -65,14 +65,15 @@ export class ButcherControlls extends Controlls {
             const dirX = this.chasePoint.x - this.character.sprite.x;
             const dirY = this.chasePoint.y - this.character.sprite.y;
 
+            const runningSpeedScale = this.character.running ? 2 : 1;
             if (Math.abs(dirX) > 10) {
-                this.character.sprite.setVelocityX(Math.abs(dirX) / dirX);
+                this.character.sprite.setVelocityX(Math.abs(dirX) / dirX * runningSpeedScale);
             } else {
                 this.character.sprite.setVelocityX(0);
             }
 
             if (Math.abs(dirY) > 10) {
-                this.character.sprite.setVelocityY(Math.abs(dirY) / dirY);
+                this.character.sprite.setVelocityY(Math.abs(dirY) / dirY * runningSpeedScale);
             } else {
                 this.character.sprite.setVelocityY(0);
             }
@@ -92,6 +93,10 @@ export class ButcherControlls extends Controlls {
 
 export class PlayerControlls extends Controlls {
     cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+    walkSpeed = 2.5;
+
+    fatigue = 0;
+    canRun = true;
 
     constructor(scene: Phaser.Scene, character: Character) {
         super(scene, character);
@@ -103,36 +108,54 @@ export class PlayerControlls extends Controlls {
 
         if (this.character.isDead) return;
 
-        let directionsPressed = false;
-
         if (this.cursors.shift.isDown) {
-            console.log("run")
+            if (this.canRun) {
+                this.character.running = true;
+                this.fatigue += delta;
+
+                // 6 seconds to run, then need to relax
+                if (this.fatigue > 6000) {
+                    this.canRun = false;
+                }
+            } else {
+
+                this.character.running = false;
+                this.fatigue -= delta;
+                if (this.fatigue <= 0) {
+                    this.canRun = true;
+                }
+            }
+        } else {
+            this.character.running = false;
+        }
+
+        const runningSpeedScale = this.character.running ? 1.5 : 1;
+        if (this.character.running) {
+            this.character.moveAnim = "run"
+        } else {
+            this.character.moveAnim = "walk"
         }
 
         if (this.cursors.left.isDown) {
-            directionsPressed = true;
             this.character.sprite
-                .setVelocityX(-3);
+                .setVelocityX(-this.walkSpeed * runningSpeedScale);
         }
         else if (this.cursors.right.isDown) {
 
-            directionsPressed = true;
             this.character.sprite
-                .setVelocityX(3);
+                .setVelocityX(this.walkSpeed * runningSpeedScale);
         }
 
         if (this.cursors.up.isDown) {
 
-            directionsPressed = true;
             this.character.sprite
-                .setVelocityY(-3);
+                .setVelocityY(-this.walkSpeed * runningSpeedScale);
         }
         else if (this.cursors.down.isDown) {
 
-            directionsPressed = true;
             this.character.sprite
                 //.setAngle(-180)
-                .setVelocityY(3);
+                .setVelocityY(this.walkSpeed * runningSpeedScale);
         }
     }
 }

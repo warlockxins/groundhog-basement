@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="3">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="30" height="20" tilewidth="128" tileheight="128" infinite="0" nextlayerid="9" nextobjectid="9">
  <editorsettings>
   <export target="../../public/levels/bloodPool.json" format="json"/>
  </editorsettings>
@@ -115,6 +115,26 @@
 }</property>
   </properties>
   <object id="1" name="start" x="200" y="2402.63">
+   <point/>
+  </object>
+  <object id="3" name="enemyStart" x="923.684" y="2507.89">
+   <properties>
+    <property name="id" value="butcher2"/>
+    <property name="onInit">{
+  &quot;schedule&quot;: {
+    &quot;ids&quot;: [&quot;8&quot;, &quot;5&quot;, &quot;6&quot;]
+  }
+}</property>
+   </properties>
+   <point/>
+  </object>
+  <object id="5" name="2ndButcherSchedulePoint" x="683.427" y="2527.49">
+   <point/>
+  </object>
+  <object id="6" name="2ndButcherSchedulePoint" x="1071.05" y="2494.74">
+   <point/>
+  </object>
+  <object id="8" name="2ndButcherSchedulePoint" x="568.421" y="2168.42">
    <point/>
   </object>
  </objectgroup>

@@ -330,7 +330,9 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
     // This potentially needs to be in Player controller - but it is a global gameplay part tied to main player
     checkSanitiBasedOnDistanceToClosestLight() {
-        const { x, y } = this.pawnHandler.characters['player'].sprite;
+        const character = this.pawnHandler.characters['player'];
+        const { x, y } = character.sprite;
+
         const closestLightId = closestPointInRecords(
             { x, y },
             this.smartLights,
@@ -343,7 +345,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             this.sanityScore = Math.min(this.sanityScore, 10);
         } else {
 
-            this.sanityScore -= 1;
+            const sanityDepletionScale = character.running ? 1.2 : 1;
+            this.sanityScore -= 1 * sanityDepletionScale;
 
             if (this.sanityScore < 5 && this.sanityScore > 2) {
                 this.pawnHandler.characters['player'].bark('So dark!');

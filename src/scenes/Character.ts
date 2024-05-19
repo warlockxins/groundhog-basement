@@ -100,7 +100,11 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     fetchFollowPathEvent!: Phaser.Time.TimerEvent;
     pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
 
-    followingCharacter: string | null = null
+    followingCharacter: string | null = null;
+    followingWithAngerTimer: {
+        elapsed: number; // 5 seconds to get angry
+        coolingDown: boolean;
+    } | null = null;
 
     schedulePoints: {
         originalScheduleForWalking: NavMeshPoint[],
@@ -143,6 +147,12 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
 
     setEnemyFollowId(id: string | null) {
         this.followingCharacter = id;
+        if (id !== null) {
+            this.followingWithAngerTimer = {
+                elapsed: 0,
+                coolingDown: false
+            };
+        }
     }
 
     updatePathDebugInfo() {
@@ -240,6 +250,28 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         if (this.currentPointIndex === -1) {
             this.pickNextPoint();
         }
+
+        if (this.followingWithAngerTimer) {
+            if (this.followingWithAngerTimer.coolingDown) {
+                this.followingWithAngerTimer.elapsed -= delta;
+                this.character.running = true;
+
+                if (this.followingWithAngerTimer.elapsed < 0) {
+                    this.followingWithAngerTimer.coolingDown = false;
+                    this.followingWithAngerTimer.elapsed = 0;
+                }
+            } else {
+                this.followingWithAngerTimer.elapsed += delta;
+                this.character.running = false;
+
+                // after 5 seconds just run for several seconds - freak out
+                if (this.followingWithAngerTimer.elapsed > 5000) {
+                    this.followingWithAngerTimer.coolingDown = true;
+                    this.character.bark("That's it, BITCH!");
+                }
+            }
+        }
+
         this.character.controller?.update(delta);
         this.character.updatePositionAndDirectionBasedOnSpeed(delta)
     }
@@ -265,6 +297,8 @@ export class Character {
 
     id: string = "";
     lastDirectionAnimationFrame: string;
+
+    running = false;
 
     // TODO - add id to sprite, for getting by id for scripts
     constructor(scene: Phaser.Scene, x: number, y: number, imageFrame: string, imageFramePrefix: string) {
@@ -299,7 +333,7 @@ export class Character {
 
         // this.textBubble.setText("Bodies everywhere!");
         this.defaultAnimation = 'idle';
-        this.moveAnim = 'run';
+        this.moveAnim = 'walk';
 
         this.sprite.on('damage', this.onDamage, this)
     }
