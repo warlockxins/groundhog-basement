@@ -1,0 +1,33 @@
+name: deploy game as static page
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.2.0'
+
+      - name: Install Yarn
+        run: npm install -g yarn
+
+      - name: Build lib
+        run: |
+          npm install
+          npm run build
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: master
+          folder: dist
+          clean: false
+          single-commit: true
+
