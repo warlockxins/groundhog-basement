@@ -6,7 +6,7 @@
     "source": "src/index.html",
     "scripts": {
         "start": "parcel ./src/index.html --no-cache --config ./parcel/.parcel.dev --open",
-        "build": "parcel build src/index.html --dist-dir dist --public-url _relativeroute_ --no-source-maps --log-level error --config ./parcel/.parcel.prod",
+        "build": "parcel build src/index.html --dist-dir dist --public-url _relativeroute_ --no-source-maps --log-level error --config ./parcel/.parcel.prod"
     },
     "author": "",
     "license": "MIT",
