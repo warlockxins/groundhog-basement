@@ -5,13 +5,13 @@
 import { CST } from "../constants/CST";
 
 // import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-import { NavMeshPoint, NavMeshPointMap } from "~/levelComponents/NavMesh";
+import { NavMeshPoint, NavMeshPointMap } from "../levelComponents/NavMesh";
 import jsonLogic from '../jsonLogic';
 import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
 import { PlayerControlls, ButcherControlls } from './Controlls';
-import { EdgeOfPathPoint, PathPlanner, PathPoint } from '~/levelComponents/PathPlanner';
+import { EdgeOfPathPoint, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
 
@@ -197,14 +197,14 @@ const Levels: { [key: string]: LevelConfig } = {
     basement: {
         tilesetName: "tilesTop",
         tilesetKey: "tiles",
-        tilesetSprite: "levels/tilesTop.png",
-        level: "levels/basementTop.json"
+        tilesetSprite: "assets/levels/tilesTop.png",
+        level: "assets/levels/basementTop.json"
     },
     bloodPool: {
         tilesetName: "tilesTop",
         tilesetKey: "tiles",
-        tilesetSprite: "levels/tilesTop.png",
-        level: "levels/bloodPool.json"
+        tilesetSprite: "assets/levels/tilesTop.png",
+        level: "assets/levels/bloodPool.json"
 
     }
 }

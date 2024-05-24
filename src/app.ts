@@ -17,15 +17,10 @@ const config: Phaser.Types.Core.GameConfig = {
     type: Phaser.AUTO,
     width: 800,
     height: 500,
+    parent: 'game-container',
     scale: {
-        max: {
-            width: 900,
-            height: 600
-        },
-        min: {
-            width: 320,
-            height: 200
-        }
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
     },
     render: {
         antialiasGL: false,
