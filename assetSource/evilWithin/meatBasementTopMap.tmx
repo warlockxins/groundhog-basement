@@ -1,0 +1,516 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="59">
+ <editorsettings>
+  <export target="../../public/levels/basementTop.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" source="meatBasementTop.tsx"/>
+ <layer id="1" name="floor" width="15" height="26">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,11,10,11,0,0,0,0,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,
+0,0,0,0,2,2,2,0,0,0,0,0,0,0,0,
+0,0,0,0,0,2,43,0,0,0,0,0,0,0,0,
+0,0,0,0,0,2,43,0,0,0,0,0,0,0,0,
+9,9,9,9,9,2,43,0,0,0,0,0,0,0,0,
+2,2,2,2,2,2,43,0,0,0,0,0,0,0,0,
+2,9,9,9,9,9,43,0,0,0,0,0,0,0,0,
+2,11,11,0,0,0,0,0,0,0,0,0,0,0,0,
+2,2,2,0,0,11,11,11,11,11,11,11,11,11,12,
+0,0,2,0,0,1,1,1,1,1,1,1,1,1,12,
+0,0,2,0,0,1,1,1,1,1,1,1,1,1,12,
+0,0,2,0,0,0,1,1,1,1,1,1,12,0,0,
+0,0,2,11,11,11,1,1,1,1,1,1,11,11,12,
+0,0,2,2,2,2,1,1,1,1,1,1,1,1,12,
+0,0,2,9,9,2,0,1,1,1,1,1,1,1,12,
+0,0,2,2,2,2,11,1,1,1,1,1,1,1,12,
+0,0,2,2,2,2,2,1,1,1,1,1,1,1,12,
+0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,
+0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,
+0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,
+0,0,0,0,0,0,1,1,1,1,1,1,1,0,0
+</data>
+ </layer>
+ <layer id="7" name="bloodOnFloor" width="15" height="26">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,33,34,0,0,0,0,0,0,0,0,0,
+0,0,0,0,31,34,29,0,0,0,0,0,0,0,0,
+0,0,0,0,30,34,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,34,29,0,0,0,0,0,0,0,0,
+0,0,0,0,30,34,29,0,0,0,0,0,0,0,0,
+0,0,0,0,4,31,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,36,36,37,36,36,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,39,37,38,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,34,0,0,0,0,0,0,
+0,0,0,39,36,38,0,0,34,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,34,23,0,0,0,0,0,
+0,0,0,0,0,0,0,0,34,34,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,34,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,34,0,0,0,0,0,
+0,0,0,0,0,0,0,0,25,34,25,0,0,0,0,
+0,0,0,0,0,0,25,35,35,35,29,25,0,0,0,
+0,0,0,0,0,0,25,35,35,35,25,0,0,0,0,
+0,0,0,0,0,0,25,31,31,31,25,0,0,0,0
+</data>
+ </layer>
+ <layer id="5" name="onflorObjects" width="15" height="26">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,14,0,14,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,12,0,12,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,8,7,7,0,0,0,7,8,8,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,20,0,0,0,0,0,16,0,0,8,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,10,0,0,0,0,0,0,0,0,0,0,8,0,
+0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,8,8,0,12,0,0,0,0,0,0,8,8,0,
+0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,32,0,8,16,0,0,
+0,0,0,0,0,0,47,48,24,40,48,0,0,0,0,
+0,0,0,0,0,0,0,24,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="2" name="edgeWalls" width="15" height="26">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,
+0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,
+0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,
+0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,
+0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,
+0,0,0,0,43,0,4,43,0,0,0,0,0,0,0,
+0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,43,0,0,0,0,0,0,0,0,0,
+12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+12,0,0,12,0,0,0,0,0,0,0,0,0,0,0,
+0,0,12,12,0,12,0,0,0,0,0,0,0,0,0,
+0,0,12,12,0,12,0,0,0,0,0,0,0,0,0,
+0,0,12,12,0,0,12,0,0,0,0,0,0,0,0,
+0,0,12,12,0,0,12,0,0,0,0,0,0,0,0,
+0,0,12,0,0,0,4,0,0,0,0,0,0,0,0,
+0,0,12,0,0,12,12,12,0,0,0,0,0,0,0,
+0,0,12,0,0,0,12,12,0,0,0,0,0,0,0,
+0,0,12,4,4,4,0,12,0,0,0,0,0,4,0,
+0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
+0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
+0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
+0,0,0,0,0,0,12,4,4,4,4,4,4,12,0
+</data>
+ </layer>
+ <layer id="3" name="topDetails" width="15" height="26">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+4,4,0,0,0,15,0,0,0,0,0,0,15,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,4,0,0,0,0,0,15,4,4,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,
+0,0,0,4,4,0,0,0,0,0,0,0,0,0,0,
+0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,
+0,0,15,0,0,0,0,0,0,0,0,0,0,15,0,
+0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,
+0,0,0,0,0,0,15,0,32,0,0,0,0,0,0,
+0,0,0,0,0,0,4,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="10" name="tileLogic">
+  <object id="11" gid="19" x="258.541" y="2304" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;changeTileGameObjectToId&quot;: &quot;17&quot;,
+  &quot;rulePre&quot;: {
+    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
+  },
+  &quot;rulePreFail&quot;: {
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;It's locked&quot; }
+      ]
+   }
+  }
+}</property>
+    <property name="wall" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="20" gid="45" x="768" y="896" width="128" height="128">
+   <properties>
+    <property name="isKinematic" type="bool" value="false"/>
+   </properties>
+  </object>
+  <object id="21" gid="45" x="768" y="768" width="128" height="128"/>
+  <object id="22" gid="45" x="768" y="640" width="128" height="128"/>
+  <object id="24" gid="45" x="768" y="384" width="128" height="128"/>
+  <object id="25" gid="45" x="768" y="256" width="128" height="128"/>
+  <object id="26" gid="19" x="640" y="128" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+   &quot;goScene&quot;: &quot;bloodPool&quot;
+}</property>
+   </properties>
+  </object>
+  <object id="28" gid="46" x="442.762" y="2421.53" width="128" height="128"/>
+  <object id="29" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
+  <object id="48" gid="46" x="815.749" y="3146.05" width="128" height="128"/>
+  <object id="30" gid="46" x="842.37" y="2095.92" width="128" height="128"/>
+  <object id="44" gid="44" x="768" y="2688" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;toggleLight&quot;: [&quot;46&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="45" gid="44" x="512" y="2304" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Toggle Light&quot; }
+      ]
+   },
+   &quot;toggleLight&quot;: [&quot;41&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="51" gid="44" x="255.386" y="1655.5" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+   &quot;toggleLight&quot;: [&quot;6&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="47" gid="44" x="1051.71" y="2975.61" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="50" gid="44" x="1547.04" y="2313.19" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;toggleLight&quot;: [&quot;3&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="56" gid="44" x="384.657" y="2573.23" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Toggle Light&quot; }
+      ]
+   },
+   &quot;toggleLight&quot;: [&quot;27&quot;]
+}</property>
+   </properties>
+  </object>
+  <object id="58" gid="46" x="292.936" y="2686.68" width="128" height="128"/>
+ </objectgroup>
+ <layer id="4" name="metalBarsPillars" width="15" height="26">
+  <properties>
+   <property name="physics" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,17,17,17,17,17,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+17,17,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,17,17,0,0,17,17,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,14,0,14,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,14,0,14,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="8" name="lights">
+  <object id="2" x="687.646" y="1742.23">
+   <point/>
+  </object>
+  <object id="3" x="1452.5" y="1982.68">
+   <point/>
+  </object>
+  <object id="4" x="1110.79" y="2552.07">
+   <point/>
+  </object>
+  <object id="5" x="1699.89" y="2613.38">
+   <point/>
+  </object>
+  <object id="6" x="64.6846" y="1537.81">
+   <point/>
+  </object>
+  <object id="7" x="701.244" y="1023.81">
+   <point/>
+  </object>
+  <object id="27" x="311.423" y="2631.3">
+   <properties>
+    <property name="isOn" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="33" x="703.467" y="375.067">
+   <properties>
+    <property name="isOn" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="36" x="1219.72" y="2833.8">
+   <point/>
+  </object>
+  <object id="41" x="322.435" y="1915.37">
+   <properties>
+    <property name="isOn" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="42" x="1217.28" y="2566.7">
+   <point/>
+  </object>
+  <object id="46" x="821.791" y="3128.71">
+   <properties>
+    <property name="isOn" type="bool" value="false"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="49" x="1480.24" y="3021.29">
+   <properties>
+    <property name="isOn" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+  <object id="55" x="701.725" y="796.784">
+   <properties>
+    <property name="isOn" type="bool" value="true"/>
+   </properties>
+   <point/>
+  </object>
+ </objectgroup>
+ <objectgroup id="9" name="logic">
+  <properties>
+   <property name="blackboard">{
+}</property>
+  </properties>
+  <object id="8" name="start" x="322.388" y="2781.26">
+   <point/>
+  </object>
+  <object id="9" name="enemyStart" x="1518.03" y="3171.28">
+   <properties>
+    <property name="id" value="butcher2"/>
+    <property name="onInit">{
+  &quot;schedule&quot;: {
+    &quot;ids&quot;: [&quot;52&quot;, &quot;53&quot;, &quot;54&quot;]
+  }
+}</property>
+   </properties>
+   <point/>
+  </object>
+  <object id="10" name="pickupDoorKey" x="963.648" y="1938.46" width="91.8973" height="91.0064">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+  &quot;rulePost&quot;: {
+     &quot;setVar&quot;: [&quot;haveKey&quot;, true]
+  }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="32" name="triggerSawCollapseRight" x="638.395" y="658.745" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+  &quot;tween&quot;: {
+     &quot;ids&quot;: [&quot;20&quot;, &quot;21&quot;, &quot;22&quot;, &quot;24&quot;, &quot;25&quot;],
+     &quot;x&quot;: 600,
+     &quot;duration&quot;: 3000,
+            &quot;yoyo&quot;: true,
+            &quot;ease&quot;: &quot;Linear&quot;,
+            &quot;repeat&quot;: -1
+  }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="37" name="scheduleEnemy1" x="1676.11" y="1868.07">
+   <point/>
+  </object>
+  <object id="38" name="scheduleEnemy3" x="1069" y="2098.01">
+   <point/>
+  </object>
+  <object id="39" name="scheduleEnemy2" x="705.964" y="1840.28">
+   <point/>
+  </object>
+  <object id="40" name="enemyStart" x="1205.94" y="2144.65">
+   <properties>
+    <property name="id" value="butcher"/>
+    <property name="onInit">{
+  &quot;schedule&quot;: {
+    &quot;ids&quot;: [&quot;37&quot;, &quot;38&quot;, &quot;39&quot;]
+  }
+}</property>
+   </properties>
+   <point/>
+  </object>
+  <object id="52" name="2ndButcherSchedulePoint2" x="1317.2" y="3040.01">
+   <point/>
+  </object>
+  <object id="53" name="2ndButcherSchedulePoint" x="1300.7" y="3273.42">
+   <point/>
+  </object>
+  <object id="54" name="2ndButcherSchedulePoint" x="1562.01" y="3119.61">
+   <point/>
+  </object>
+  <object id="57" name="triggerSawCollapseLeft" x="651.983" y="860.099" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Now what&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+ </objectgroup>
+ <layer id="6" name="alwaysAbove" width="15" height="26">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,6,0,6,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,50,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,6,0,6,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,6,0,6,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <layer id="11" name="moreAbove" width="15" height="26">
+  <data encoding="csv">
+0,0,0,0,43,0,0,43,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,49,50,51,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,49,50,51,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,49,50,51,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+</map>
