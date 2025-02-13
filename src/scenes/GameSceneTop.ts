@@ -209,6 +209,22 @@ const Levels: { [key: string]: LevelConfig } = {
     }
 }
 
+function parseHexColor(hex: string) {
+    // Remove the "#" if present
+    hex = hex.replace(/^#/, '');
+
+    // Extract RGBA components
+    const b = parseInt(hex.substring(0, 2), 16); // r
+    const g = parseInt(hex.substring(2, 4), 16); // g
+    const r = parseInt(hex.substring(4, 6), 16); // b
+    const a = hex.length === 8 ? parseInt(hex.substring(6, 8), 16) / 255 : 1; // Normalize alpha to 0-1
+
+    // Convert RGB to integer for Phaser
+    const rgbInt = (r << 16) | (g << 8) | b;
+
+    return { color: rgbInt, intensity: a };
+}
+
 export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilities {
     smartLights!: Record<string, Phaser.GameObjects.Light>
 
@@ -623,17 +639,40 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 this.map.getObjectLayer(n)?.objects.forEach(o => {
                     const pp = o;
 
+
+
+                    const color = o.properties?.find(({ name }) => name === 'color')?.value;
+                    let computedColor = 0xffff00;
+
+                    if (color) {
+                        try {
+                            computedColor = parseHexColor(color).color
+                        } catch {
+                        }
+                        console.log("??????>>>>>>>", color)
+                    }
+
                     const l = this.lights.addLight(
                         pp.x,
                         pp.y,
                         o.width ? o.width : 300
-                    ).setColor(0xffff00)
+                    ).setColor(computedColor)
                         .setIntensity(3.0);
 
                     this.smartLights[o.id] = l;
 
                     const isLightOn = o.properties?.find(({ name }) => name === 'isOn')?.value;
                     l.setVisible(isLightOn);
+
+
+                    const animationTween = o.properties?.find(({ name }) => name === 'tween')?.value;
+                    if (animationTween) {
+                        console.log("--------", animationTween);
+                        const parsedTween = JSON.parse(animationTween);
+                        parsedTween.targets = l;
+
+                        this.tweens.add(parsedTween);
+                    }
 
                 });
             } else if (n === 'logic') {

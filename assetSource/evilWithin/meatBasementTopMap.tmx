@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="59">
  <editorsettings>
-  <export target="../../public/levels/basementTop.json" format="json"/>
+  <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
  <tileset firstgid="1" source="meatBasementTop.tsx"/>
  <layer id="1" name="floor" width="15" height="26">
@@ -43,12 +43,12 @@
   </properties>
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,33,34,0,0,0,0,0,0,0,0,0,
-0,0,0,0,31,34,29,0,0,0,0,0,0,0,0,
-0,0,0,0,30,34,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,34,29,0,0,0,0,0,0,0,0,
-0,0,0,0,30,34,29,0,0,0,0,0,0,0,0,
-0,0,0,0,4,31,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,25,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,25,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,25,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,25,25,0,0,0,0,0,0,0,0,
+0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -58,16 +58,16 @@
 0,0,0,0,0,0,0,0,39,37,38,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,34,0,0,0,0,0,0,
-0,0,0,39,36,38,0,0,34,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,34,23,0,0,0,0,0,
-0,0,0,0,0,0,0,0,34,34,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,34,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,34,0,0,0,0,0,
-0,0,0,0,0,0,0,0,25,34,25,0,0,0,0,
-0,0,0,0,0,0,25,35,35,35,29,25,0,0,0,
-0,0,0,0,0,0,25,35,35,35,25,0,0,0,0,
-0,0,0,0,0,0,25,31,31,31,25,0,0,0,0
+0,0,0,0,0,0,0,0,25,0,0,0,0,0,0,
+0,0,0,39,36,38,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,25,0,25,0,0,0,0,
+0,0,0,0,0,0,25,0,0,25,0,25,0,0,0,
+0,0,0,0,0,0,25,27,25,27,25,0,27,0,0,
+0,0,0,0,0,0,25,25,0,0,25,0,0,0,0
 </data>
  </layer>
  <layer id="5" name="onflorObjects" width="15" height="26">
@@ -99,7 +99,7 @@
 0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,32,0,8,16,0,0,
-0,0,0,0,0,0,47,48,24,40,48,0,0,0,0,
+0,0,0,0,0,0,47,0,24,40,0,0,0,0,0,
 0,0,0,0,0,0,0,24,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -312,33 +312,75 @@
    <point/>
   </object>
   <object id="6" x="64.6846" y="1537.81">
+   <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
+   </properties>
    <point/>
   </object>
   <object id="7" x="701.244" y="1023.81">
+   <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
+   </properties>
    <point/>
   </object>
   <object id="27" x="311.423" y="2631.3">
    <properties>
     <property name="isOn" type="bool" value="true"/>
+    <property name="tween">{
+    &quot;intensity&quot;: { &quot;from&quot;: 1, &quot;to&quot;: 0.9 },
+    &quot;duration&quot;: 500,
+    &quot;yoyo&quot;: true,
+    &quot;repeat&quot;: -1,
+    &quot;ease&quot;: &quot;Sine.InOut&quot;
+}</property>
    </properties>
    <point/>
   </object>
   <object id="33" x="703.467" y="375.067">
    <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
     <property name="isOn" type="bool" value="true"/>
+    <property name="tween">{
+    &quot;intensity&quot;: { &quot;from&quot;: 1, &quot;to&quot;: 0.7 },
+    &quot;duration&quot;: 250,
+    &quot;yoyo&quot;: true,
+    &quot;repeat&quot;: -1,
+    &quot;ease&quot;: &quot;Sine.InOut&quot;
+}</property>
    </properties>
    <point/>
   </object>
   <object id="36" x="1219.72" y="2833.8">
+   <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
+    <property name="tween">{
+    &quot;intensity&quot;: { &quot;from&quot;: 1, &quot;to&quot;: 0.7 },
+    &quot;duration&quot;: 250,
+    &quot;yoyo&quot;: true,
+    &quot;repeat&quot;: -1,
+    &quot;ease&quot;: &quot;Sine.InOut&quot;
+}</property>
+   </properties>
    <point/>
   </object>
   <object id="41" x="322.435" y="1915.37">
    <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
     <property name="isOn" type="bool" value="false"/>
+    <property name="tween">{
+    &quot;intensity&quot;: { &quot;from&quot;: 1, &quot;to&quot;: 0.95 },
+    &quot;duration&quot;: 250,
+    &quot;yoyo&quot;: true,
+    &quot;repeat&quot;: -1,
+    &quot;ease&quot;: &quot;Sine.InOut&quot;
+}</property>
    </properties>
    <point/>
   </object>
   <object id="42" x="1217.28" y="2566.7">
+   <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
+   </properties>
    <point/>
   </object>
   <object id="46" x="821.791" y="3128.71">
@@ -355,7 +397,15 @@
   </object>
   <object id="55" x="701.725" y="796.784">
    <properties>
+    <property name="color" type="color" value="#ff913b23"/>
     <property name="isOn" type="bool" value="true"/>
+    <property name="tween">{
+    &quot;intensity&quot;: { &quot;from&quot;: 1, &quot;to&quot;: 0.7 },
+    &quot;duration&quot;: 250,
+    &quot;yoyo&quot;: true,
+    &quot;repeat&quot;: -1,
+    &quot;ease&quot;: &quot;Sine.InOut&quot;
+}</property>
    </properties>
    <point/>
   </object>
@@ -437,7 +487,7 @@
   <object id="54" name="2ndButcherSchedulePoint" x="1562.01" y="3119.61">
    <point/>
   </object>
-  <object id="57" name="triggerSawCollapseLeft" x="651.983" y="860.099" width="128" height="128">
+  <object id="57" name="triggerSawCollapseLeft" x="642.936" y="945.403" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,

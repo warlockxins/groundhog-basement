@@ -254,4 +254,9 @@
    <property name="above" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="50">
+  <properties>
+   <property name="above" type="bool" value="true"/>
+  </properties>
+ </tile>
 </tileset>
