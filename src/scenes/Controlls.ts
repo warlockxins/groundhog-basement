@@ -1,16 +1,6 @@
 import { Character } from './Character';
 import { sceneEventConstants } from './sceneEvents';
-export class Controlls {
-    scene: Phaser.Scene;
-    character: Character;
-    constructor(scene: Phaser.Scene, character: Character) {
-        this.scene = scene;
-        this.character = character;
-    }
-
-    update(delta: number) { }
-}
-
+import { Controlls } from './BaseControlls';
 
 export class ButcherControlls extends Controlls {
     chasePoint: { x: number, y: number } | null = null;
