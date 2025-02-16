@@ -831,7 +831,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 return name === 'sensor'
             });
             if (isSensor) {
-                const icon = o.properties?.some(({ name }) => {
+                const icon = o.properties?.find(({ name }) => {
                     return name === 'icon'
                 });
                 const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
@@ -842,7 +842,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                     physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
 
                     if (icon) {
-                        const triggerSprite = this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key",
+                        debugger
+                        const triggerSprite = this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, icon.value,
                             { ignoreGravity: true, isStatic: true, ...physicsOptions }
                         ).setDepth(o?.y ?? 0 + 500);
 
