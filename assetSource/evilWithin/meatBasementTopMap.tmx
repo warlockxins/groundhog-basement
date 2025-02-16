@@ -432,7 +432,7 @@
    </properties>
    <point/>
   </object>
-  <object id="10" name="pickupDoorKey" x="963.648" y="1938.46" width="91.8973" height="91.0064">
+  <object id="10" name="pickupDoorKey" x="1119.46" y="1947.81" width="91.8973" height="91.0064">
    <properties>
     <property name="icon" value="key"/>
     <property name="onEnter">{

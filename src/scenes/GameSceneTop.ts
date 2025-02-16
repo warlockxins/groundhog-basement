@@ -842,9 +842,11 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                     physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
 
                     if (icon) {
-                        this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key",
+                        const triggerSprite = this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key",
                             { ignoreGravity: true, isStatic: true, ...physicsOptions }
                         ).setDepth(o?.y ?? 0 + 500);
+
+                        this.bounceCollectable(triggerSprite)
                     } else {
                         this.matter.add.circle(
                             pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
@@ -1048,6 +1050,16 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.pawnHandler.update(time, delta);
     }
 
+    bounceCollectable(sprite: any) {
+        const tween = {
+            "alpha": { "from": "0.5", "to": "1" },
+            "duration": 1000,
+            "yoyo": true,
+            "repeat": -1,
+            "ease": "Sine.InOut"
+        }
+        this.tweens.add({ ...tween, targets: sprite });
+    }
 
     createKeyFrame() {
         const newTextureFrame = "key";
