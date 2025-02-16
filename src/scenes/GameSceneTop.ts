@@ -268,6 +268,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.pawnHandler = new PawnHandler();
         this.blackboard = {};
         this.smartLights = {};
+
+        this.createKeyFrame();
     }
 
     preload() {
@@ -649,7 +651,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                             computedColor = parseHexColor(color).color
                         } catch {
                         }
-                        console.log("??????>>>>>>>", color)
+                        // console.log("??????>>>>>>>", color)
                     }
 
                     const l = this.lights.addLight(
@@ -667,7 +669,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
                     const animationTween = o.properties?.find(({ name }) => name === 'tween')?.value;
                     if (animationTween) {
-                        console.log("--------", animationTween);
+                        // console.log("--------", animationTween);
                         const parsedTween = JSON.parse(animationTween);
                         parsedTween.targets = l;
 
@@ -712,10 +714,23 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 objects.forEach((t) => {
                     // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
 
-                    const smartTile = (new SpriteWithDepth(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
-                        .setDepth(
-                            t.y
-                        )
+                    // read smart object type ----------------
+
+                    let smartTile: SpriteWithDepth | null = null;
+                    let collisionGroup = this.tileset.getTileProperties(t.gid);
+                    // console.log(",,,,,,,,,,,", collisionGroup.kind);
+
+                    // @ts-ignore
+                    if (collisionGroup.kind === "lightSwitch") {
+                        smartTile = (new LightSwitchSmartObject(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
+                    }
+                    else {
+                        smartTile = (new SpriteWithDepth(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
+                    }
+
+                    smartTile.setDepth(
+                        t.y
+                    )
                         .setOrigin(0, 0)
                         .setPipeline('Light2D')
                         .setName(t.id.toString());
@@ -883,6 +898,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
 
 
+        this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key").setDepth(o?.y ?? 0 + 500);
     }
 
     /*
@@ -1016,6 +1032,18 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     update(time: number, delta: number) {
         this.pawnHandler.update(time, delta);
     }
+
+
+    createKeyFrame() {
+        const newTextureFrame = "key";
+        const tileTexture: Phaser.Textures.Texture = this.textures.list[this.tilesetConfig.tilesetKey];
+        const frame = tileTexture.get(56); // Get frame 56
+        if (frame) {
+            debugger
+            tileTexture.add(newTextureFrame, 0, frame.cutX, frame.cutY, 64, 64);
+        }
+        // tileTexture.add(newTextureFrame, 0, 0, 0, 64, 64);
+    }
 }
 
 class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
@@ -1027,8 +1055,33 @@ class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
         this.setFrame(frame);
     }
 
-    preUpdate(time, delta) {
+    preUpdate(time: number, delta: number) {
         super.preUpdate(time, delta)
         this.setDepth(this.y + 1);
+    }
+}
+
+class LightSwitchSmartObject extends SpriteWithDepth {
+    indicator: Phaser.GameObjects.Ellipse;
+
+    constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame: number) {
+        super(scene, x, y, texture, frame);
+        // console.log("switch time-----");
+
+        this.indicator = scene.add.ellipse(x + 64, y + 64, 10, 10, 0xff1111, 1).setDepth(y + 130).setSmoothness(5);
+
+        // in case if needed, can add this to any other object .... copy to config in tiled editor
+        scene.tweens.add({
+            targets: this.indicator,
+            "alpha": { "from": 0.1, "to": 1 },
+            "duration": 1000,
+            "yoyo": true,
+            "repeat": -1,
+            "ease": "Sine.InOut"
+        });
+    }
+
+    preUpdate(time: number, delta: number) {
+        super.preUpdate(time, delta)
     }
 }

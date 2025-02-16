@@ -177,6 +177,7 @@
  </tile>
  <tile id="43">
   <properties>
+   <property name="kind" value="lightSwitch"/>
    <property name="onEnter" value="{}"/>
    <property name="wall" type="bool" value="true"/>
   </properties>
@@ -257,6 +258,11 @@
  <tile id="50">
   <properties>
    <property name="above" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="56">
+  <properties>
+   <property name="icons" value="key"/>
   </properties>
  </tile>
 </tileset>

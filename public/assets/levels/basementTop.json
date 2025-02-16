@@ -483,8 +483,8 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":384.657,
-                 "y":2573.23
+                 "x":388.466523809524,
+                 "y":2571.32523809524
                 }, 
                 {
                  "gid":46,
@@ -495,8 +495,8 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":292.936,
-                 "y":2686.68
+                 "x":265.316952380952,
+                 "y":2656.20380952381
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -557,6 +557,12 @@
                  "id":2,
                  "name":"",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"isOn",
+                         "type":"bool",
+                         "value":true
+                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -650,7 +656,7 @@
                         {
                          "name":"tween",
                          "type":"string",
-                         "value":"{\n    \"intensity\": { \"from\": 1, \"to\": 0.9 },\n    \"duration\": 500,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
+                         "value":"{\n    \"intensity\": { \"from\": 3, \"to\": 2.9 },\n    \"duration\": 500,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -678,7 +684,7 @@
                         {
                          "name":"tween",
                          "type":"string",
-                         "value":"{\n    \"intensity\": { \"from\": 1, \"to\": 0.7 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
+                         "value":"{\n    \"intensity\": { \"from\": 3, \"to\": 0.7 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -701,7 +707,7 @@
                         {
                          "name":"tween",
                          "type":"string",
-                         "value":"{\n    \"intensity\": { \"from\": 1, \"to\": 0.7 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
+                         "value":"{\n    \"intensity\": { \"from\": 2, \"to\": 0.7 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -729,7 +735,7 @@
                         {
                          "name":"tween",
                          "type":"string",
-                         "value":"{\n    \"intensity\": { \"from\": 1, \"to\": 0.95 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
+                         "value":"{\n    \"intensity\": { \"from\": 3, \"to\": 0.95 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -811,7 +817,7 @@
                         {
                          "name":"tween",
                          "type":"string",
-                         "value":"{\n    \"intensity\": { \"from\": 1, \"to\": 0.7 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
+                         "value":"{\n    \"intensity\": { \"from\": 2, \"to\": 0.7 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -840,8 +846,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":322.388,
-                 "y":2781.26
+                 "x":334.768952380952,
+                 "y":2747.92666666667
                 }, 
                 {
                  "height":0,
@@ -857,14 +863,14 @@
                         {
                          "name":"onInit",
                          "type":"string",
-                         "value":"{\n  \"schedule\": {\n    \"ids\": [\"52\", \"53\", \"54\"]\n  }\n}"
+                         "value":"{\n  \"schedule\": {\n    \"ids\": [\"52\", \"53\", \"54\", \"59\"]\n  }\n}"
                         }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1518.03,
-                 "y":3171.28
+                 "x":1533.2680952381,
+                 "y":3148.42285714286
                 }, 
                 {
                  "ellipse":true,
@@ -980,8 +986,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1317.2,
-                 "y":3040.01
+                 "x":1573.39047619048,
+                 "y":2869.53380952381
                 }, 
                 {
                  "height":0,
@@ -992,8 +998,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1300.7,
-                 "y":3273.42
+                 "x":1266.41428571429,
+                 "y":3095.32476190476
                 }, 
                 {
                  "height":0,
@@ -1027,8 +1033,20 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":642.935565593899,
-                 "y":945.403381543234
+                 "x":645.793142857143,
+                 "y":917.783952380952
+                }, 
+                {
+                 "height":0,
+                 "id":59,
+                 "name":"2ndButcherSchedulePoint2",
+                 "point":true,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":0,
+                 "x":1579.04761904762,
+                 "y":2740.95238095238
                 }],
          "opacity":1,
          "properties":[
@@ -1117,7 +1135,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":59,
+ "nextobjectid":61,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.10.2",
@@ -2151,6 +2169,11 @@
                      "y":0
                     },
                  "properties":[
+                        {
+                         "name":"kind",
+                         "type":"string",
+                         "value":"lightSwitch"
+                        }, 
                         {
                          "name":"onEnter",
                          "type":"string",
