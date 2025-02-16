@@ -846,8 +846,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":334.768952380952,
-                 "y":2747.92666666667
+                 "x":336.327070174658,
+                 "y":2469.02358159344
                 }, 
                 {
                  "height":0,
@@ -878,6 +878,11 @@
                  "id":10,
                  "name":"pickupDoorKey",
                  "properties":[
+                        {
+                         "name":"icon",
+                         "type":"string",
+                         "value":"key"
+                        }, 
                         {
                          "name":"onEnter",
                          "type":"string",
@@ -2394,6 +2399,15 @@
                          "name":"above",
                          "type":"bool",
                          "value":true
+                        }]
+                }, 
+                {
+                 "id":56,
+                 "properties":[
+                        {
+                         "name":"icons",
+                         "type":"string",
+                         "value":"key"
                         }]
                 }],
          "tilewidth":128,

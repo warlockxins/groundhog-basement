@@ -565,7 +565,12 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
                 if (wasProcessed) {
                     if (dialogue.removeTrigger) {
-                        this.matter.world.remove(trigger);
+                        if (trigger.gameObject instanceof Phaser.Physics.Matter.Sprite) { // >>>>>>>>>>>>>>>>>>>>
+                            // debugger
+                            (trigger.gameObject as Phaser.Physics.Matter.Sprite).destroy()
+                        } else {
+                            this.matter.world.remove(trigger);
+                        }
                         return;
                     }
                 }
@@ -826,16 +831,26 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 return name === 'sensor'
             });
             if (isSensor) {
+                const icon = o.properties?.some(({ name }) => {
+                    return name === 'icon'
+                });
                 const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
                 physicsOptions.isSensor = true;
                 const onEnterEvent = o.properties.find(({ name }) => name === 'onEnter');
 
                 if (onEnterEvent?.value) {
                     physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
-                    this.matter.add.circle(
-                        pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
-                        { ignoreGravity: true, isStatic: true, ...physicsOptions }
-                    );
+
+                    if (icon) {
+                        this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key",
+                            { ignoreGravity: true, isStatic: true, ...physicsOptions }
+                        ).setDepth(o?.y ?? 0 + 500);
+                    } else {
+                        this.matter.add.circle(
+                            pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
+                            { ignoreGravity: true, isStatic: true, ...physicsOptions }
+                        );
+                    }
                 }
             }
         });
@@ -898,7 +913,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
 
 
-        this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key").setDepth(o?.y ?? 0 + 500);
+        // this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key").setDepth(o?.y ?? 0 + 500);
     }
 
     /*
@@ -1039,7 +1054,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         const tileTexture: Phaser.Textures.Texture = this.textures.list[this.tilesetConfig.tilesetKey];
         const frame = tileTexture.get(56); // Get frame 56
         if (frame) {
-            debugger
+            // debugger
             tileTexture.add(newTextureFrame, 0, frame.cutX, frame.cutY, 64, 64);
         }
         // tileTexture.add(newTextureFrame, 0, 0, 0, 64, 64);

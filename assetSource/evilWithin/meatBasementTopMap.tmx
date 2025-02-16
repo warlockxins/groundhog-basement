@@ -418,7 +418,7 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="334.769" y="2747.93">
+  <object id="8" name="start" x="336.327" y="2469.02">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="1533.27" y="3148.42">
@@ -434,6 +434,7 @@
   </object>
   <object id="10" name="pickupDoorKey" x="963.648" y="1938.46" width="91.8973" height="91.0064">
    <properties>
+    <property name="icon" value="key"/>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
   &quot;rulePost&quot;: {
