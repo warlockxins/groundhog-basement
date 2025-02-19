@@ -1,5 +1,6 @@
 import { CharacterState } from './CharacterState'
 import { Animations } from 'phaser';
+import { GameSceneTop } from '../GameSceneTop';
 
 export class ButcherAttackState extends CharacterState {
 
@@ -10,6 +11,8 @@ export class ButcherAttackState extends CharacterState {
         if (this.character.sprite.scene.matter.world.drawDebug) {
             this.pathGraphicsDebugInfo = this.character.sprite.scene.add.graphics({ lineStyle: { color: 0x00ff00 } });
         }
+
+        (this.character.sprite.scene as GameSceneTop).sounds.knifeSlice.play();
 
         this.character.bark("kill");
         this.character.playAnimationFrameOnLastDirection('slice', 0);

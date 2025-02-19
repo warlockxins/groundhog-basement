@@ -1,4 +1,5 @@
 import { CST } from "../constants/CST";
+import { soundFiles } from "../constants/sounds";
 
 const playerAnimationFiles = [
     "armActionTake-E.png",
@@ -66,6 +67,10 @@ export class LoadScene extends Phaser.Scene {
 
         enemyAnimationFiles.forEach((file) => {
             this.load.spritesheet('enemy' + file, `assets/images/enemy/${file}`, { frameWidth: 128, frameHeight: 128 });
+        });
+
+        soundFiles.forEach(sound => {
+            this.load.audio(sound, `assets/sound/${sound}`);
         });
 
         // experiment with cleating active maps texture

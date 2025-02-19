@@ -154,6 +154,16 @@
    </object>
   </objectgroup>
  </tile>
+ <tile id="32">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="12.1497" y="97.5897">
+    <polygon points="0,0 45.4635,29.0025 112.091,5.09504 60.3567,-33.7057"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="40">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.425876" y="127.763">

@@ -1,6 +1,7 @@
 import { Character } from './Character';
 import { sceneEventConstants } from './sceneEvents';
 import { Controlls } from './BaseControlls';
+import { GameSceneTop } from './GameSceneTop';
 
 export class ButcherControlls extends Controlls {
     chasePoint: { x: number, y: number } | null = null;
@@ -126,26 +127,37 @@ export class PlayerControlls extends Controlls {
             this.character.moveAnim = "walk"
         }
 
+        let moving = false;
+
         if (this.cursors.left.isDown) {
+            moving = true;
             this.character.sprite
                 .setVelocityX(-this.walkSpeed * runningSpeedScale);
         }
         else if (this.cursors.right.isDown) {
-
+            moving = true;
             this.character.sprite
                 .setVelocityX(this.walkSpeed * runningSpeedScale);
         }
 
         if (this.cursors.up.isDown) {
-
+            moving = true;
             this.character.sprite
                 .setVelocityY(-this.walkSpeed * runningSpeedScale);
         }
         else if (this.cursors.down.isDown) {
-
+            moving = true;
             this.character.sprite
                 //.setAngle(-180)
                 .setVelocityY(this.walkSpeed * runningSpeedScale);
+        }
+
+        if (moving) {
+            const sound = (this.character.sprite.scene as GameSceneTop).sounds.step;
+            if (!sound.isPlaying) {
+                sound.volume = 0.3;
+                sound.play();
+            }
         }
     }
 }

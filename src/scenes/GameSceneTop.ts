@@ -14,6 +14,7 @@ import { PlayerControlls, ButcherControlls } from './Controlls';
 import { EdgeOfPathPoint, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
+import { soundSource } from '../constants/sounds';
 
 class PawnHandler {
     characters: Record<string, Character> = {}
@@ -245,6 +246,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     tilesetConfig!: LevelConfig;
     loadingBar!: Phaser.GameObjects.Graphics;
 
+    sounds!: Record<keyof typeof soundSource, Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound>
     constructor() {
         super({
             key: CST.SCENES.GAME,
@@ -299,8 +301,21 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
 
-    create() {
+    createSounds() {
+        this.sounds = {
+            itemPut: this.sound.add(soundSource.itemPut),
+            knifeSlice: this.sound.add(soundSource.knifeSlice),
+            sawCutter: this.sound.add(soundSource.sawCutter),
+            slamDoor: this.sound.add(soundSource.slamDoor),
+            step: this.sound.add(soundSource.step),
+            tryDoor: this.sound.add(soundSource.tryDoor),
+        }
+    }
 
+    create() {
+        this.createSounds();
+
+        this.sound.pauseOnBlur = true;
         this.loadingBar.clear().destroy()
         console.log('CREATE------');
 
@@ -442,7 +457,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
     **/
     processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image, receiver: Phaser.GameObjects.GameObject): boolean {
-        const { goScene, character, newDialogue, rulePre, rulePost, toggleLight } = d;
+        const { goScene, character, newDialogue, rulePre, rulePost, toggleLight, sound } = d;
 
         if (rulePre) {
             // console.log('RYYYYLE', rulePre);
@@ -457,6 +472,10 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             }
         }
 
+        if (sound) {
+            this.sounds[sound]?.play();
+        }
+
         if (receiver && d.actor) {
             if (d.actor.events) {
                 // console.log('WHHHHHAAAAT?', d.actor);
@@ -469,6 +488,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         toggleLight?.forEach((lightId) => {
             const light = this.smartLights[lightId];
             light.setVisible(!light.visible)
+
+            this.sounds.itemPut.play({ loop: false });
         });
 
         if (character) {
@@ -842,7 +863,6 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                     physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
 
                     if (icon) {
-                        debugger
                         const triggerSprite = this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, icon.value,
                             { ignoreGravity: true, isStatic: true, ...physicsOptions }
                         ).setDepth(o?.y ?? 0 + 500);
