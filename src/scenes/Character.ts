@@ -31,7 +31,7 @@ export class Character {
     attackState!: ButcherAttackState;
 
     id: string = "";
-    lastDirectionAnimationFrame: string;
+    lastDirectionAnimationFrame!: string;
 
     running = false;
 
@@ -43,7 +43,12 @@ export class Character {
         this.sprite = scene.matter.add.sprite(x, y, imageFramePrefix + imageFrame);
 
         this.sprite.play({ key: imageFramePrefix + imageFrame, repeat: -1 });
-        this.sprite.setCircle(17, { label: imageFramePrefix })
+        this.sprite.setCircle(17, {
+            label: imageFramePrefix, collisionFilter: {
+                category: 1,
+                mask: 1
+            }
+        })
             .setScale(0.9)
             .setFixedRotation()
             .setOrigin(0.5, 0.9)

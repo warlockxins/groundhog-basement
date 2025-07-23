@@ -226,6 +226,7 @@ function parseHexColor(hex: string) {
     return { color: rgbInt, intensity: a };
 }
 
+const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilities {
     smartLights!: Record<string, Phaser.GameObjects.Light>
 
@@ -247,6 +248,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     loadingBar!: Phaser.GameObjects.Graphics;
 
     sounds!: Record<keyof typeof soundSource, Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound>
+    collisionCache: Map<string, boolean> = new Map();
     constructor() {
         super({
             key: CST.SCENES.GAME,
@@ -487,7 +489,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
         toggleLight?.forEach((lightId) => {
             const light = this.smartLights[lightId];
-            light.setVisible(!light.visible)
+            const visible = light.visible;
+            light.setVisible(!visible);
 
             this.sounds.itemPut.play({ loop: false });
         });
@@ -558,49 +561,64 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 (item) => item.name === key);
     }
 
-    addPhysicsListeners() {
-        this.matter.world.on('collisionstart', (event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
-            const isPlayerHere = [bodyA.label, bodyB.label].some(l => l === 'player');
-            if (!isPlayerHere) {
-                return
-            }
-
-            const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
-            let trigger: MatterJS.BodyType = null;
-
-            let actor = null;
-            if (bodyA.dialogue) {
-                trigger = bodyA;
-                actor = bodyB;
-            }
-            if (bodyB.dialogue) {
-                trigger = bodyB;
-                actor = bodyA;
-            }
-
-            if (!trigger) {
+    onLevelTriggerCollide(pair: Phaser.Physics.Matter.Pair) {
+        if (pair.bodyA) {
+            const key = `${pair.bodyB.id},${pair.bodyA.id}`;
+            if (this.collisionCache.get(key)) {
                 return;
             }
 
-            if (dialogue) {
-                const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
-                if (wasProcessed) {
-                    if (dialogue.removeTrigger) {
-                        if (trigger.gameObject instanceof Phaser.Physics.Matter.Sprite) { // >>>>>>>>>>>>>>>>>>>>
-                            // debugger
-                            (trigger.gameObject as Phaser.Physics.Matter.Sprite).destroy()
-                        } else {
-                            this.matter.world.remove(trigger);
-                        }
-                        return;
+            this.collisionCache.set(key, true);
+            // console.log('----------Trigger--------', pair.bodyB.id, pair.bodyA.id);//, pair.bodyB.collisionFilter.mask, pair.bodyA.label, pair.bodyB.label);
+            this.processCollisions(null, pair.bodyA, pair.bodyB)
+        }
+    }
+
+    processCollisions(event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
+        const isPlayerHere = [bodyA.label, bodyB.label].some(l => l === 'player');
+        if (!isPlayerHere) {
+            return
+        }
+
+        const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
+        let trigger: MatterJS.BodyType = null;
+
+        let actor = null;
+        if (bodyA.dialogue) {
+            trigger = bodyA;
+            actor = bodyB;
+        }
+        if (bodyB.dialogue) {
+            trigger = bodyB;
+            actor = bodyA;
+        }
+
+        if (!trigger) {
+            return;
+        }
+
+        if (dialogue) {
+            const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
+            if (wasProcessed) {
+                if (dialogue.removeTrigger) {
+                    if (trigger.gameObject instanceof Phaser.Physics.Matter.Sprite) { // >>>>>>>>>>>>>>>>>>>>
+                        // debugger
+                        (trigger.gameObject as Phaser.Physics.Matter.Sprite).destroy()
+                    } else {
+                        this.matter.world.remove(trigger);
                     }
+                    return;
                 }
             }
+        }
 
-            if (trigger.isSensor) {
-                Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
-            }
-        });
+        if (trigger.isSensor) {
+            Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
+        }
+    }
+
+    addPhysicsListeners() {
+        // this.matter.world.on('collisionstart', this.processCollisions);
     }
 
     addLevelFloorAndLightsGetWaypoints() {
@@ -685,7 +703,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                         pp.y,
                         o.width ? o.width : 300
                     ).setColor(computedColor)
-                        .setIntensity(3.0);
+                        .setIntensity(LIGHT_ON_INTENSITY);
 
                     this.smartLights[o.id] = l;
 
@@ -867,12 +885,16 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                             { ignoreGravity: true, isStatic: true, ...physicsOptions }
                         ).setDepth(o?.y ?? 0 + 500);
 
+                        triggerSprite.setOnCollide(this.onLevelTriggerCollide.bind(this));
+
                         this.bounceCollectable(triggerSprite)
                     } else {
-                        this.matter.add.circle(
+                        const triggerWithNoSprite = this.matter.add.circle(
                             pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
                             { ignoreGravity: true, isStatic: true, ...physicsOptions }
                         );
+
+                        triggerWithNoSprite.onCollideCallback = this.onLevelTriggerCollide.bind(this);
                     }
                 }
             }
@@ -1053,6 +1075,23 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
                 const c = this.matter.verts.centre(visualPoints);
                 const body = this.matter.add.fromVertices(c.x, c.y, visualPoints, { ...physicsOptions });
+
+
+                if (isSensor) {
+                    body.onCollideCallback = this.onLevelTriggerCollide.bind(this);
+                    body.collisionFilter = {
+                        category: 1,
+                        mask: 1,
+                        group: 1,
+                    }
+                } else {
+                    body.collisionFilter = {
+                        category: 1,
+                        mask: 1,
+                        group: 1,
+                    }
+                }
+
                 bodyParts.push(body);
             }
         }
@@ -1068,6 +1107,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
     update(time: number, delta: number) {
+        this.collisionCache.clear();
         this.pawnHandler.update(time, delta);
     }
 
