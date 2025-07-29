@@ -419,7 +419,7 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="336.327" y="2469.02">
+  <object id="8" name="start" x="329.65" y="2789.16">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="1533.27" y="3148.42">

@@ -846,8 +846,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":336.327,
-                 "y":2469.02
+                 "x":329.649859387274,
+                 "y":2789.16364268881
                 }, 
                 {
                  "height":0,
@@ -2308,6 +2308,11 @@
                          "name":"isKinematic",
                          "type":"bool",
                          "value":false
+                        }, 
+                        {
+                         "name":"kind",
+                         "type":"string",
+                         "value":"saw"
                         }]
                 }, 
                 {

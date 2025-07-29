@@ -812,6 +812,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                         smartTile.setFrictionAir(1);
                         smartTile.setOrigin(0.5, 0.5);
                         smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+                        (smartTile.body! as MatterJS.BodyType).onCollideCallback = this.onLevelTriggerCollide.bind(this);
 
                         if (tween) {
                             this.tweens.add({

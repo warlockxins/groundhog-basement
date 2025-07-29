@@ -207,6 +207,7 @@
  <tile id="44">
   <properties>
    <property name="isKinematic" type="bool" value="false"/>
+   <property name="kind" value="saw"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="28.5337" y="91.5634">
