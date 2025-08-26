@@ -210,20 +210,10 @@ const Levels: { [key: string]: LevelConfig } = {
     }
 }
 
-function parseHexColor(hex: string) {
-    // Remove the "#" if present
-    hex = hex.replace(/^#/, '');
-
-    // Extract RGBA components
-    const b = parseInt(hex.substring(0, 2), 16); // r
-    const g = parseInt(hex.substring(2, 4), 16); // g
-    const r = parseInt(hex.substring(4, 6), 16); // b
-    const a = hex.length === 8 ? parseInt(hex.substring(6, 8), 16) / 255 : 1; // Normalize alpha to 0-1
-
-    // Convert RGB to integer for Phaser
-    const rgbInt = (r << 16) | (g << 8) | b;
-
-    return { color: rgbInt, intensity: a };
+function parseHexColor(hexWithAlpha: string) {
+    const hex = hexWithAlpha.slice(0, 7);
+    const color = Phaser.Display.Color.HexStringToColor(hex).color;
+    return { color };
 }
 
 const LIGHT_ON_INTENSITY = 3.0;
