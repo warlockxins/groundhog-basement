@@ -68,7 +68,7 @@ export class Character {
             y,
             100
         ).setColor(0xffffff)
-            .setIntensity(1.5);
+            .setIntensity(1.0);
 
 
         // this.textBubble.setText("Bodies everywhere!");

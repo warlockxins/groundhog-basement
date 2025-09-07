@@ -11,7 +11,7 @@ import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
 import { PlayerControlls, ButcherControlls } from './Controlls';
-import { EdgeOfPathPoint, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
+import { EdgeOfPathPoint, PATH_POINT_KEY, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
 import { soundSource } from '../constants/sounds';
@@ -36,11 +36,12 @@ type SceneNavigationMesh = {
 }
 
 
-function closestPointInRecords(p: PathPoint, points: Record<string, PathPoint>, predicateToIncludeCallback?: (val: any, d: number) => boolean): string | null {
+function closestPointInRecords(p: PathPoint, points: Record<number, PathPoint>, predicateToIncludeCallback?: (val: any, d: number) => boolean): number | null {
     // tree search example - TODO try
     // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
     let minDistance = 10000000;
-    let closestPoint: string | null = null;
+    let closestPoint: number | null = null;
+    // debugger
     for (let a in points) {
         const distance = Math.sqrt((p.x - points[a].x) * (p.x - points[a].x) + (p.y - points[a].y) * (p.y - points[a].y));
 
@@ -50,24 +51,35 @@ function closestPointInRecords(p: PathPoint, points: Record<string, PathPoint>, 
 
         if (distance < minDistance) {
             minDistance = distance;
-            closestPoint = a;
+            closestPoint = +a;
         }
     }
     return closestPoint;
 }
 
+// TODO - WAYPOINTS can use their tileset x and Y index, save that info to waypoint too
+// const X_WAYPOINT_OFFSET_MULTIPLYER = 10000;
+function getKeyForWaypointAt(x: number, y: number): number {
+    // console.log('--->', x, y)
+    // return x * X_WAYPOINT_OFFSET_MULTIPLYER + y;
+    // return `${x}_${y}`;
+
+    return x << 16 | y;
+}
 type Waypoint = {
     x: number, y: number,
-    size: number
+    size: number,
+    xIndex: number;
+    yIndex: number;
 }
 class NavMeshSceneTop {
     mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
     edges: Record<string, EdgeOfPathPoint[]> = {};
 
-    waypoints: Record<string, Waypoint> = {};
+    waypoints: Record<number, Waypoint> = {};
     graphics!: Phaser.GameObjects.Graphics;
 
-    getOrCreateEdgePathPointList(key: string) {
+    getOrCreateEdgePathPointList(key: number) {
         if (!this.edges[key]) {
             this.edges[key] = [];
         }
@@ -75,24 +87,27 @@ class NavMeshSceneTop {
     }
     calculatePointEdges(scene: Phaser.Scene) {
         for (const [key, wp] of Object.entries(this.waypoints)) {
-            this.calculateWaypointEdgeToRightAndBottom(key, wp, scene)
+            this.calculateWaypointEdgeToRightAndBottom(+key, wp, scene)
         }
     }
 
-    calculateWaypointEdgeToRightAndBottom(key: string, wp: Waypoint, scene: Phaser.Scene) {
-        const wayPointKeyTop = `${wp.x}_${wp.y - wp.size}`;
-        const wayPointKeyRight = `${wp.x + wp.size}_${wp.y}`;
+    calculateWaypointEdgeToRightAndBottom(key: PATH_POINT_KEY, wp: Waypoint, scene: Phaser.Scene) {
+        const wayPointKeyTop = getKeyForWaypointAt(wp.xIndex, wp.yIndex - 1);
+        const wayPointKeyRight = getKeyForWaypointAt(wp.xIndex + 1, wp.yIndex);
+
+        // console.log('===>>>>>', wayPointKeyRight, wayPointKeyTop, key);
         this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
         this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
     }
 
-    tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: string, keyTo: string) {
+    tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: PATH_POINT_KEY, keyTo: PATH_POINT_KEY) {
         if (!this.waypoints[keyTo]) {
             return
         }
 
         const p1 = this.waypoints[keyFrom];
         const p2 = this.waypoints[keyTo];
+        // console.log('<<<<<<<', p1, p2);
         const bodies = scene.matter.intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
             // @ts-ignore    here we know for a fact these parameters exist, only interested in static objects, as path goes between WALLS
             .filter((b) => !b.isSensor && b.isStatic);
@@ -124,7 +139,7 @@ class NavMeshSceneTop {
 
     getPath(from: PathPoint, to: PathPoint) {
         const planner = new PathPlanner(
-            new Map(Object.entries(this.waypoints)),
+            new Map(Object.entries(this.waypoints).map((e) => ([+e[0], e[1]]))),
             this.edges
         );
 
@@ -135,8 +150,9 @@ class NavMeshSceneTop {
             return null;
         }
         const result = planner.execute(
-            fromKey,
-            toKey
+            // @ts-ignore
+            +fromKey,
+            +toKey
         );
 
         // console.log("=======>>>>>>> path", result);
@@ -147,7 +163,7 @@ class NavMeshSceneTop {
         return result;
     }
 
-    closest(p: PathPoint): string | null {
+    closest(p: PathPoint): number | null {
         return closestPointInRecords(p, this.waypoints);
     }
 
@@ -629,17 +645,21 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
-
+                    const x = t.pixelX + t.width / 2;
+                    const y = t.pixelY + t.height / 2;
                     // Todo key gen should be in navmesh
-                    const wayPointKey = `${t.pixelX + t.width / 2}_${t.pixelY + t.height / 2}`;
+                    const wayPointKey = getKeyForWaypointAt(t.x, t.y);
+                    // console.log('-->>>>>>>>>', wayPointKey, t.x, t.y); // TODO use t.x annd t.y above
                     // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
                     // Note - probably need to move into separate function
                     if (!t.properties.above) {
                         if (!this.navMesh.waypoints[wayPointKey]) {
                             this.navMesh.waypoints[wayPointKey] = {
-                                x: t.pixelX + t.width / 2,
-                                y: t.pixelY + t.height / 2,
+                                x,
+                                y,
                                 size: t.width, // needed to calculate neighbour position
+                                xIndex: t.x,
+                                yIndex: t.y
                             }
                         }
                     }
