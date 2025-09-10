@@ -1,6 +1,9 @@
 import { CST } from "../constants/CST";
 import { soundFiles } from "../constants/sounds";
 
+import sebastianAnims from './animationConfigs/sebastian.json';
+import { createAnimations } from "./createAnimations";
+
 const playerAnimationFiles = [
     "armActionTake-E.png",
     "armActionTake-N.png",
@@ -96,9 +99,14 @@ export class LoadScene extends Phaser.Scene {
                 50
             );
         });
+
+        this.load.atlas('sebastian', 'assets/images/sebastian/spriteSheet.png', 'assets/images/sebastian/spriteSheet.json');
+
     }
     create() {
         this.initAllCharacterAnimations();
+        createAnimations(this, 'sebastian', sebastianAnims, 'sebastian');
+
         this.scene.start(CST.SCENES.START_MENU, { message: "from load scene" });
     }
 

@@ -10,7 +10,8 @@ import jsonLogic from '../jsonLogic';
 import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
-import { PlayerControlls, ButcherControlls } from './Controlls';
+import { ButcherControlls } from './ButcherControlls';
+import { PlayerControlls } from './PlayerControlls';
 import { EdgeOfPathPoint, PATH_POINT_KEY, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
@@ -18,13 +19,16 @@ import { soundSource } from '../constants/sounds';
 
 class PawnHandler {
     characters: Record<string, Character> = {}
+    _characterCache: Character[] = [];
 
     add(key: string, c: Character) {
-        this.characters[key] = c
+        this.characters[key] = c;
+        this._characterCache = Object.values(this.characters);
     }
 
     update(_time: number, delta: number) {
-        for (const c of Object.values(this.characters)) {
+        // for (const c of Object.values(this.characters)) {
+        for (const c of this._characterCache) {
             c.currentState.update(delta)
         }
     }
@@ -969,6 +973,10 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
 
 
+        // test animation from config file
+        // const playerCopy = this.matter.add.sprite(o.x, o.y);
+        // playerCopy.setDepth(o.y + 50)
+        // playerCopy.play("sebastian-run-E");
         // this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key").setDepth(o?.y ?? 0 + 500);
     }
 

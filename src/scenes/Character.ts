@@ -8,7 +8,7 @@ import { CharacterWithGoToScheduledPointState } from './characterStates/Characte
 class CharacterWithControllerState extends CharacterState {
     update(delta: number) {
         this.character.controller?.update(delta);
-        this.character.updatePositionAndDirectionBasedOnSpeed(delta)
+        this.character.updateShadowLightDepth();
     }
 }
 
@@ -169,14 +169,30 @@ export class Character {
         return animDirectionFrame;
     }
 
-    updatePositionAndDirectionBasedOnSpeed(delta: number) {
+    updateShadowLightDepth() {
         this.sprite.setDepth(this.sprite.y);
-
-        // this.currentState.update(delta);
-
         this.shadow.x = this.sprite.x;
         this.shadow.y = this.sprite.y - 5;
         this.shadow.setDepth(this.sprite.y - 10);
+
+        this.textBubble.setPosition(this.sprite.x, this.sprite.y);
+        this.textBubble.setDepth(this.sprite.depth + 10000);
+
+        this.myLight.x = this.sprite.x;
+
+        this.myLight.y = this.sprite.y - 50;
+    }
+
+    updatePositionAndDirectionBasedOnSpeed(delta: number) {
+        // this.sprite.setDepth(this.sprite.y);
+
+        // this.currentState.update(delta);
+
+        // this.shadow.x = this.sprite.x;
+        // this.shadow.y = this.sprite.y - 5;
+        // this.shadow.setDepth(this.sprite.y - 10);
+
+        this.updateShadowLightDepth();
 
         if (this.isDead) {
             return;
@@ -197,12 +213,12 @@ export class Character {
             this.playAnimationFrameOnLastDirection(moveAnim);
         }
 
-        this.textBubble.setPosition(this.sprite.x, this.sprite.y);
-        this.textBubble.setDepth(this.sprite.depth + 10000);
+        // this.textBubble.setPosition(this.sprite.x, this.sprite.y);
+        // this.textBubble.setDepth(this.sprite.depth + 10000);
 
-        this.myLight.x = this.sprite.x;
+        // this.myLight.x = this.sprite.x;
 
-        this.myLight.y = this.sprite.y - 50;
+        // this.myLight.y = this.sprite.y - 50;
     }
 
     playAnimationFrameOnLastDirection(name: string, repeat = -1) {
