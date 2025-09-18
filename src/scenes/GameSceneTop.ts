@@ -257,6 +257,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     tilesetConfig!: LevelConfig;
     loadingBar!: Phaser.GameObjects.Graphics;
 
+    // TODO - extract to interface
     sounds!: Record<keyof typeof soundSource, Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound>
     collisionCache: Map<string, boolean> = new Map();
     constructor() {

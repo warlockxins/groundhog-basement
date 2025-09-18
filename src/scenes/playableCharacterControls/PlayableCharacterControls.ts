@@ -1,3 +1,4 @@
+import { GameSceneTop } from "../GameSceneTop";
 import { AnimationDirection } from "../types";
 
 interface IState {
@@ -141,6 +142,12 @@ class Moving extends MovableRoot {
         // const multiplier = (this.controller.moveIntent.run ? 1.5 : 1);
         const multiplier = 1;
         this.controller.sprite.setVelocity(this.speed.x * multiplier, this.speed.y * multiplier);
+
+        const sound = (this.controller.sprite.scene as GameSceneTop).sounds.step;
+        if (!sound.isPlaying) {
+            sound.volume = 0.3;
+            sound.play();
+        }
 
         return super.update();
     }
