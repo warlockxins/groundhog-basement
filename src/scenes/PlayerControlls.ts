@@ -1,7 +1,7 @@
 import { Controlls } from './BaseControlls';
 import { Character } from './Character';
-import { GameSceneTop } from './GameSceneTop';
-import { PlayableCharacterController } from './playableCharacterControls/playableCharacterControls';
+import { PlayableCharacterController } from './playableCharacterControls/PlayableCharacterControls';
+
 
 
 export class PlayerControlls extends Controlls {
@@ -17,13 +17,19 @@ export class PlayerControlls extends Controlls {
         super(scene, character);
 
         this.cursors = scene.input.keyboard!.createCursorKeys();
-        this.playableCharacterController = new PlayableCharacterController(character.sprite, this.cursors)
+        this.playableCharacterController = new PlayableCharacterController(character.sprite)
 
     }
     update(delta: number) {
         this.character.sprite.setVelocity(0);
 
         if (this.character.isDead) return;
+
+        this.playableCharacterController.moveIntent.up = this.cursors.up.isDown;
+        this.playableCharacterController.moveIntent.right = this.cursors.right.isDown;
+        this.playableCharacterController.moveIntent.down = this.cursors.down.isDown;
+        this.playableCharacterController.moveIntent.left = this.cursors.left.isDown;
+        this.playableCharacterController.moveIntent.run = this.cursors.shift.isDown;
 
         this.playableCharacterController.update();
     }

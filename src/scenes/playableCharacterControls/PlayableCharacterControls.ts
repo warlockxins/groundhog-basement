@@ -14,7 +14,6 @@ type TMoveSpeed = {
 const walkSpeed = 2.5;
 
 export class PlayableCharacterController implements IState {
-    cursors: Phaser.Types.Input.Keyboard.CursorKeys;
     sprite: Phaser.Physics.Matter.Sprite;
     facing: { vertical: 'N' | 'S' | ''; horizontal: 'E' | ''; } = { vertical: '', horizontal: '' };
     animationDirection: AnimationDirection = 'S';
@@ -36,20 +35,15 @@ export class PlayableCharacterController implements IState {
         up: false, right: false, down: false, left: false, run: false
     }
 
-    constructor(sprite: Phaser.Physics.Matter.Sprite, cursors: Phaser.Types.Input.Keyboard.CursorKeys,) {
+    constructor(sprite: Phaser.Physics.Matter.Sprite) {
         this.sprite = sprite;
-        this.cursors = cursors;
         this.currentState = this.states.idle;
     }
     start() {
         this.currentState.start();
     }
     update(): IState {
-        this.moveIntent.up = this.cursors.up.isDown;
-        this.moveIntent.right = this.cursors.right.isDown;
-        this.moveIntent.down = this.cursors.down.isDown;
-        this.moveIntent.left = this.cursors.left.isDown;
-        this.moveIntent.run = this.cursors.shift.isDown;
+
 
         const nextState = this.currentState.update();
         if (nextState !== this.currentState) {
