@@ -27,10 +27,10 @@
 0,0,2,0,0,1,1,1,1,1,1,1,1,1,12,
 0,0,2,0,0,0,1,1,1,1,1,1,12,0,0,
 0,0,2,11,11,11,1,1,1,1,1,1,11,11,12,
-0,0,2,2,2,2,1,1,1,1,1,1,1,1,12,
-0,0,2,9,9,2,0,1,1,1,1,1,1,1,12,
-0,0,2,2,2,2,11,1,1,1,1,1,1,1,12,
-0,0,2,2,2,2,2,1,1,1,1,1,1,1,12,
+0,0,34,2,2,2,1,1,1,1,1,1,1,1,12,
+0,0,34,9,9,2,0,1,1,1,1,1,1,1,12,
+0,0,34,34,34,2,11,1,1,1,1,1,1,1,12,
+0,0,34,34,34,2,2,1,1,1,1,1,1,1,12,
 0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,
 0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,
 0,0,0,0,0,0,1,1,1,1,1,1,1,0,0,
@@ -210,14 +210,14 @@
   <object id="29" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
   <object id="48" gid="46" x="815.749" y="3146.05" width="128" height="128"/>
   <object id="30" gid="46" x="842.37" y="2095.92" width="128" height="128"/>
-  <object id="44" gid="44" x="768" y="2688" width="128" height="128">
+  <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;toggleLight&quot;: [&quot;46&quot;]
 }</property>
    </properties>
   </object>
-  <object id="45" gid="44" x="512" y="2304" width="128" height="128">
+  <object id="45" gid="44" x="509.584" y="2322.52" width="128" height="128">
    <properties>
     <property name="onEnter">{
    &quot;character&quot;: {
@@ -230,21 +230,21 @@
 }</property>
    </properties>
   </object>
-  <object id="51" gid="44" x="255.386" y="1655.5" width="128" height="128">
+  <object id="51" gid="44" x="256.191" y="1678.05" width="128" height="128">
    <properties>
     <property name="onEnter">{
    &quot;toggleLight&quot;: [&quot;6&quot;]
 }</property>
    </properties>
   </object>
-  <object id="47" gid="44" x="1051.71" y="2975.61" width="128" height="128">
+  <object id="47" gid="44" x="1026.75" y="2977.22" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
 }</property>
    </properties>
   </object>
-  <object id="50" gid="44" x="1547.04" y="2313.19" width="128" height="128">
+  <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;toggleLight&quot;: [&quot;3&quot;]
@@ -257,7 +257,7 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Toggle Light&quot; }
+        { &quot;bark&quot;: &quot;Keep light on&quot; }
       ]
    },
    &quot;toggleLight&quot;: [&quot;27&quot;]
