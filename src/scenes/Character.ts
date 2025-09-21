@@ -42,7 +42,6 @@ export class Character {
         this.imageFramePrefix = imageFramePrefix;
         this.sprite = scene.matter.add.sprite(x, y, imageFramePrefix + imageFrame);
 
-        this.sprite.play({ key: imageFramePrefix + imageFrame, repeat: -1 });
         this.sprite.setCircle(17, {
             label: imageFramePrefix, collisionFilter: {
                 category: 1,

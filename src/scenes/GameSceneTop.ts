@@ -11,7 +11,7 @@ import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
 import { ButcherControlls } from './ButcherControlls';
-import { PlayerControlls } from './PlayerControlls';
+import { SebastianPlayerControlls } from './playableCharacterControls/SebastianPlayerControlls';
 import { EdgeOfPathPoint, PATH_POINT_KEY, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
@@ -257,7 +257,6 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     tilesetConfig!: LevelConfig;
     loadingBar!: Phaser.GameObjects.Graphics;
 
-    // TODO - extract to interface
     sounds!: Record<keyof typeof soundSource, Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound>
     collisionCache: Map<string, boolean> = new Map();
     constructor() {
@@ -486,6 +485,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         }
 
         if (sound) {
+            this.sounds[sound]?.setVolume(0.3);
             this.sounds[sound]?.play();
         }
 
@@ -498,11 +498,13 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             }
         }
 
+        // todo - make separate Smart object
         toggleLight?.forEach((lightId) => {
             const light = this.smartLights[lightId];
             const visible = light.visible;
             light.setVisible(!visible);
 
+            this.sounds.itemPut.setVolume(0.3);
             this.sounds.itemPut.play({ loop: false });
         });
 
@@ -965,7 +967,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         }
 
         const pawn = new Character(this, o.x ?? 0, o.y ?? 0, 'walk-NE.png', 'player');
-        pawn.controller = new PlayerControlls(this, pawn)
+        pawn.controller = new SebastianPlayerControlls(this, pawn)
 
         this.pawnHandler.add('player', pawn);
         pawn.id = 'player';
