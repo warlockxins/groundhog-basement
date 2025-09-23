@@ -133,29 +133,13 @@ export class Character {
         if (this.isDead) return;
 
         this.isDead = true;
-        // console.log("OOOOUCH", value);
-
-        const deathAnim = 'playerdeath-S.png'
-        if (this.sprite.texture.key !== deathAnim) {
-            this.sprite.setTexture(deathAnim);
-            this.sprite.play({ key: deathAnim });
-
-            this.sprite.scene.events.emit(sceneEventConstants.characterDeath, this, 'damage');
-        }
+        this.controller?.onDamage('damage')
     }
 
     onMadeInsane() {
         if (this.isDead) return;
-
         this.isDead = true;
-        const deathAnim = 'playerdeath-S.png'
-
-        if (this.sprite.texture.key !== deathAnim) {
-            this.sprite.setTexture(deathAnim);
-            this.sprite.play({ key: deathAnim });
-
-            this.sprite.scene.events.emit(sceneEventConstants.characterDeath, this, 'insane');
-        }
+        this.controller?.onDamage('insane');
     }
 
     animationDirectionFromSpeed(): string {

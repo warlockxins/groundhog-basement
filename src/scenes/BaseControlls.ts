@@ -9,4 +9,6 @@ export class Controlls {
     }
 
     update(delta: number) { }
+
+    onDamage(cause: string) { }
 }

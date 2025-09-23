@@ -1,5 +1,6 @@
 import { Controlls } from '../BaseControlls';
 import { Character } from '../Character';
+import { sceneEventConstants } from '../sceneEvents';
 import { SebastianPlayableCharacerAnimations } from './SebastianPlayableCharacerAnimations';
 
 
@@ -11,7 +12,6 @@ export class SebastianPlayerControlls extends Controlls {
     fatigue = 0;
     canRun = true;
     playableCharacterController: SebastianPlayableCharacerAnimations;
-    // player!: Phaser.Physics.Matter.Sprite;
 
     constructor(scene: Phaser.Scene, character: Character) {
         super(scene, character);
@@ -33,5 +33,17 @@ export class SebastianPlayerControlls extends Controlls {
         this.playableCharacterController.moveIntent.run = this.cursors.shift.isDown;
 
         this.playableCharacterController.update();
+    }
+
+    onDamage(cause: string): void {
+        const deathAnim = 'sebastian-death-' + this.playableCharacterController.animationDirection;
+
+        const { sprite } = this.character;
+        if (this.character.sprite.texture.key !== deathAnim) {
+            sprite.setTexture(deathAnim);
+            sprite.play({ key: deathAnim, repeat: 0 });
+
+            sprite.scene.events.emit(sceneEventConstants.characterDeath, this.character, cause);
+        }
     }
 }
