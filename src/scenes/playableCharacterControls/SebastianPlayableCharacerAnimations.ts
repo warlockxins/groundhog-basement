@@ -1,24 +1,14 @@
 import { GameSceneTopPossibilities } from "../GameSceneTopInterface";
 import { AnimationDirection } from "../types";
-
-interface IState {
-    start: () => void;
-    update: () => IState;
-    end: () => void;
-};
-
-type TMoveSpeed = {
-    x: number;
-    y: number;
-}
+import { I_AnimationState, TMoveSpeed } from "./AnimationStateTypes";
 
 const walkSpeed = 2.5;
 
-export class SebastianPlayableCharacerAnimations implements IState {
+export class SebastianPlayableCharacerAnimations implements I_AnimationState {
     sprite: Phaser.Physics.Matter.Sprite;
     facing: { vertical: 'N' | 'S' | ''; horizontal: 'E' | ''; } = { vertical: 'S', horizontal: '' };
     animationDirection: AnimationDirection = 'S';
-    currentState!: IState;
+    currentState!: I_AnimationState;
 
     states = {
         idle: new Standing(this, 'idle'),
@@ -50,7 +40,7 @@ export class SebastianPlayableCharacerAnimations implements IState {
 
     end() { }
 
-    update(): IState {
+    update(): I_AnimationState {
         const nextState = this.currentState.update();
         if (nextState !== this.currentState) {
             this.currentState = nextState;
@@ -61,7 +51,7 @@ export class SebastianPlayableCharacerAnimations implements IState {
     }
 }
 
-class MovableRoot implements IState {
+class MovableRoot implements I_AnimationState {
     controller: SebastianPlayableCharacerAnimations;
     animation: string;
     speed: TMoveSpeed;
@@ -73,7 +63,7 @@ class MovableRoot implements IState {
     }
     start() {
     }
-    update(): IState {
+    update(): I_AnimationState {
         if (this.controller.moveIntent.up) {
             if (this.controller.moveIntent.right) {
                 return this.controller.states.goUpRight;
@@ -142,7 +132,7 @@ class Moving extends MovableRoot {
 
         this.playAnimation();
     }
-    update(): IState {
+    update(): I_AnimationState {
         // const multiplier = (this.controller.moveIntent.run ? 1.5 : 1);
         const multiplier = 1;
         this.controller.sprite.setVelocity(this.speed.x * multiplier, this.speed.y * multiplier);
