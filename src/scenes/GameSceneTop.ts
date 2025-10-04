@@ -338,7 +338,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.navMesh.showWaypoints(this);
 
         // this.createAnimatedTiles();
-        this.cameras.main.setOrigin(0.1, 1);
+        // this.cameras.main.setOrigin(-0.1, 1.5);
         this.lights.enable().setAmbientColor(0x111111);
 
         jsonLogic.rm_operation('setVar');
@@ -430,19 +430,24 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
     onCharacterDeath(character: Character, cause: 'insane' | 'damage') {
-        if (cause !== 'damage') return;
-
+        this.cameras.main.zoomTo(1.5, 2000);
+        if (cause !== 'damage') {
+            return;
+        }
         // console.log("KILLL CHARACTER", character.imageFramePrefix);
         const bloodTileIndexInTilemap = 24;
         const x = character.sprite.x;
         const y = character.sprite.y;
+
         const bloodTile = this.add.image(x, y, 'tiles', bloodTileIndexInTilemap)
             .setOrigin(0.5, 0.5)
             .setScale(0)
             .setTint(0xff0000);
 
 
+
         // https://labs.phaser.io/edit.html?src=src\tweens\tween%20text%20size.js
+
         this.tweens.addCounter({
             from: 0,
             to: 0.5,
@@ -451,7 +456,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             onUpdate: (tween) => {
                 const v = tween.getValue();
                 bloodTile.setScale(v);
-                this.cameras.main.setZoom(1 + v / 2);
+                // this.cameras.main.setZoom(1 + v / 2);
             }
         });
     }
@@ -694,7 +699,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         });
 
         this.cameras.main.fadeIn(2000, 0, 0, 0);
-        this.cameras.main.setZoom(0.5);
+        this.cameras.main.setZoom(0.7);
         this.cameras.main.zoomTo(1);
         // ---------
         this.map.getObjectLayerNames().forEach(n => {
@@ -973,7 +978,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         pawn.id = 'player';
 
         this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
-        this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
+        // this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
+        this.cameras.main.startFollow(pawn.sprite, false, 0.2, 0.2);
 
 
         // test animation from config file

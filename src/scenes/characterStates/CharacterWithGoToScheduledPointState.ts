@@ -56,11 +56,14 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
 
     setEnemyFollowId(id: string | null) {
         this.followingCharacter = id;
-        if (id !== null) {
+
+        if (id) {
             this.followingWithAngerTimer = {
                 elapsed: 0,
                 coolingDown: false
             };
+        } else {
+            this.followingWithAngerTimer = null;
         }
     }
 

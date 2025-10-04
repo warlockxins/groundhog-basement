@@ -48,11 +48,13 @@ export class Character {
                 mask: 1
             }
         })
-            .setScale(0.9)
+            .setScale(0.7)
+            // .setDisplaySize(30, 80)
             .setFixedRotation()
             .setOrigin(0.5, 0.9)
             .setPipeline('Light2D');
 
+        // this.sprite.displayWidth = 10;
         this.textBubble = scene.add.text(10, 10, "");
         this.textBubble.setBackgroundColor("#000000");
         this.textBubble.setAlign('center');
