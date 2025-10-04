@@ -19,7 +19,7 @@ export function createAnimations(scene: Scene, characterName: string, animConfig
             }));
 
             const animationNameWithDirection = `${characterName}-${baseAnimation}-${direction}`;
-
+            // console.log('--->', animationNameWithDirection);
             scene.anims.create({
                 key: animationNameWithDirection,
                 frames: frames,

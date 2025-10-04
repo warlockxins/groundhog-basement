@@ -2,25 +2,8 @@ import { CST } from "../constants/CST";
 import { soundFiles } from "../constants/sounds";
 
 import sebastianAnims from './animationConfigs/sebastian.json';
+import butcherAnims from './animationConfigs/butcher.json';
 import { createAnimations } from "./createAnimations";
-
-const enemyAnimationFiles = [
-    "idle-E.png",
-    "idle-N.png",
-    "idle-NE.png",
-    "idle-S.png",
-    "idle-SE.png",
-    "walk-E.png",
-    "walk-N.png",
-    "walk-NE.png",
-    "walk-S.png",
-    "walk-SE.png",
-    "slice-E.png",
-    "slice-N.png",
-    "slice-NE.png",
-    "slice-S.png",
-    "slice-SE.png"
-];
 
 export class LoadScene extends Phaser.Scene {
     constructor() {
@@ -32,10 +15,6 @@ export class LoadScene extends Phaser.Scene {
     init() { }
 
     preload() {
-        enemyAnimationFiles.forEach((file) => {
-            this.load.spritesheet('enemy' + file, `assets/images/enemy/${file}`, { frameWidth: 128, frameHeight: 128 });
-        });
-
         soundFiles.forEach(sound => {
             this.load.audio(sound, `assets/sound/${sound}`);
         });
@@ -65,21 +44,21 @@ export class LoadScene extends Phaser.Scene {
         });
 
         this.load.atlas('sebastian', 'assets/images/sebastian/spriteSheet.png', 'assets/images/sebastian/spriteSheet.json');
+        this.load.atlas('butcher', 'assets/images/enemy/spriteSheet.png', 'assets/images/enemy/spriteSheet.json');
 
     }
     create() {
-        this.initAllCharacterAnimations();
         createAnimations(this, 'sebastian', sebastianAnims, 'sebastian');
+        createAnimations(this, 'butcher', butcherAnims, 'butcher');
 
         this.scene.start(CST.SCENES.START_MENU, { message: "from load scene" });
     }
-
-    initAllCharacterAnimations() {
-        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'slice-N', 'slice-NE', 'slice-E', 'slice-SE', 'slice-S'].forEach((key) =>
-            this.anims.create({
-                key: 'enemy' + key + ".png", // texture key is same for animation key/filename - KISS
-                frames: this.anims.generateFrameNumbers('enemy' + key + ".png"),
-                frameRate: 8
-            }));
-    }
+    // initAllCharacterAnimations() {
+    //     ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'slice-N', 'slice-NE', 'slice-E', 'slice-SE', 'slice-S'].forEach((key) =>
+    //         this.anims.create({
+    //             key: 'enemy' + key + ".png", // texture key is same for animation key/filename - KISS
+    //             frames: this.anims.generateFrameNumbers('enemy' + key + ".png"),
+    //             frameRate: 8
+    //         }));
+    // }
 }

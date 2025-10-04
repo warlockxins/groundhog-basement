@@ -45,10 +45,10 @@ export class ButcherAttackState extends CharacterState {
             const playerBody = bodies[0];
 
             // @ts-ignore
-            playerBody.gameObject.emit('damage', 100)
-
+            playerBody.gameObject.emit('damage', 100);
             this.character.followPathState.setEnemyFollowId(null);
 
+            this.character.bark('BITCH!');
         }
 
         if (this.character.sprite.scene.matter.world.drawDebug) {

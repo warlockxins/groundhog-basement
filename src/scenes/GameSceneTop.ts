@@ -929,7 +929,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             throw "Not spawning from correct Logic TiledObject, expecting 'enemyStart'"
         }
 
-        const pawn = new Character(this, o.x ?? 0, (o.y ?? 0) - 50, 'walk-NE.png', 'enemy');
+        const pawn = new Character(this, o.x ?? 0, (o.y ?? 0) - 50, 'walk-NE.png', 'butcher'); // TODO-change to butcher
         pawn.controller = new ButcherControlls(this, pawn);
         pawn.lastDirection.x = 1;
         pawn.lastDirection.y = -1;

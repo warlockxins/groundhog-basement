@@ -149,7 +149,7 @@ export class Character {
         const xAnimFrame = this.lastDirection.x !== 0 ? 'E' : '';
         const yAnimFrame = y > 0 ? 'S' : (y < 0 ? 'N' : '');
         const animDirectionFrameBase = `${yAnimFrame}${xAnimFrame}`;
-        const animDirectionFrame = animDirectionFrameBase !== '' ? `-${animDirectionFrameBase}.png` : '-S.png';
+        const animDirectionFrame = animDirectionFrameBase !== '' ? `-${animDirectionFrameBase}` : '-S';
         this.lastDirectionAnimationFrame = animDirectionFrame;
         return animDirectionFrame;
     }
@@ -169,14 +169,6 @@ export class Character {
     }
 
     updatePositionAndDirectionBasedOnSpeed(delta: number) {
-        // this.sprite.setDepth(this.sprite.y);
-
-        // this.currentState.update(delta);
-
-        // this.shadow.x = this.sprite.x;
-        // this.shadow.y = this.sprite.y - 5;
-        // this.shadow.setDepth(this.sprite.y - 10);
-
         this.updateShadowLightDepth();
 
         if (this.isDead) {
@@ -197,24 +189,15 @@ export class Character {
             const moveAnim = this.defaultAnimation;
             this.playAnimationFrameOnLastDirection(moveAnim);
         }
-
-        // this.textBubble.setPosition(this.sprite.x, this.sprite.y);
-        // this.textBubble.setDepth(this.sprite.depth + 10000);
-
-        // this.myLight.x = this.sprite.x;
-
-        // this.myLight.y = this.sprite.y - 50;
     }
 
     playAnimationFrameOnLastDirection(name: string, repeat = -1) {
-        const animFrame = `${this.imageFramePrefix}${name}${this.lastDirectionAnimationFrame}`;
+        const animFrame = `${this.imageFramePrefix}-${name}${this.lastDirectionAnimationFrame}`;
         this.playAnimationFrame(animFrame, repeat);
     }
 
     playAnimationFrame(name: string, repeat = -1) {
-        if (this.sprite.texture.key !== name) {
-            // console.log('>>>>>>', name);
-            this.sprite.setTexture(name);
+        if (this.sprite.anims.currentAnim?.key !== name) {
             this.sprite.play({ key: name, repeat: repeat });
         }
     }
