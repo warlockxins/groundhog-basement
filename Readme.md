@@ -1,6 +1,5 @@
 # Mission
 
--   Create a web based game.
 -   The project should have minimal setup requirements.
 -   The final product will be deployed to Fasebook.
 
