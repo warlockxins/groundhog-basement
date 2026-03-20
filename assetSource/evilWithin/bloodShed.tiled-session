@@ -1,0 +1,68 @@
+{
+    "Map/SizeTest": {
+        "height": 4300,
+        "width": 2
+    },
+    "activeFile": "meatBasement.tmx",
+    "expandedProjectPaths": [
+    ],
+    "file.lastUsedOpenFilter": "All Files (*)",
+    "fileStates": {
+        "": {
+            "scaleInEditor": 1
+        },
+        "isometric-grass-and-water.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        },
+        "meatBasement.tmx": {
+            "scale": 1.9295,
+            "selectedLayer": 10,
+            "viewCenter": {
+                "x": 1405.2863436123348,
+                "y": 719.616480953615
+            }
+        },
+        "meatBasement.tmx#tiles": {
+            "scaleInDock": 0.5559,
+            "scaleInEditor": 1
+        },
+        "tiles.tsx": {
+            "scaleInDock": 0.9404,
+            "scaleInEditor": 1
+        },
+        "walls.tsx": {
+            "scaleInDock": 1,
+            "scaleInEditor": 1
+        }
+    },
+    "last.exportedFilePath": "/Users/asemjonovs/Documents/coding/js/phaser-iso/public/levels",
+    "last.externalTilesetPath": "/Users/asemjonovs/Documents/tiledWorlds/evilWithin",
+    "last.imagePath": "/Users/asemjonovs/Documents/tiledWorlds/evilWithin/assets",
+    "lastUsedTilesetExportFilter": "All Files (*)",
+    "map.lastUsedExportFilter": "JSON map files (*.tmj *.json)",
+    "map.lastUsedFormat": "tmx",
+    "map.orientation": "2",
+    "map.tileHeight": 32,
+    "map.tileWidth": 64,
+    "openFiles": [
+        "meatBasement.tmx"
+    ],
+    "project": "bloodShed.tiled-project",
+    "property.type": "string",
+    "recentFiles": [
+        "meatBasement.tmx",
+        "tiles.tsx",
+        "walls.tsx",
+        "isometric-grass-and-water.tsx"
+    ],
+    "tileset.lastUsedFilter": "Tiled tileset files (*.tsx *.xml)",
+    "tileset.lastUsedFormat": "tsx",
+    "tileset.margin": 0,
+    "tileset.tileSize": {
+        "height": 128,
+        "width": 128
+    },
+    "tileset.transparentColor": "#474747",
+    "tileset.useTransparentColor": true
+}

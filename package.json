@@ -1,0 +1,34 @@
+{
+    "name": "groundhog-basement",
+    "version": "0.0.1",
+    "description": "start of the journey",
+    "main": "src/js/app.ts",
+    "type": "module",
+    "scripts": {
+        "start": "parcel src/index.html -p 8000",
+        "build": "parcel build src/index.html --out-dir dist"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "dijkstra": "https://github.com/warlockxins/dijkstra.git",
+        "phaser": "^3.60.0"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^2.29.0",
+        "@typescript-eslint/parser": "^2.29.0",
+        "eslint": "^6.8.0",
+        "minimist": ">=1.2.2",
+        "parcel-bundler": "^1.12.4",
+        "parcel-plugin-clean-easy": "^1.0.2",
+        "parcel-plugin-static-files-copy": "^2.4.3",
+        "typescript": "^3.8.3"
+    },
+    "parcelCleanPaths": [
+        "dist"
+    ],
+    "staticFiles": {
+        "staticPath": "public",
+        "watcherGlob": "**"
+    }
+}
