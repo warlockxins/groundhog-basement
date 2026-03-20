@@ -23,12 +23,14 @@ export type PathPoint = {
     y: number;
 }
 
+export type PATH_POINT_KEY = number;
+
 export type EdgeOfPathPoint = {
-    to: string, cost: number
+    to: PATH_POINT_KEY, cost: number
 }
 
 export class PathPlanner {
-    unvisited: string[];
+    unvisited: PATH_POINT_KEY[];
     vertexes: NavMeshPointMap;
     edges: Record<string, EdgeOfPathPoint[]>;
     pathTable: {};
@@ -62,7 +64,7 @@ export class PathPlanner {
     /**
      * @param {string} from vertex key
      */
-    resetPathTable(from: string) {
+    resetPathTable(from: PATH_POINT_KEY) {
         const fromNode = this.vertexes.get(from);
 
         for (const [key, _node] of this.vertexes) {
@@ -73,13 +75,13 @@ export class PathPlanner {
         }
     }
 
-    calculateNeighboursDistance(currentNode: string) {
-        const neighbours = this.edges[currentNode];
+    calculateNeighboursDistance(currentNodeKey: PATH_POINT_KEY) {
+        const neighbours = this.edges[currentNodeKey];
         if (!neighbours || neighbours.length === 0) {
             return;
         }
 
-        const distFrom = this.pathTable[currentNode].cost;
+        const distFrom = this.pathTable[currentNodeKey].cost;
 
         neighbours.forEach((edge) => {
             if (this.visited.indexOf(edge.to) === -1) {
@@ -91,14 +93,14 @@ export class PathPlanner {
 
             if (elementTo?.cost > cost) {
                 elementTo.cost = cost;
-                elementTo.from = currentNode;
+                elementTo.from = currentNodeKey;
             }
         });
     }
 
-    pickNextVertexKey(): string | undefined {
+    pickNextVertexKey(): PATH_POINT_KEY | undefined {
         let smallest = Number.POSITIVE_INFINITY;
-        let cheapCostKey: string | undefined = undefined;
+        let cheapCostKey: PATH_POINT_KEY | undefined = undefined;
 
         this.unvisited.forEach((vertexKey) => {
             const currentItem = this.pathTable[vertexKey];
@@ -116,14 +118,14 @@ export class PathPlanner {
         return cheapCostKey;
     }
 
-    removeUnvisited(vertexKey: string) {
+    removeUnvisited(vertexKey: PATH_POINT_KEY) {
         const index = this.unvisited.indexOf(vertexKey);
         if (index != -1) {
             this.unvisited.splice(index, 1);
         }
     }
 
-    extractPath(to: string): NavMeshPoint[] {
+    extractPath(to: PATH_POINT_KEY): NavMeshPoint[] {
         let currentNode = to;
         const path: NavMeshPoint[] = [];
 
@@ -139,14 +141,14 @@ export class PathPlanner {
         // return simplifyPath(p);
     }
 
-    execute(from: string, to: string): NavMeshPoint[] {
+    execute(from: PATH_POINT_KEY, to: PATH_POINT_KEY): NavMeshPoint[] {
         const fromNode = this.vertexes.get(from);
         if (!fromNode) {
             return [];
         };
 
         this.resetPathTable(from);
-        let currentNode: string | undefined = from;
+        let currentNode: PATH_POINT_KEY | undefined = from;
         this.unvisited.push(from);
 
         while (currentNode) {

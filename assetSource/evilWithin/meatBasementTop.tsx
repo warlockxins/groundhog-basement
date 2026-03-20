@@ -154,6 +154,16 @@
    </object>
   </objectgroup>
  </tile>
+ <tile id="32">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="12.1497" y="97.5897">
+    <polygon points="0,0 45.4635,29.0025 112.091,5.09504 60.3567,-33.7057"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="40">
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.425876" y="127.763">
@@ -177,6 +187,7 @@
  </tile>
  <tile id="43">
   <properties>
+   <property name="kind" value="lightSwitch"/>
    <property name="onEnter" value="{}"/>
    <property name="wall" type="bool" value="true"/>
   </properties>
@@ -196,6 +207,7 @@
  <tile id="44">
   <properties>
    <property name="isKinematic" type="bool" value="false"/>
+   <property name="kind" value="saw"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="28.5337" y="91.5634">
@@ -252,6 +264,16 @@
  <tile id="49">
   <properties>
    <property name="above" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="50">
+  <properties>
+   <property name="above" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="56">
+  <properties>
+   <property name="icons" value="key"/>
   </properties>
  </tile>
 </tileset>

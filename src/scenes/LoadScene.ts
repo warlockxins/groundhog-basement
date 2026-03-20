@@ -1,54 +1,9 @@
 import { CST } from "../constants/CST";
+import { soundFiles } from "../constants/sounds";
 
-const playerAnimationFiles = [
-    "armActionTake-E.png",
-    "armActionTake-N.png",
-    "armActionTake-NE.png",
-    "armActionTake-S.png",
-    "armActionTake-SE.png",
-    "idle-E.png",
-    "idle-N.png",
-    "idle-NE.png",
-    "idle-S.png",
-    "idle-SE.png",
-    "run-E.png",
-    "run-N.png",
-    "run-NE.png",
-    "run-S.png",
-    "run-SE.png",
-    "walk-E.png",
-    "walk-N.png",
-    "walk-NE.png",
-    "walk-S.png",
-    "walk-SE.png",
-    "walkCrouch-E.png",
-    "walkCrouch-N.png",
-    "walkCrouch-NE.png",
-    "walkCrouch-S.png",
-    "death-N.png",
-    "death-NE.png",
-    "death-E.png",
-    "death-SE.png",
-    "death-S.png"
-];
-
-const enemyAnimationFiles = [
-    "idle-E.png",
-    "idle-N.png",
-    "idle-NE.png",
-    "idle-S.png",
-    "idle-SE.png",
-    "walk-E.png",
-    "walk-N.png",
-    "walk-NE.png",
-    "walk-S.png",
-    "walk-SE.png",
-    "slice-E.png",
-    "slice-N.png",
-    "slice-NE.png",
-    "slice-S.png",
-    "slice-SE.png"
-];
+import sebastianAnims from './animationConfigs/sebastian.json';
+import butcherAnims from './animationConfigs/butcher.json';
+import { createAnimations } from "./createAnimations";
 
 export class LoadScene extends Phaser.Scene {
     constructor() {
@@ -60,12 +15,8 @@ export class LoadScene extends Phaser.Scene {
     init() { }
 
     preload() {
-        playerAnimationFiles.forEach((file) => {
-            this.load.spritesheet('player' + file, `assets/images/player/${file}`, { frameWidth: 128, frameHeight: 128 });
-        });
-
-        enemyAnimationFiles.forEach((file) => {
-            this.load.spritesheet('enemy' + file, `assets/images/enemy/${file}`, { frameWidth: 128, frameHeight: 128 });
+        soundFiles.forEach(sound => {
+            this.load.audio(sound, `assets/sound/${sound}`);
         });
 
         // experiment with cleating active maps texture
@@ -91,25 +42,23 @@ export class LoadScene extends Phaser.Scene {
                 50
             );
         });
+
+        this.load.atlas('sebastian', 'assets/images/sebastian/spriteSheet.png', 'assets/images/sebastian/spriteSheet.json');
+        this.load.atlas('butcher', 'assets/images/enemy/spriteSheet.png', 'assets/images/enemy/spriteSheet.json');
+
     }
     create() {
-        this.initAllCharacterAnimations();
+        createAnimations(this, 'sebastian', sebastianAnims, 'sebastian');
+        createAnimations(this, 'butcher', butcherAnims, 'butcher');
+
         this.scene.start(CST.SCENES.START_MENU, { message: "from load scene" });
     }
-
-    initAllCharacterAnimations() {
-        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", "run-N", "run-NE", "run-E", "run-SE", "run-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'death-N', 'death-NE', 'death-E', 'death-SE', 'death-S'].forEach((key) =>
-            this.anims.create({
-                key: 'player' + key + ".png", // texture key is same for animation key/filename - KISS
-                frames: this.anims.generateFrameNumbers('player' + key + ".png"),
-                frameRate: 8
-            }));
-
-        ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'slice-N', 'slice-NE', 'slice-E', 'slice-SE', 'slice-S'].forEach((key) =>
-            this.anims.create({
-                key: 'enemy' + key + ".png", // texture key is same for animation key/filename - KISS
-                frames: this.anims.generateFrameNumbers('enemy' + key + ".png"),
-                frameRate: 8
-            }));
-    }
+    // initAllCharacterAnimations() {
+    //     ['walk-NE', 'walk-N', 'walk-E', "walk-SE", "walk-S", 'idle-N', 'idle-NE', 'idle-E', 'idle-SE', 'idle-S', 'slice-N', 'slice-NE', 'slice-E', 'slice-SE', 'slice-S'].forEach((key) =>
+    //         this.anims.create({
+    //             key: 'enemy' + key + ".png", // texture key is same for animation key/filename - KISS
+    //             frames: this.anims.generateFrameNumbers('enemy' + key + ".png"),
+    //             frameRate: 8
+    //         }));
+    // }
 }

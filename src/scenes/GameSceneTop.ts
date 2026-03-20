@@ -10,20 +10,25 @@ import jsonLogic from '../jsonLogic';
 import { Character } from './Character';
 import { GameDialogue } from './GameDialogue';
 import { sceneEventConstants } from './sceneEvents';
-import { PlayerControlls, ButcherControlls } from './Controlls';
-import { EdgeOfPathPoint, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
+import { ButcherControlls } from './ButcherControlls';
+import { SebastianPlayerControlls } from './playableCharacterControls/SebastianPlayerControlls';
+import { EdgeOfPathPoint, PATH_POINT_KEY, PathPlanner, PathPoint } from '../levelComponents/PathPlanner';
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
+import { soundSource } from '../constants/sounds';
 
 class PawnHandler {
     characters: Record<string, Character> = {}
+    _characterCache: Character[] = [];
 
     add(key: string, c: Character) {
-        this.characters[key] = c
+        this.characters[key] = c;
+        this._characterCache = Object.values(this.characters);
     }
 
     update(_time: number, delta: number) {
-        for (const c of Object.values(this.characters)) {
+        // for (const c of Object.values(this.characters)) {
+        for (const c of this._characterCache) {
             c.currentState.update(delta)
         }
     }
@@ -35,11 +40,12 @@ type SceneNavigationMesh = {
 }
 
 
-function closestPointInRecords(p: PathPoint, points: Record<string, PathPoint>, predicateToIncludeCallback?: (val: any, d: number) => boolean): string | null {
+function closestPointInRecords(p: PathPoint, points: Record<number, PathPoint>, predicateToIncludeCallback?: (val: any, d: number) => boolean): number | null {
     // tree search example - TODO try
     // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
     let minDistance = 10000000;
-    let closestPoint: string | null = null;
+    let closestPoint: number | null = null;
+    // debugger
     for (let a in points) {
         const distance = Math.sqrt((p.x - points[a].x) * (p.x - points[a].x) + (p.y - points[a].y) * (p.y - points[a].y));
 
@@ -49,24 +55,35 @@ function closestPointInRecords(p: PathPoint, points: Record<string, PathPoint>, 
 
         if (distance < minDistance) {
             minDistance = distance;
-            closestPoint = a;
+            closestPoint = +a;
         }
     }
     return closestPoint;
 }
 
+// TODO - WAYPOINTS can use their tileset x and Y index, save that info to waypoint too
+// const X_WAYPOINT_OFFSET_MULTIPLYER = 10000;
+function getKeyForWaypointAt(x: number, y: number): number {
+    // console.log('--->', x, y)
+    // return x * X_WAYPOINT_OFFSET_MULTIPLYER + y;
+    // return `${x}_${y}`;
+
+    return x << 16 | y;
+}
 type Waypoint = {
     x: number, y: number,
-    size: number
+    size: number,
+    xIndex: number;
+    yIndex: number;
 }
 class NavMeshSceneTop {
     mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
     edges: Record<string, EdgeOfPathPoint[]> = {};
 
-    waypoints: Record<string, Waypoint> = {};
+    waypoints: Record<number, Waypoint> = {};
     graphics!: Phaser.GameObjects.Graphics;
 
-    getOrCreateEdgePathPointList(key: string) {
+    getOrCreateEdgePathPointList(key: number) {
         if (!this.edges[key]) {
             this.edges[key] = [];
         }
@@ -74,24 +91,27 @@ class NavMeshSceneTop {
     }
     calculatePointEdges(scene: Phaser.Scene) {
         for (const [key, wp] of Object.entries(this.waypoints)) {
-            this.calculateWaypointEdgeToRightAndBottom(key, wp, scene)
+            this.calculateWaypointEdgeToRightAndBottom(+key, wp, scene)
         }
     }
 
-    calculateWaypointEdgeToRightAndBottom(key: string, wp: Waypoint, scene: Phaser.Scene) {
-        const wayPointKeyTop = `${wp.x}_${wp.y - wp.size}`;
-        const wayPointKeyRight = `${wp.x + wp.size}_${wp.y}`;
+    calculateWaypointEdgeToRightAndBottom(key: PATH_POINT_KEY, wp: Waypoint, scene: Phaser.Scene) {
+        const wayPointKeyTop = getKeyForWaypointAt(wp.xIndex, wp.yIndex - 1);
+        const wayPointKeyRight = getKeyForWaypointAt(wp.xIndex + 1, wp.yIndex);
+
+        // console.log('===>>>>>', wayPointKeyRight, wayPointKeyTop, key);
         this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
         this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
     }
 
-    tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: string, keyTo: string) {
+    tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: PATH_POINT_KEY, keyTo: PATH_POINT_KEY) {
         if (!this.waypoints[keyTo]) {
             return
         }
 
         const p1 = this.waypoints[keyFrom];
         const p2 = this.waypoints[keyTo];
+        // console.log('<<<<<<<', p1, p2);
         const bodies = scene.matter.intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
             // @ts-ignore    here we know for a fact these parameters exist, only interested in static objects, as path goes between WALLS
             .filter((b) => !b.isSensor && b.isStatic);
@@ -123,7 +143,7 @@ class NavMeshSceneTop {
 
     getPath(from: PathPoint, to: PathPoint) {
         const planner = new PathPlanner(
-            new Map(Object.entries(this.waypoints)),
+            new Map(Object.entries(this.waypoints).map((e) => ([+e[0], e[1]]))),
             this.edges
         );
 
@@ -134,8 +154,9 @@ class NavMeshSceneTop {
             return null;
         }
         const result = planner.execute(
-            fromKey,
-            toKey
+            // @ts-ignore
+            +fromKey,
+            +toKey
         );
 
         // console.log("=======>>>>>>> path", result);
@@ -146,7 +167,7 @@ class NavMeshSceneTop {
         return result;
     }
 
-    closest(p: PathPoint): string | null {
+    closest(p: PathPoint): number | null {
         return closestPointInRecords(p, this.waypoints);
     }
 
@@ -209,6 +230,13 @@ const Levels: { [key: string]: LevelConfig } = {
     }
 }
 
+function parseHexColor(hexWithAlpha: string) {
+    const hex = hexWithAlpha.slice(0, 7);
+    const color = Phaser.Display.Color.HexStringToColor(hex).color;
+    return { color };
+}
+
+const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilities {
     smartLights!: Record<string, Phaser.GameObjects.Light>
 
@@ -229,6 +257,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     tilesetConfig!: LevelConfig;
     loadingBar!: Phaser.GameObjects.Graphics;
 
+    sounds!: Record<keyof typeof soundSource, Phaser.Sound.NoAudioSound | Phaser.Sound.HTML5AudioSound | Phaser.Sound.WebAudioSound>
+    collisionCache: Map<string, boolean> = new Map();
     constructor() {
         super({
             key: CST.SCENES.GAME,
@@ -252,6 +282,8 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.pawnHandler = new PawnHandler();
         this.blackboard = {};
         this.smartLights = {};
+
+        this.createKeyFrame();
     }
 
     preload() {
@@ -281,8 +313,21 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
 
-    create() {
+    createSounds() {
+        this.sounds = {
+            itemPut: this.sound.add(soundSource.itemPut),
+            knifeSlice: this.sound.add(soundSource.knifeSlice),
+            sawCutter: this.sound.add(soundSource.sawCutter),
+            slamDoor: this.sound.add(soundSource.slamDoor),
+            step: this.sound.add(soundSource.step),
+            tryDoor: this.sound.add(soundSource.tryDoor),
+        }
+    }
 
+    create() {
+        this.createSounds();
+
+        this.sound.pauseOnBlur = true;
         this.loadingBar.clear().destroy()
         console.log('CREATE------');
 
@@ -293,7 +338,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         this.navMesh.showWaypoints(this);
 
         // this.createAnimatedTiles();
-        this.cameras.main.setOrigin(0.1, 1);
+        // this.cameras.main.setOrigin(-0.1, 1.5);
         this.lights.enable().setAmbientColor(0x111111);
 
         jsonLogic.rm_operation('setVar');
@@ -385,19 +430,24 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
     onCharacterDeath(character: Character, cause: 'insane' | 'damage') {
-        if (cause !== 'damage') return;
-
+        this.cameras.main.zoomTo(1.5, 2000);
+        if (cause !== 'damage') {
+            return;
+        }
         // console.log("KILLL CHARACTER", character.imageFramePrefix);
         const bloodTileIndexInTilemap = 24;
         const x = character.sprite.x;
         const y = character.sprite.y;
+
         const bloodTile = this.add.image(x, y, 'tiles', bloodTileIndexInTilemap)
             .setOrigin(0.5, 0.5)
             .setScale(0)
             .setTint(0xff0000);
 
 
+
         // https://labs.phaser.io/edit.html?src=src\tweens\tween%20text%20size.js
+
         this.tweens.addCounter({
             from: 0,
             to: 0.5,
@@ -406,7 +456,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             onUpdate: (tween) => {
                 const v = tween.getValue();
                 bloodTile.setScale(v);
-                this.cameras.main.setZoom(1 + v / 2);
+                // this.cameras.main.setZoom(1 + v / 2);
             }
         });
     }
@@ -424,7 +474,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
     **/
     processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image, receiver: Phaser.GameObjects.GameObject): boolean {
-        const { goScene, character, newDialogue, rulePre, rulePost, toggleLight } = d;
+        const { goScene, character, newDialogue, rulePre, rulePost, toggleLight, sound } = d;
 
         if (rulePre) {
             // console.log('RYYYYLE', rulePre);
@@ -439,6 +489,11 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             }
         }
 
+        if (sound) {
+            this.sounds[sound]?.setVolume(0.3);
+            this.sounds[sound]?.play();
+        }
+
         if (receiver && d.actor) {
             if (d.actor.events) {
                 // console.log('WHHHHHAAAAT?', d.actor);
@@ -448,9 +503,14 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             }
         }
 
+        // todo - make separate Smart object
         toggleLight?.forEach((lightId) => {
             const light = this.smartLights[lightId];
-            light.setVisible(!light.visible)
+            const visible = light.visible;
+            light.setVisible(!visible);
+
+            this.sounds.itemPut.setVolume(0.3);
+            this.sounds.itemPut.play({ loop: false });
         });
 
         if (character) {
@@ -519,44 +579,64 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 (item) => item.name === key);
     }
 
-    addPhysicsListeners() {
-        this.matter.world.on('collisionstart', (event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
-            const isPlayerHere = [bodyA.label, bodyB.label].some(l => l === 'player');
-            if (!isPlayerHere) {
-                return
-            }
-
-            const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
-            let trigger: MatterJS.BodyType = null;
-
-            let actor = null;
-            if (bodyA.dialogue) {
-                trigger = bodyA;
-                actor = bodyB;
-            }
-            if (bodyB.dialogue) {
-                trigger = bodyB;
-                actor = bodyA;
-            }
-
-            if (!trigger) {
+    onLevelTriggerCollide(pair: Phaser.Physics.Matter.Pair) {
+        if (pair.bodyA) {
+            const key = `${pair.bodyB.id},${pair.bodyA.id}`;
+            if (this.collisionCache.get(key)) {
                 return;
             }
 
-            if (dialogue) {
-                const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
-                if (wasProcessed) {
-                    if (dialogue.removeTrigger) {
+            this.collisionCache.set(key, true);
+            // console.log('----------Trigger--------', pair.bodyB.id, pair.bodyA.id);//, pair.bodyB.collisionFilter.mask, pair.bodyA.label, pair.bodyB.label);
+            this.processCollisions(null, pair.bodyA, pair.bodyB)
+        }
+    }
+
+    processCollisions(event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
+        const isPlayerHere = [bodyA.label, bodyB.label].some(l => l === 'player');
+        if (!isPlayerHere) {
+            return
+        }
+
+        const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
+        let trigger: MatterJS.BodyType = null;
+
+        let actor = null;
+        if (bodyA.dialogue) {
+            trigger = bodyA;
+            actor = bodyB;
+        }
+        if (bodyB.dialogue) {
+            trigger = bodyB;
+            actor = bodyA;
+        }
+
+        if (!trigger) {
+            return;
+        }
+
+        if (dialogue) {
+            const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
+            if (wasProcessed) {
+                if (dialogue.removeTrigger) {
+                    if (trigger.gameObject instanceof Phaser.Physics.Matter.Sprite) { // >>>>>>>>>>>>>>>>>>>>
+                        // debugger
+                        (trigger.gameObject as Phaser.Physics.Matter.Sprite).destroy()
+                    } else {
                         this.matter.world.remove(trigger);
-                        return;
                     }
+                    return;
                 }
             }
+        }
 
-            if (trigger.isSensor) {
-                Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
-            }
-        });
+        if (trigger.isSensor) {
+            Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
+        }
+    }
+
+    addPhysicsListeners() {
+        // this.matter.world.on('collisionstart', this.processCollisions);
     }
 
     addLevelFloorAndLightsGetWaypoints() {
@@ -577,17 +657,21 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
             this.map.forEachTile((t) => {
                 if (t.index > -1) {
-
+                    const x = t.pixelX + t.width / 2;
+                    const y = t.pixelY + t.height / 2;
                     // Todo key gen should be in navmesh
-                    const wayPointKey = `${t.pixelX + t.width / 2}_${t.pixelY + t.height / 2}`;
+                    const wayPointKey = getKeyForWaypointAt(t.x, t.y);
+                    // console.log('-->>>>>>>>>', wayPointKey, t.x, t.y); // TODO use t.x annd t.y above
                     // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
                     // Note - probably need to move into separate function
                     if (!t.properties.above) {
                         if (!this.navMesh.waypoints[wayPointKey]) {
                             this.navMesh.waypoints[wayPointKey] = {
-                                x: t.pixelX + t.width / 2,
-                                y: t.pixelY + t.height / 2,
+                                x,
+                                y,
                                 size: t.width, // needed to calculate neighbour position
+                                xIndex: t.x,
+                                yIndex: t.y
                             }
                         }
                     }
@@ -615,7 +699,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         });
 
         this.cameras.main.fadeIn(2000, 0, 0, 0);
-        this.cameras.main.setZoom(0.5);
+        this.cameras.main.setZoom(0.7);
         this.cameras.main.zoomTo(1);
         // ---------
         this.map.getObjectLayerNames().forEach(n => {
@@ -623,17 +707,40 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 this.map.getObjectLayer(n)?.objects.forEach(o => {
                     const pp = o;
 
+
+
+                    const color = o.properties?.find(({ name }) => name === 'color')?.value;
+                    let computedColor = 0xffff00;
+
+                    if (color) {
+                        try {
+                            computedColor = parseHexColor(color).color
+                        } catch {
+                        }
+                        // console.log("??????>>>>>>>", color)
+                    }
+
                     const l = this.lights.addLight(
                         pp.x,
                         pp.y,
                         o.width ? o.width : 300
-                    ).setColor(0xffff00)
-                        .setIntensity(3.0);
+                    ).setColor(computedColor)
+                        .setIntensity(LIGHT_ON_INTENSITY);
 
                     this.smartLights[o.id] = l;
 
                     const isLightOn = o.properties?.find(({ name }) => name === 'isOn')?.value;
                     l.setVisible(isLightOn);
+
+
+                    const animationTween = o.properties?.find(({ name }) => name === 'tween')?.value;
+                    if (animationTween) {
+                        // console.log("--------", animationTween);
+                        const parsedTween = JSON.parse(animationTween);
+                        parsedTween.targets = l;
+
+                        this.tweens.add(parsedTween);
+                    }
 
                 });
             } else if (n === 'logic') {
@@ -673,10 +780,23 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 objects.forEach((t) => {
                     // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
 
-                    const smartTile = (new SpriteWithDepth(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
-                        .setDepth(
-                            t.y
-                        )
+                    // read smart object type ----------------
+
+                    let smartTile: SpriteWithDepth | null = null;
+                    let collisionGroup = this.tileset.getTileProperties(t.gid);
+                    // console.log(",,,,,,,,,,,", collisionGroup.kind);
+
+                    // @ts-ignore
+                    if (collisionGroup.kind === "lightSwitch") {
+                        smartTile = (new LightSwitchSmartObject(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
+                    }
+                    else {
+                        smartTile = (new SpriteWithDepth(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
+                    }
+
+                    smartTile.setDepth(
+                        t.y
+                    )
                         .setOrigin(0, 0)
                         .setPipeline('Light2D')
                         .setName(t.id.toString());
@@ -714,6 +834,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                         smartTile.setFrictionAir(1);
                         smartTile.setOrigin(0.5, 0.5);
                         smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+                        (smartTile.body! as MatterJS.BodyType).onCollideCallback = this.onLevelTriggerCollide.bind(this);
 
                         if (tween) {
                             this.tweens.add({
@@ -772,16 +893,32 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
                 return name === 'sensor'
             });
             if (isSensor) {
+                const icon = o.properties?.find(({ name }) => {
+                    return name === 'icon'
+                });
                 const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
                 physicsOptions.isSensor = true;
                 const onEnterEvent = o.properties.find(({ name }) => name === 'onEnter');
 
                 if (onEnterEvent?.value) {
                     physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
-                    this.matter.add.circle(
-                        pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
-                        { ignoreGravity: true, isStatic: true, ...physicsOptions }
-                    );
+
+                    if (icon) {
+                        const triggerSprite = this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, icon.value,
+                            { ignoreGravity: true, isStatic: true, ...physicsOptions }
+                        ).setDepth(o?.y ?? 0 + 500);
+
+                        triggerSprite.setOnCollide(this.onLevelTriggerCollide.bind(this));
+
+                        this.bounceCollectable(triggerSprite)
+                    } else {
+                        const triggerWithNoSprite = this.matter.add.circle(
+                            pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
+                            { ignoreGravity: true, isStatic: true, ...physicsOptions }
+                        );
+
+                        triggerWithNoSprite.onCollideCallback = this.onLevelTriggerCollide.bind(this);
+                    }
                 }
             }
         });
@@ -792,7 +929,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             throw "Not spawning from correct Logic TiledObject, expecting 'enemyStart'"
         }
 
-        const pawn = new Character(this, o.x ?? 0, (o.y ?? 0) - 50, 'walk-NE.png', 'enemy');
+        const pawn = new Character(this, o.x ?? 0, (o.y ?? 0) - 50, 'walk-NE.png', 'butcher'); // TODO-change to butcher
         pawn.controller = new ButcherControlls(this, pawn);
         pawn.lastDirection.x = 1;
         pawn.lastDirection.y = -1;
@@ -835,15 +972,21 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         }
 
         const pawn = new Character(this, o.x ?? 0, o.y ?? 0, 'walk-NE.png', 'player');
-        pawn.controller = new PlayerControlls(this, pawn)
+        pawn.controller = new SebastianPlayerControlls(this, pawn)
 
         this.pawnHandler.add('player', pawn);
         pawn.id = 'player';
 
         this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
-        this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
+        // this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
+        this.cameras.main.startFollow(pawn.sprite, false, 0.2, 0.2);
 
 
+        // test animation from config file
+        // const playerCopy = this.matter.add.sprite(o.x, o.y);
+        // playerCopy.setDepth(o.y + 50)
+        // playerCopy.play("sebastian-run-E");
+        // this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key").setDepth(o?.y ?? 0 + 500);
     }
 
     /*
@@ -960,6 +1103,23 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
 
                 const c = this.matter.verts.centre(visualPoints);
                 const body = this.matter.add.fromVertices(c.x, c.y, visualPoints, { ...physicsOptions });
+
+
+                if (isSensor) {
+                    body.onCollideCallback = this.onLevelTriggerCollide.bind(this);
+                    body.collisionFilter = {
+                        category: 1,
+                        mask: 1,
+                        group: 1,
+                    }
+                } else {
+                    body.collisionFilter = {
+                        category: 1,
+                        mask: 1,
+                        group: 1,
+                    }
+                }
+
                 bodyParts.push(body);
             }
         }
@@ -975,7 +1135,30 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     }
 
     update(time: number, delta: number) {
+        this.collisionCache.clear();
         this.pawnHandler.update(time, delta);
+    }
+
+    bounceCollectable(sprite: any) {
+        const tween = {
+            "alpha": { "from": "0.5", "to": "1" },
+            "duration": 1000,
+            "yoyo": true,
+            "repeat": -1,
+            "ease": "Sine.InOut"
+        }
+        this.tweens.add({ ...tween, targets: sprite });
+    }
+
+    createKeyFrame() {
+        const newTextureFrame = "key";
+        const tileTexture: Phaser.Textures.Texture = this.textures.list[this.tilesetConfig.tilesetKey];
+        const frame = tileTexture.get(56); // Get frame 56
+        if (frame) {
+            // debugger
+            tileTexture.add(newTextureFrame, 0, frame.cutX, frame.cutY, 64, 64);
+        }
+        // tileTexture.add(newTextureFrame, 0, 0, 0, 64, 64);
     }
 }
 
@@ -988,8 +1171,33 @@ class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
         this.setFrame(frame);
     }
 
-    preUpdate(time, delta) {
+    preUpdate(time: number, delta: number) {
         super.preUpdate(time, delta)
         this.setDepth(this.y + 1);
+    }
+}
+
+class LightSwitchSmartObject extends SpriteWithDepth {
+    indicator: Phaser.GameObjects.Ellipse;
+
+    constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame: number) {
+        super(scene, x, y, texture, frame);
+        // console.log("switch time-----");
+
+        this.indicator = scene.add.ellipse(x + 64, y + 64, 10, 10, 0xff1111, 1).setDepth(y + 130).setSmoothness(5);
+
+        // in case if needed, can add this to any other object .... copy to config in tiled editor
+        scene.tweens.add({
+            targets: this.indicator,
+            "alpha": { "from": 0.1, "to": 1 },
+            "duration": 1000,
+            "yoyo": true,
+            "repeat": -1,
+            "ease": "Sine.InOut"
+        });
+    }
+
+    preUpdate(time: number, delta: number) {
+        super.preUpdate(time, delta)
     }
 }

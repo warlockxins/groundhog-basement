@@ -18,6 +18,7 @@ export type GameDialogue = {
     onInit?: GameDialogue;
     schedule?: {
         ids: string[];
-    }
+    },
+    sound: string;
 };
 
