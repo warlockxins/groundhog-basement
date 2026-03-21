@@ -1,10 +1,14 @@
 import { CST } from "../constants/CST";
 import { sceneEventConstants } from './sceneEvents';
 
+const SANITY_BOX_X = 160;
 
+const SANITY_BOX_MAX_WIDTH = 60;
 export class GameSceneTopHudScene extends Phaser.Scene {
     text: Phaser.GameObjects.Text;
     sanityBarGraphics: Phaser.GameObjects.Graphics;
+    currentSanity: number = 10;
+
     constructor() {
         super({
             key: CST.SCENES.GAME_HUD,
@@ -50,24 +54,40 @@ export class GameSceneTopHudScene extends Phaser.Scene {
             }
         });
 
-        this.drawSanity(10);
+        this.drawSanity(SANITY_BOX_MAX_WIDTH);
 
     }
     updateScore(parent, key, data) {
         if (key === 'sanity') {
-            this.drawSanity(+data);
+            const newHealth = +data;
+            const newWidth = (newHealth / 10) * SANITY_BOX_MAX_WIDTH;
+
+            this.tweens.addCounter({
+                from: (this.currentSanity / 10) * SANITY_BOX_MAX_WIDTH,
+                to: newWidth,
+                duration: 500, // make sure this is less than players (1 sec)
+                onUpdate: tween => {
+                    this.drawSanity(tween.getValue());
+                }
+            });
+
+            this.currentSanity = newHealth;
         }
     }
 
-    drawSanity(score: number) {
-
+    drawSanity(width: number) {
         if (this.sanityBarGraphics) {
             this.sanityBarGraphics.clear();
         }
+
+        if (width > SANITY_BOX_MAX_WIDTH / 2) {
+            this.sanityBarGraphics.fillStyle(0x00ffff, 1);
+        } else { this.sanityBarGraphics.fillStyle(0xff0000, 1); }
+
         this.sanityBarGraphics.fillRect(
-            160,
+            SANITY_BOX_X,
             10,
-            60 * score / 10,
+            width,
             15
         );
         this.sanityBarGraphics.strokeRect(160, 10, 60, 15);
