@@ -4,7 +4,7 @@ import { I_AnimationState, TMoveSpeed } from "./AnimationStateTypes";
 
 const walkSpeed = 2.5;
 
-export class SebastianPlayableCharacerAnimations implements I_AnimationState {
+export class SebastianStates implements I_AnimationState {
     sprite: Phaser.Physics.Matter.Sprite;
     facing: { vertical: 'N' | 'S' | ''; horizontal: 'E' | ''; } = { vertical: 'S', horizontal: '' };
     animationDirection: AnimationDirection = 'S';
@@ -23,7 +23,7 @@ export class SebastianPlayableCharacerAnimations implements I_AnimationState {
     }
 
     moveIntent = {
-        up: false, right: false, down: false, left: false, run: false
+        up: false, right: false, down: false, left: false
     }
 
     updaterState = {
@@ -52,11 +52,11 @@ export class SebastianPlayableCharacerAnimations implements I_AnimationState {
 }
 
 class MovableRoot implements I_AnimationState {
-    controller: SebastianPlayableCharacerAnimations;
+    controller: SebastianStates;
     animation: string;
     speed: TMoveSpeed;
 
-    constructor(controller: SebastianPlayableCharacerAnimations, animation: string, speed: TMoveSpeed = { x: 0, y: 0 }) {
+    constructor(controller: SebastianStates, animation: string, speed: TMoveSpeed = { x: 0, y: 0 }) {
         this.controller = controller;
         this.animation = animation;
         this.speed = speed;

@@ -1,7 +1,9 @@
 import { Controlls } from '../BaseControlls';
 import { Character } from '../Character';
+import { GameSceneTopPossibilities } from '../GameSceneTopInterface';
 import { sceneEventConstants } from '../sceneEvents';
-import { SebastianPlayableCharacerAnimations } from './SebastianPlayableCharacerAnimations';
+import { LightSanityChecker } from './LightSanityChecker';
+import { SebastianStates } from './SebastianStates';
 
 
 
@@ -11,14 +13,17 @@ export class SebastianPlayerControlls extends Controlls {
 
     fatigue = 0;
     canRun = true;
-    playableCharacterController: SebastianPlayableCharacerAnimations;
+    states: SebastianStates;
+    lightSanityChecker: LightSanityChecker;
 
-    constructor(scene: Phaser.Scene, character: Character) {
+    constructor(scene: Phaser.Scene & GameSceneTopPossibilities, character: Character) {
         super(scene, character);
 
         this.cursors = scene.input.keyboard!.createCursorKeys();
-        this.playableCharacterController = new SebastianPlayableCharacerAnimations(character.sprite);
-        this.playableCharacterController.start();
+        this.states = new SebastianStates(character.sprite);
+        this.states.start();
+
+        this.lightSanityChecker = new LightSanityChecker(scene, character)
 
     }
     update(delta: number) {
@@ -26,17 +31,16 @@ export class SebastianPlayerControlls extends Controlls {
 
         if (this.character.isDead) return;
 
-        this.playableCharacterController.moveIntent.up = this.cursors.up.isDown;
-        this.playableCharacterController.moveIntent.right = this.cursors.right.isDown;
-        this.playableCharacterController.moveIntent.down = this.cursors.down.isDown;
-        this.playableCharacterController.moveIntent.left = this.cursors.left.isDown;
-        this.playableCharacterController.moveIntent.run = this.cursors.shift.isDown;
+        this.states.moveIntent.up = this.cursors.up.isDown;
+        this.states.moveIntent.right = this.cursors.right.isDown;
+        this.states.moveIntent.down = this.cursors.down.isDown;
+        this.states.moveIntent.left = this.cursors.left.isDown;
 
-        this.playableCharacterController.update();
+        this.states.update();
     }
 
     onDamage(cause: string): void {
-        const deathAnim = 'sebastian-death-' + this.playableCharacterController.animationDirection;
+        const deathAnim = 'sebastian-death-' + this.states.animationDirection;
 
         const { sprite } = this.character;
         if (this.character.sprite.texture.key !== deathAnim) {

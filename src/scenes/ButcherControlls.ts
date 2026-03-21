@@ -1,6 +1,7 @@
 import { Character } from './Character';
 import { sceneEventConstants } from './sceneEvents';
 import { Controlls } from './BaseControlls';
+import { GameSceneTopPossibilities } from './GameSceneTopInterface';
 
 export class ButcherControlls extends Controlls {
     chasePoint: { x: number, y: number } | null = null;
@@ -8,7 +9,7 @@ export class ButcherControlls extends Controlls {
     circleSearchCharacterEvent: Phaser.Time.TimerEvent;
 
 
-    constructor(scene: Phaser.Scene, character: Character) {
+    constructor(scene: Phaser.Scene & GameSceneTopPossibilities, character: Character) {
         super(scene, character);
         this.character.sprite.on(sceneEventConstants.chase, this.followPoint, this);
 
