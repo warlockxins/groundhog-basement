@@ -59,6 +59,7 @@ export class Character {
         this.textBubble.setBackgroundColor("#000000");
         this.textBubble.setAlign('center');
         this.textBubble.setMaxLines(2);
+        this.textBubble.setOrigin(0.5, 0.5)
 
         this.shadow = scene.add.ellipse(x, y, 30, 15, 0x111111, 0.3);
         this.shadow.setSmoothness(8);
