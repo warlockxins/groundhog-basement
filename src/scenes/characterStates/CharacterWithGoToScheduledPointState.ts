@@ -182,6 +182,14 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
                     this.character.bark("That's it, BITCH!");
                 }
             }
+
+            // TODO - this is shit. Move to some state or smth
+            if (this.followingCharacter && this.character.controller?.scene.pawnHandler.characters[this.followingCharacter]) {
+                if (this.character.controller?.scene.pawnHandler.characters[this.followingCharacter].isDead) {
+                    this.setEnemyFollowId(null);
+                    this.character.bark("Wuss!");
+                }
+            }
         }
 
         this.character.controller?.update(delta);

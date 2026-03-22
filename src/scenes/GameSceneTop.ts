@@ -16,23 +16,7 @@ import { EdgeOfPathPoint, PATH_POINT_KEY, PathPlanner, PathPoint } from '../leve
 
 import { GameSceneTopPossibilities } from './GameSceneTopInterface';
 import { soundSource } from '../constants/sounds';
-
-class PawnHandler {
-    characters: Record<string, Character> = {}
-    _characterCache: Character[] = [];
-
-    add(key: string, c: Character) {
-        this.characters[key] = c;
-        this._characterCache = Object.values(this.characters);
-    }
-
-    update(_time: number, delta: number) {
-        // for (const c of Object.values(this.characters)) {
-        for (const c of this._characterCache) {
-            c.currentState.update(delta)
-        }
-    }
-}
+import { PawnHandler } from "./PawnHandler";
 
 type SceneNavigationMesh = {
     vertices: NavMeshPointMap;
@@ -251,9 +235,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
     pawnHandler!: PawnHandler;
 
     navMesh!: NavMeshSceneTop;
-    sanityCheckTimer!: Phaser.Time.TimerEvent;
 
-    sanityScore: number = 0;
     tilesetConfig!: LevelConfig;
     loadingBar!: Phaser.GameObjects.Graphics;
 
@@ -312,7 +294,6 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         });
     }
 
-
     createSounds() {
         this.sounds = {
             itemPut: this.sound.add(soundSource.itemPut),
@@ -352,59 +333,14 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
             console.log("try destroy");
             this.scene.stop();
         })
-
-
-
-        // sanity meter
-
-        if (this.sanityCheckTimer) {
-            this.time.removeEvent(this.sanityCheckTimer);
-        }
-        this.sanityCheckTimer = new Phaser.Time.TimerEvent({
-            delay: 1000,
-            loop: true,
-            callback: this.checkSanitiBasedOnDistanceToClosestLight,
-            callbackScope: this
-        });
-
-
-        this.time.addEvent(this.sanityCheckTimer);
-        this.sanityScore = 10;
-        this.registry.set('sanity', this.sanityScore);
     }
 
-    // This potentially needs to be in Player controller - but it is a global gameplay part tied to main player
-    checkSanitiBasedOnDistanceToClosestLight() {
-        const character = this.pawnHandler.characters['player'];
-        const { x, y } = character.sprite;
-
-        const closestLightId = closestPointInRecords(
-            { x, y },
+    findClosestLight(p: { x: number, y: number }, maxDistance: number = 256) {
+        return closestPointInRecords(
+            p,
             this.smartLights,
-            (it: Phaser.GameObjects.Light, distance) => it.visible && distance < 256 // dist is 2 X tileWidth
+            (it: Phaser.GameObjects.Light, distance) => it.visible && distance < maxDistance // dist is 2 X tileWidth
         );
-
-        if (closestLightId) {
-            this.sanityScore += 1.5;
-
-            this.sanityScore = Math.min(this.sanityScore, 10);
-        } else {
-
-            const sanityDepletionScale = character.running ? 1.2 : 1;
-            this.sanityScore -= 1 * sanityDepletionScale;
-
-            if (this.sanityScore < 5 && this.sanityScore > 2) {
-                this.pawnHandler.characters['player'].bark('So dark!');
-            }
-            if (this.sanityScore < 0) {
-                this.pawnHandler.characters['player'].onMadeInsane();
-
-                this.time.removeEvent(this.sanityCheckTimer);
-            }
-            this.sanityScore = Math.max(this.sanityScore, 0);
-        }
-
-        this.registry.set('sanity', this.sanityScore);
     }
 
     getLogicObjectFromLayer(logicLayerObjectId: string) {
@@ -978,15 +914,7 @@ export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilit
         pawn.id = 'player';
 
         this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
-        // this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
         this.cameras.main.startFollow(pawn.sprite, false, 0.2, 0.2);
-
-
-        // test animation from config file
-        // const playerCopy = this.matter.add.sprite(o.x, o.y);
-        // playerCopy.setDepth(o.y + 50)
-        // playerCopy.play("sebastian-run-E");
-        // this.matter.add.sprite(o.x, o.y, this.tilesetConfig.tilesetKey, "key").setDepth(o?.y ?? 0 + 500);
     }
 
     /*
