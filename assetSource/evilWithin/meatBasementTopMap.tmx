@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="61">
+<map version="1.10" tiledversion="1.12.0-1-gd3530f437" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="66">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -37,7 +37,7 @@
 0,0,0,0,0,0,1,1,1,1,1,1,1,0,0
 </data>
  </layer>
- <layer id="7" name="bloodOnFloor" width="15" height="26">
+ <layer id="7" name="decals" width="15" height="26">
   <properties>
    <property name="physics" type="bool" value="true"/>
   </properties>
@@ -61,7 +61,7 @@
 0,0,0,0,0,0,0,0,25,0,0,0,0,0,0,
 0,0,0,39,36,38,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,52,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,25,0,25,0,0,0,0,
@@ -88,7 +88,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,12,0,12,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,8,7,7,0,0,0,7,8,8,0,
+0,0,0,0,0,8,7,7,0,0,0,0,8,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,20,0,0,0,0,0,16,0,0,8,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -223,7 +223,7 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Toggle Light&quot; }
+        { &quot;bark&quot;: &quot;Toggle the Light&quot; }
       ]
    },
    &quot;toggleLight&quot;: [&quot;41&quot;]
@@ -257,7 +257,7 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Keep light on&quot; }
+        { &quot;bark&quot;: &quot;Keep the light on&quot; }
       ]
    },
    &quot;toggleLight&quot;: [&quot;27&quot;]
@@ -265,6 +265,23 @@
    </properties>
   </object>
   <object id="58" gid="46" x="265.317" y="2656.2" width="128" height="128"/>
+  <object id="63" name="Removable wall2" gid="17" x="0" y="3328" width="128" height="128"/>
+  <object id="64" name="Removable wall1" gid="17" x="128" y="3328" width="128" height="128"/>
+  <object id="65" name="book to read" gid="7" x="1408" y="1792" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
+  },
+  &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;The book:\nHow to escape&quot; }
+      ]
+   }
+}</property>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="15" height="26">
   <properties>
@@ -419,7 +436,7 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="329.65" y="2789.16">
+  <object id="8" name="start" x="376.595" y="2742.51">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="1533.27" y="3148.42">
@@ -437,11 +454,24 @@
    <properties>
     <property name="icon" value="key"/>
     <property name="onEnter">{
-  &quot;removeTrigger&quot;:true,
+  &quot;removeTrigger&quot;: true,
   &quot;rulePost&quot;: {
-     &quot;setVar&quot;: [&quot;haveKey&quot;, true]
-  }
-}</property>
+    &quot;setVar&quot;: [&quot;haveKey&quot;, true]
+  },
+  &quot;moveTo&quot;: [
+    {
+      &quot;tileId&quot;: &quot;63&quot;,
+      &quot;x&quot;: 1024,
+      &quot;y&quot;: 2304
+    },
+    {
+      &quot;tileId&quot;: &quot;64&quot;,
+      &quot;x&quot;: 1152,
+      &quot;y&quot;: 2304
+    }
+  ]
+}
+</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
@@ -483,7 +513,7 @@
    </properties>
    <point/>
   </object>
-  <object id="52" name="2ndButcherSchedulePoint2" x="1573.39" y="2869.53">
+  <object id="52" name="2ndButcherSchedulePoint2" x="986.506" y="2626.04">
    <point/>
   </object>
   <object id="53" name="2ndButcherSchedulePoint" x="1266.41" y="3095.32">
@@ -509,6 +539,36 @@
   </object>
   <object id="59" name="2ndButcherSchedulePoint2" x="1579.05" y="2740.95">
    <point/>
+  </object>
+  <object id="61" name="is that blood" x="795.501" y="2927.14" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Is that\nBlood?&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="62" name="bodies everywhere" x="1010.88" y="2985.52" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Bodies everywhere!&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
  <layer id="6" name="alwaysAbove" width="15" height="26">

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
+<tileset version="1.10" tiledversion="1.12.0-1-gd3530f437" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
  <image source="assets/tilesTop.png" trans="474747" width="1024" height="1024"/>
  <tile id="3">
   <objectgroup draworder="index" id="2">
@@ -20,6 +20,13 @@
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.425876" y="92.4151">
     <polygon points="0,0 0,35.3477 127.337,35.7736 126.911,0"/>
+   </object>
+   <object id="2" x="12.221" y="122.21">
+    <properties>
+     <property name="onEnter" value="{}"/>
+     <property name="sensor" type="bool" value="false"/>
+    </properties>
+    <polygon points="0,0 13.4431,33.9134 90.1301,34.8299 104.184,-1.2221"/>
    </object>
   </objectgroup>
  </tile>
