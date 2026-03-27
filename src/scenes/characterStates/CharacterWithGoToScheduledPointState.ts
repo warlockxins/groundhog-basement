@@ -190,6 +190,8 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
                     this.character.bark("Wuss!");
                 }
             }
+        } else {
+            this.character.running = false;
         }
 
         this.character.controller?.update(delta);

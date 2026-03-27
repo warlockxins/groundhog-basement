@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.0-1-gd3530f437" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="66">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="67">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -63,9 +63,9 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,52,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,25,0,25,0,0,0,0,
-0,0,0,0,0,0,25,0,0,25,0,25,0,0,0,
+0,0,0,0,0,0,0,0,0,24,0,24,0,0,0,
+0,0,0,0,0,0,0,0,25,0,25,32,0,0,0,
+0,0,0,0,0,0,25,0,0,25,32,25,0,0,0,
 0,0,0,0,0,0,25,27,25,27,25,0,27,0,0,
 0,0,0,0,0,0,25,25,0,0,25,0,0,0,0
 </data>
@@ -97,10 +97,10 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,8,8,0,12,0,0,0,0,0,0,8,8,0,
 0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,32,0,8,16,0,0,
-0,0,0,0,0,0,47,0,24,40,0,0,0,0,0,
-0,0,0,0,0,0,0,24,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,32,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,40,0,8,16,0,0,
+0,0,0,0,0,0,47,0,0,0,40,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="2" name="edgeWalls" width="15" height="26">
@@ -165,7 +165,7 @@
 0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,
-0,0,0,0,0,0,15,0,32,0,0,0,0,0,0,
+0,0,0,0,0,0,15,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,4,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -540,7 +540,7 @@
   <object id="59" name="2ndButcherSchedulePoint2" x="1579.05" y="2740.95">
    <point/>
   </object>
-  <object id="61" name="is that blood" x="795.501" y="2927.14" width="128" height="128">
+  <object id="61" name="is that blood" x="854.301" y="3013.85" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
@@ -555,7 +555,7 @@
    </properties>
    <ellipse/>
   </object>
-  <object id="62" name="bodies everywhere" x="1010.88" y="2985.52" width="128" height="128">
+  <object id="62" name="bodies everywhere" x="1160.37" y="2772.25" width="128" height="128">
    <properties>
     <property name="onEnter">{
   &quot;removeTrigger&quot;:true,
@@ -563,6 +563,24 @@
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
         { &quot;bark&quot;: &quot;Bodies everywhere!&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="66" name="but where" x="1145.89" y="2229.2" width="95.1118" height="85.1457">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
+  },
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;But ...\n where?!&quot; }
       ]
    }
 }</property>

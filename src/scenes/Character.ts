@@ -33,6 +33,8 @@ export class Character {
     id: string = "";
     lastDirectionAnimationFrame!: string;
 
+    barkList: Set<string> = new Set();
+
     running = false;
 
     // TODO - add id to sprite, for getting by id for scripts
@@ -78,6 +80,32 @@ export class Character {
         this.moveAnim = 'walk';
 
         this.sprite.on('damage', this.onDamage, this)
+
+
+        this.sprite.scene.time.addEvent({
+            delay: 250,
+            loop: true,
+            callback: () => {
+                const TIME_SHOW_TEXT = 1500;
+                const TIME_DATA_NAME = "time";
+
+                const currentTime = (this.textBubble.getData(TIME_DATA_NAME) ?? 0) - 250;
+
+                if (currentTime > 0) {
+                    this.textBubble.setData(TIME_DATA_NAME, currentTime);
+                } else {
+                    const val = this.barkList.values().next();
+                    if (val.value) {
+                        this.barkList.delete(val.value!);
+                        this.textBubble.setData(TIME_DATA_NAME, TIME_SHOW_TEXT);
+                    }
+                    const nextText = val.value ?? "";
+                    if (this.textBubble.text !== nextText) {
+                        this.textBubble.setText(nextText);
+                    }
+                }
+            }, callbackScope: this
+        })
     }
 
     setAutoPathFollowSchedule(autoPathFollowSchedule: NavMeshPoint[]) {
@@ -120,16 +148,26 @@ export class Character {
     }
 
     bark(text: string = "") {
-        if (this.isDead) return;
-
-        this.textBubble.setText(text);
+        if (this.isDead) {
+            this.barkList.clear();
+            return;
+        };
 
         if (!text) return;
 
+        this.barkList.add(text);
+
+        // const val = this.barkList.values().next();
+        // this.barkList.delete(val.value!);
+
+        // this.textBubble.setText(text);
+
+        // console.log("--->", this.barkList);
+
         // clear text bubble
-        this.sprite.scene.time.delayedCall(2500, () => {
-            this.textBubble.setText("");
-        });
+        // this.sprite.scene.time.delayedCall(2500, () => {
+        //     this.textBubble.setText("");
+        // });
     }
 
     onDamage(value: number) {

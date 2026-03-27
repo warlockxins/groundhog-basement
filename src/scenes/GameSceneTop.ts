@@ -41,7 +41,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-        (p.y - points[a].y) * (p.y - points[a].y),
+      (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -89,6 +89,7 @@ class NavMeshSceneTop {
     return this.edges[key];
   }
   calculatePointEdges(scene: Phaser.Scene) {
+    this.edges = {};
     for (const [key, wp] of Object.entries(this.waypoints)) {
       this.calculateWaypointEdgeToRightAndBottom(+key, wp, scene);
     }
@@ -269,8 +270,7 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities
-{
+  implements GameSceneTopPossibilities {
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -564,9 +564,10 @@ export class GameSceneTop
           //   objectToMove.body.position.x = x + 64;
           //   objectToMove.body.position.y = y - 64;
           // }
-          this.navMesh.recalculateAt(x + 64, y - 64, this);
+          // this.navMesh.recalculateAt(x + 64, y - 64, this);
           // this.navMesh.recalculateAt(x - 64, y, this);
           // this.navMesh.recalculateAt(x + 64, y + 64, this);
+          this.navMesh.showWaypoints(this);
         }
       });
     }
@@ -778,7 +779,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch {}
+            } catch { }
             // console.log("??????>>>>>>>", color)
           }
 
