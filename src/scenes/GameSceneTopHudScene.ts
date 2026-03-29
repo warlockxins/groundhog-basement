@@ -1,13 +1,16 @@
 import { CST } from "../constants/CST";
 import { sceneEventConstants } from "./sceneEvents";
 
-const SANITY_BOX_X = 80;
+const SANITY_BOX_X = 100;
 
 const SANITY_BOX_MAX_WIDTH = 70;
 export class GameSceneTopHudScene extends Phaser.Scene {
   text: Phaser.GameObjects.Text;
   sanityBarGraphics: Phaser.GameObjects.Graphics;
   currentSanity: number = 10;
+
+  gameHudContainer!: Phaser.GameObjects.Container;
+  pauseHudContainer!: Phaser.GameObjects.Container;
 
   constructor() {
     super({
@@ -17,28 +20,83 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
   makePauseButton() {
     const clickButton = this.add
-      .text(10, 10, "Exit", {
+      .text(10, 10, "Pause", {
         color: "#ffffff",
-        fontFamily: "Arial Black",
-        fontSize: 24,
+        fontFamily: "Arial",
+        fontSize: 18,
       })
       .setScrollFactor(0);
 
-    clickButton.setInteractive().on("pointerdown", () => this.pausePressed());
+    clickButton.setInteractive().on("pointerup", () => {
+      this.scene.get(CST.SCENES.GAME).scene.pause();
+      this.gameHudContainer.setVisible(false);
+      this.pauseHudContainer.setVisible(true);
+    })
+      .on("pointerover", () => clickButton.setColor("#aaaaaa"))
+      .on("pointerout", () => clickButton.setColor("#ffffff"));
+
+    return clickButton;
   }
 
-  pausePressed() {
-    this.scene.launch(CST.SCENES.START_MENU);
-    this.game.events.emit(sceneEventConstants.stopGameplayScene);
-    this.scene.stop();
+  makePauseContainer() {
+    const pauseGraphics = this.add.graphics();
+    const { width, height } = this.game.config;
+
+    pauseGraphics.fillStyle(0x000000, 0.4);
+    pauseGraphics.fillRect(0, 0, +width, +height);
+
+    const pauseLabel = this.add.text(+width / 2, 150, "PAUSE MENU", {
+      fontFamily: "Arial Black",
+      fontSize: 34,
+    });
+    pauseLabel.setOrigin(0.5, 1);
+
+    pauseGraphics.lineStyle(2, 0xffffff);
+    pauseGraphics.lineBetween(+width / 2 - 90, 160, +width / 2 + 90, 160);
+
+    const resumeButton = this.add
+      .text(+width / 2, 210, "Resume", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+      });
+    resumeButton.setOrigin(0.5, 1);
+
+    resumeButton.setInteractive().on("pointerup", () => {
+      this.scene.get(CST.SCENES.GAME).scene.resume();
+      this.gameHudContainer.setVisible(true);
+      this.pauseHudContainer.setVisible(false);
+    })
+      .on("pointerover", () => resumeButton.setColor("#aaaaaa"))
+      .on("pointerout", () => resumeButton.setColor("#ffffff"));
+
+    const exitButton = this.add
+      .text(+width / 2, 250, "Quit", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+      });
+    exitButton.setOrigin(0.5, 1);
+
+    exitButton.setInteractive().on("pointerup", () => {
+      this.scene.launch(CST.SCENES.START_MENU);
+      this.game.events.emit(sceneEventConstants.stopGameplayScene);
+      this.scene.stop();
+    })
+      .on("pointerover", () => exitButton.setColor("#aaaaaa"))
+      .on("pointerout", () => exitButton.setColor("#ffffff"));
+
+    this.pauseHudContainer = this.add.container(0, 0, [pauseGraphics, pauseLabel, resumeButton, exitButton]);
+    this.pauseHudContainer.setVisible(false);
   }
 
-  create() {
-    this.makePauseButton();
+  makeGameHudContainer() {
+
+    const pauseButton = this.makePauseButton();
 
     this.text = this.add.text(SANITY_BOX_X, 10, "Sanity", {
-      fontFamily: "Arial Black",
-      fontSize: 24,
+      fontFamily: "Arial",
+      fontSize: 18,
     });
 
     //  Check the Registry and hit our callback every time the 'score' value is updated
@@ -54,6 +112,13 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     });
 
     this.drawSanity(SANITY_BOX_MAX_WIDTH);
+
+    this.gameHudContainer = this.add.container(0, 0, [this.text, pauseButton, this.sanityBarGraphics]);
+  }
+
+  create() {
+    this.makeGameHudContainer();
+    this.makePauseContainer();
   }
   updateScore(parent, key, data) {
     if (key === "sanity") {

@@ -17,7 +17,7 @@ export class MenuScene extends Phaser.Scene {
     console.log("data passed to this scene", data);
   }
 
-  preload() {}
+  preload() { }
   create() {
     console.log("===? goooooooo");
 
@@ -35,7 +35,7 @@ export class MenuScene extends Phaser.Scene {
 
     this.startButton
       .setInteractive()
-      .on("pointerdown", () => this.startPressed())
+      .on("pointerup", () => this.startPressed())
       .on("pointerover", () => this.enterButtonHoverState())
       .on("pointerout", () => this.enterButtonRestState());
 
