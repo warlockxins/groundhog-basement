@@ -40,7 +40,7 @@ export class MenuScene extends Phaser.Scene {
       .on("pointerout", () => this.enterButtonRestState());
 
     this.add.text(UI_X, 150, "Dream Butcher", {
-      fontFamily: "Arial Black",
+      fontFamily: "Arial",
       fontSize: 70,
     });
     // .setOrigin(0.5, 0);

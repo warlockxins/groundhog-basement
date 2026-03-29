@@ -42,7 +42,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     const pauseGraphics = this.add.graphics();
     const { width, height } = this.game.config;
 
-    pauseGraphics.fillStyle(0x000000, 0.4);
+    pauseGraphics.fillStyle(0x111111, 0.8);
     pauseGraphics.fillRect(0, 0, +width, +height);
 
     const pauseLabel = this.add.text(+width / 2, 150, "PAUSE MENU", {
@@ -55,36 +55,46 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     pauseGraphics.lineBetween(+width / 2 - 90, 160, +width / 2 + 90, 160);
 
     const resumeButton = this.add
-      .text(+width / 2, 210, "Resume", {
+      .text(+width / 2, 230, "Resume", {
         color: "#ffffff",
         fontFamily: "Arial",
         fontSize: 20,
-      });
-    resumeButton.setOrigin(0.5, 1);
+        fixedWidth: 150,
+        align: "center"
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
 
     resumeButton.setInteractive().on("pointerup", () => {
       this.scene.get(CST.SCENES.GAME).scene.resume();
       this.gameHudContainer.setVisible(true);
       this.pauseHudContainer.setVisible(false);
     })
-      .on("pointerover", () => resumeButton.setColor("#aaaaaa"))
-      .on("pointerout", () => resumeButton.setColor("#ffffff"));
+      .on("pointerover", () => {
+        resumeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
+      })
+      .on("pointerout", () => {
+        resumeButton.setBackgroundColor("")
+      });
 
     const exitButton = this.add
-      .text(+width / 2, 250, "Quit", {
+      .text(+width / 2, 270, "Quit", {
         color: "#ffffff",
         fontFamily: "Arial",
+        fixedWidth: 150,
         fontSize: 20,
-      });
-    exitButton.setOrigin(0.5, 1);
+        align: "center"
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
 
     exitButton.setInteractive().on("pointerup", () => {
       this.scene.launch(CST.SCENES.START_MENU);
       this.game.events.emit(sceneEventConstants.stopGameplayScene);
       this.scene.stop();
     })
-      .on("pointerover", () => exitButton.setColor("#aaaaaa"))
-      .on("pointerout", () => exitButton.setColor("#ffffff"));
+      .on("pointerover", () => exitButton.setBackgroundColor("rgba(255, 255, 255, 0.1)"))
+      .on("pointerout", () => exitButton.setBackgroundColor(""));
 
     this.pauseHudContainer = this.add.container(0, 0, [pauseGraphics, pauseLabel, resumeButton, exitButton]);
     this.pauseHudContainer.setVisible(false);
