@@ -928,7 +928,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"removeTrigger\": true,\n  \"rulePost\": {\n    \"setVar\": [\"haveKey\", true]\n  },\n  \"moveTo\": [\n    {\n      \"tileId\": \"63\",\n      \"x\": 1024,\n      \"y\": 2304\n    },\n    {\n      \"tileId\": \"64\",\n      \"x\": 1152,\n      \"y\": 2304\n    }\n  ]\n}\n"
+                         "value":"{\n  \"removeTrigger\": true,\n  \"rulePost\": {\n    \"setVar\": [\"haveKey\", true]\n  },\n  \"moveTo\": [\n    {\n      \"tileId\": \"63\",\n      \"x\": 1024,\n      \"y\": 2304\n    },\n    {\n      \"tileId\": \"64\",\n      \"x\": 1152,\n      \"y\": 2304\n    }\n  ],\n  \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Now to that door!\" }\n      ]\n   }\n}\n"
                         }, 
                         {
                          "name":"sensor",

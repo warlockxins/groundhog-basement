@@ -516,7 +516,13 @@
       &quot;x&quot;: 1152,
       &quot;y&quot;: 2304
     }
-  ]
+  ],
+  &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Now to that door!&quot; }
+      ]
+   }
 }
 </property>
     <property name="sensor" type="bool" value="true"/>
