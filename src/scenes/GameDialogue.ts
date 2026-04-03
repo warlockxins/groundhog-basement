@@ -1,3 +1,14 @@
+export type CharacterBark = {
+  bark: string;
+};
+
+export type CharacterActionByApproval = {
+  actionByApproval: GameDialogue;
+};
+
+export type CharacterAction = CharacterActionByApproval & CharacterBark;
+
+
 export type GameDialogue = {
   goScene?: string;
   toggleLight?: string[]; // id of light
@@ -6,7 +17,7 @@ export type GameDialogue = {
   rulePost?: Record<string, unknown>;
   character?: {
     id: string;
-    actions: Record<"bark", string>[];
+    actions: CharacterAction[];
   };
   removeTrigger: boolean;
   newDialogue?: GameDialogue[];

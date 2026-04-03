@@ -386,7 +386,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"toggleLight\": [\"46\"]\n}"
+                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n     \"actions\": [\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"46\"]\n           }\n        }\n     ]\n  }\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -404,7 +404,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Toggle the Light\" }\n      ]\n   },\n   \"toggleLight\": [\"41\"]\n}"
+                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Toggle the Light\" },\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"41\"]\n           }\n        }\n      ]\n   }\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -422,7 +422,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n   \"toggleLight\": [\"6\"]\n}"
+                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n     \"actions\": [\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"6\"]\n           }\n        }\n     ]\n  }\n}\n"
                         }],
                  "rotation":0,
                  "type":"",
@@ -440,7 +440,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"toggleLight\": [\"36\", \"42\"]\n}"
+                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n     \"actions\": [\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"36\", \"42\"]\n           }\n        }\n     ]\n  }\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -459,7 +459,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"toggleLight\": [\"3\"]\n}"
+                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n     \"actions\": [\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"3\"]\n           }\n        }\n     ]\n  }\n}\n\n"
                         }],
                  "rotation":0,
                  "type":"",
@@ -477,7 +477,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Keep the light on\" }\n      ]\n   },\n   \"toggleLight\": [\"27\"]\n}"
+                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Keep the light on\" },\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"27\"]\n           }\n        }\n      ]\n   }\n}"
                         }],
                  "rotation":0,
                  "type":"",
@@ -1162,8 +1162,8 @@
                  "type":"",
                  "visible":true,
                  "width":95.1118198126371,
-                 "x":1159.83894757823,
-                 "y":2183.3589794698
+                 "x":1145.88638628663,
+                 "y":2229.20310942794
                 }],
          "opacity":1,
          "properties":[

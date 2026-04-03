@@ -4,6 +4,8 @@ import { NavMeshPoint } from '~/levelComponents/NavMesh';
 import { CharacterState } from './characterStates/CharacterState';
 import { ButcherAttackState } from './characterStates/ButcherAttackState';
 import { CharacterWithGoToScheduledPointState } from './characterStates/CharacterWithGoToScheduledPointState';
+import { GameDialogue } from './GameDialogue';
+import { GameSceneTopPossibilities } from './GameSceneTopInterface';
 
 class CharacterWithControllerState extends CharacterState {
     update(delta: number) {
@@ -13,6 +15,7 @@ class CharacterWithControllerState extends CharacterState {
 }
 
 export class Character {
+    scene: Phaser.Scene & GameSceneTopPossibilities;
     sprite: Phaser.Physics.Matter.Sprite;
     textBubble: Phaser.GameObjects.Text;
     lastDirection: Phaser.Types.Math.Vector2Like = { x: 0, y: 0 };
@@ -34,12 +37,14 @@ export class Character {
     lastDirectionAnimationFrame!: string;
 
     barkList: Set<string> = new Set();
+    actionByApproval?: GameDialogue;
 
     running = false;
+    actionIndicator!: Phaser.GameObjects.Graphics;
 
     // TODO - add id to sprite, for getting by id for scripts
-    constructor(scene: Phaser.Scene, x: number, y: number, imageFrame: string, imageFramePrefix: string) {
-
+    constructor(scene: Phaser.Scene & GameSceneTopPossibilities, x: number, y: number, imageFrame: string, imageFramePrefix: string) {
+        this.scene = scene;
         this.currentState = new CharacterWithControllerState(this);
         this.imageFramePrefix = imageFramePrefix;
         this.sprite = scene.matter.add.sprite(x, y, imageFramePrefix + imageFrame);
@@ -65,6 +70,8 @@ export class Character {
 
         this.shadow = scene.add.ellipse(x, y, 30, 15, 0x111111, 0.3);
         this.shadow.setSmoothness(8);
+
+        this.createActionIndicator(scene);
 
 
         this.myLight = scene.lights.addLight(
@@ -106,6 +113,20 @@ export class Character {
                 }
             }, callbackScope: this
         })
+    }
+
+    createActionIndicator(scene: Phaser.Scene) {
+        this.actionIndicator = scene.add.graphics({
+            lineStyle: { color: 0xffffff, width: 2 }
+        });
+
+        this.actionIndicator.strokeEllipse(0, 0, 20, 20, 8);
+
+        this.actionIndicator.moveTo(-4, -3);
+        this.actionIndicator.lineTo(-4, 3);
+        this.actionIndicator.lineTo(4, 3);
+        this.actionIndicator.lineTo(4, -3);
+        this.actionIndicator.strokePath();
     }
 
     setAutoPathFollowSchedule(autoPathFollowSchedule: NavMeshPoint[]) {
@@ -156,18 +177,24 @@ export class Character {
         if (!text) return;
 
         this.barkList.add(text);
+    }
 
-        // const val = this.barkList.values().next();
-        // this.barkList.delete(val.value!);
+    addActionForApproval(actionByApproval?: GameDialogue) {
+        this.actionByApproval = actionByApproval;
 
-        // this.textBubble.setText(text);
+        if (actionByApproval) {
+            this.actionIndicator.setVisible(true);
+        } else {
+            this.actionIndicator.setVisible(false);
+        }
+    }
 
-        // console.log("--->", this.barkList);
+    executeActionByApproving() {
+        if (!this.actionByApproval) {
+            return;
+        }
 
-        // clear text bubble
-        // this.sprite.scene.time.delayedCall(2500, () => {
-        //     this.textBubble.setText("");
-        // });
+        this.scene.processGameDialogue(this.actionByApproval);
     }
 
     onDamage(value: number) {
@@ -205,6 +232,12 @@ export class Character {
         this.myLight.x = this.sprite.x;
 
         this.myLight.y = this.sprite.y - 50;
+
+        if (this.actionByApproval) {
+            this.actionIndicator.x = this.sprite.x;
+            this.actionIndicator.y = this.sprite.y + 20;
+            this.actionIndicator.setDepth(this.textBubble.depth);
+        }
     }
 
     updatePositionAndDirectionBasedOnSpeed(delta: number) {

@@ -30,7 +30,7 @@ export class SebastianPlayerControlls extends Controlls {
     this.keyS = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.S);
     this.keyD = scene.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
-    this.states = new SebastianStates(character.sprite);
+    this.states = new SebastianStates(character);
     this.states.start();
 
     this.lightSanityChecker = new LightSanityChecker(scene, character);
@@ -45,6 +45,12 @@ export class SebastianPlayerControlls extends Controlls {
       this.cursors.right.isDown || this.keyD.isDown;
     this.states.moveIntent.down = this.cursors.down.isDown || this.keyS.isDown;
     this.states.moveIntent.left = this.cursors.left.isDown || this.keyA.isDown;
+
+    // Note - action intent only available if character has saved pending Action
+    // and displays action icon
+    if (this.character.actionByApproval) {
+      this.states.moveIntent.action = this.cursors.space.isDown;
+    }
 
     this.states.update();
   }

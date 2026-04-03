@@ -294,7 +294,9 @@ export class GameSceneTop
     | Phaser.Sound.HTML5AudioSound
     | Phaser.Sound.WebAudioSound
   >;
-  collisionCache: Map<string, boolean> = new Map();
+  collisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
+  previousCollisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
+
   constructor() {
     super({
       key: CST.SCENES.GAME,
@@ -479,8 +481,8 @@ export class GameSceneTop
    **/
   processGameDialogue(
     d: GameDialogue,
-    gameObject: Phaser.Physics.Matter.Image,
-    receiver: Phaser.GameObjects.GameObject,
+    gameObject?: Phaser.Physics.Matter.Image,
+    receiver?: Phaser.GameObjects.GameObject,
   ): boolean {
     const {
       goScene,
@@ -532,7 +534,11 @@ export class GameSceneTop
     if (character) {
       const playerPawn = this.pawnHandler.characters[character.id];
       character.actions.forEach((a) => {
-        playerPawn.bark(a.bark);
+        if (a.bark) {
+          playerPawn.bark(a.bark);
+        } else if (a.actionByApproval) {
+          playerPawn.addActionForApproval(a.actionByApproval);
+        }
       });
     }
 
@@ -634,16 +640,26 @@ export class GameSceneTop
 
   onLevelTriggerCollide(pair: Phaser.Physics.Matter.Pair) {
     if (pair.bodyA) {
-      const key = `${pair.bodyB.id},${pair.bodyA.id}`;
+      const key = this.getCollisionKey(pair.bodyA, pair.bodyB);
       if (this.collisionCache.get(key)) {
         return;
       }
 
-      this.collisionCache.set(key, true);
-      // console.log('----------Trigger--------', pair.bodyB.id, pair.bodyA.id);//, pair.bodyB.collisionFilter.mask, pair.bodyA.label, pair.bodyB.label);
-      this.processCollisions(null, pair.bodyA, pair.bodyB);
+      this.collisionCache.set(key, pair);
+
+      // On Enter
+      if (!this.previousCollisionCache.get(key)) {
+        this.processCollisions(null, pair.bodyA, pair.bodyB);
+      }
     }
   }
+
+  private getCollisionKey(bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType): string {
+    return bodyA.id < bodyB.id
+      ? `${bodyA.id}_${bodyB.id}`
+      : `${bodyB.id}_${bodyA.id}`;
+  }
+
 
   processCollisions(event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
     const isPlayerHere = [bodyA.label, bodyB.label].some((l) => l === "player");
@@ -694,7 +710,7 @@ export class GameSceneTop
   }
 
   addPhysicsListeners() {
-    // this.matter.world.on('collisionstart', this.processCollisions);
+
   }
 
   addLevelFloorAndLightsGetWaypoints() {
@@ -907,6 +923,7 @@ export class GameSceneTop
             smartTile.setOrigin(0.5, 1);
             // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
           } else {
+            // Movable items like a chair
             smartTile.setCircle(radius, { dialogue, isSensor: sensor });
             // smartTile.body.dialogue = dialogue;
             smartTile.setFixedRotation();
@@ -914,8 +931,9 @@ export class GameSceneTop
             smartTile.setFrictionAir(1);
             smartTile.setOrigin(0.5, 0.5);
             smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
-            (smartTile.body! as MatterJS.BodyType).onCollideCallback =
-              this.onLevelTriggerCollide.bind(this);
+
+            const smartTileBody = (smartTile.body! as MatterJS.BodyType);
+            smartTileBody.onCollideCallback = this.onLevelTriggerCollide.bind(this);
 
             if (tween) {
               this.tweens.add({
@@ -1206,7 +1224,10 @@ export class GameSceneTop
         });
 
         if (isSensor) {
+          // probably door/bookshelf sensor
           body.onCollideCallback = this.onLevelTriggerCollide.bind(this);
+          body.onCollideActiveCallback = this.onLevelTriggerCollide.bind(this);
+
           body.collisionFilter = {
             category: 1,
             mask: 1,
@@ -1235,6 +1256,25 @@ export class GameSceneTop
   }
 
   update(time: number, delta: number) {
+    this.previousCollisionCache.forEach((pair, key) => {
+      // On end collision
+      if (!this.collisionCache.has(key)) {
+        // Note - come up with label substitute of integer to be less CPU intensive - no string comparison
+        const labels = [pair.bodyA.label, pair.bodyB.label];
+
+        if (labels.includes('player')) {
+          // reset players action promt
+          this.pawnHandler.characters['player'].addActionForApproval(undefined);
+        }
+      }
+    });
+
+    // Now swap caches for next frame
+    this.previousCollisionCache.clear();
+    this.collisionCache.forEach((pair, key) => {
+      this.previousCollisionCache.set(key, pair);
+    });
+
     this.collisionCache.clear();
     this.pawnHandler.update(time, delta);
   }

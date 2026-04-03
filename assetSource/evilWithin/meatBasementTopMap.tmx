@@ -213,7 +213,16 @@
   <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128">
    <properties>
     <property name="onEnter">{
-  &quot;toggleLight&quot;: [&quot;46&quot;]
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;46&quot;]
+           }
+        }
+     ]
+  }
 }</property>
    </properties>
   </object>
@@ -223,32 +232,66 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Toggle the Light&quot; }
+        { &quot;bark&quot;: &quot;Toggle the Light&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;41&quot;]
+           }
+        }
       ]
-   },
-   &quot;toggleLight&quot;: [&quot;41&quot;]
+   }
 }</property>
    </properties>
   </object>
   <object id="51" gid="44" x="256.191" y="1678.05" width="128" height="128">
    <properties>
     <property name="onEnter">{
-   &quot;toggleLight&quot;: [&quot;6&quot;]
-}</property>
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;6&quot;]
+           }
+        }
+     ]
+  }
+}
+</property>
    </properties>
   </object>
   <object id="47" gid="44" x="1026.75" y="2977.22" width="128" height="128">
    <properties>
     <property name="onEnter">{
-  &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
+           }
+        }
+     ]
+  }
 }</property>
    </properties>
   </object>
   <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128">
    <properties>
     <property name="onEnter">{
-  &quot;toggleLight&quot;: [&quot;3&quot;]
-}</property>
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;3&quot;]
+           }
+        }
+     ]
+  }
+}
+
+</property>
    </properties>
   </object>
   <object id="56" gid="44" x="388.467" y="2571.33" width="128" height="128">
@@ -257,10 +300,14 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Keep the light on&quot; }
+        { &quot;bark&quot;: &quot;Keep the light on&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;27&quot;]
+           }
+        }
       ]
-   },
-   &quot;toggleLight&quot;: [&quot;27&quot;]
+   }
 }</property>
    </properties>
   </object>
