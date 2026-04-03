@@ -41,7 +41,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-      (p.y - points[a].y) * (p.y - points[a].y),
+        (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -270,7 +270,8 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities {
+  implements GameSceneTopPossibilities
+{
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -639,7 +640,11 @@ export class GameSceneTop
   }
 
   onLevelTriggerCollide(pair: Phaser.Physics.Matter.Pair) {
-    if (pair.bodyA) {
+    if (
+      pair.bodyA &&
+      pair.bodyB &&
+      (pair.bodyA.isCharacter || pair.bodyB.isCharacter)
+    ) {
       const key = this.getCollisionKey(pair.bodyA, pair.bodyB);
       if (this.collisionCache.get(key)) {
         return;
@@ -654,14 +659,17 @@ export class GameSceneTop
     }
   }
 
-  private getCollisionKey(bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType): string {
+  private getCollisionKey(
+    bodyA: MatterJS.BodyType,
+    bodyB: MatterJS.BodyType,
+  ): string {
     return bodyA.id < bodyB.id
       ? `${bodyA.id}_${bodyB.id}`
       : `${bodyB.id}_${bodyA.id}`;
   }
 
-
   processCollisions(event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
+    // Note - technically already checked by onLevelTriggerCollide
     const isPlayerHere = [bodyA.label, bodyB.label].some((l) => l === "player");
     if (!isPlayerHere) {
       return;
@@ -709,9 +717,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() {
-
-  }
+  addPhysicsListeners() {}
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -795,7 +801,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch { }
+            } catch {}
             // console.log("??????>>>>>>>", color)
           }
 
@@ -932,8 +938,9 @@ export class GameSceneTop
             smartTile.setOrigin(0.5, 0.5);
             smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
 
-            const smartTileBody = (smartTile.body! as MatterJS.BodyType);
-            smartTileBody.onCollideCallback = this.onLevelTriggerCollide.bind(this);
+            const smartTileBody = smartTile.body! as MatterJS.BodyType;
+            smartTileBody.onCollideCallback =
+              this.onLevelTriggerCollide.bind(this);
 
             if (tween) {
               this.tweens.add({
@@ -1256,15 +1263,21 @@ export class GameSceneTop
   }
 
   update(time: number, delta: number) {
+    // console.log("------>", this.collisionCache.size);
     this.previousCollisionCache.forEach((pair, key) => {
       // On end collision
       if (!this.collisionCache.has(key)) {
-        // Note - come up with label substitute of integer to be less CPU intensive - no string comparison
-        const labels = [pair.bodyA.label, pair.bodyB.label];
+        // ugly but more optimal
+        if (pair.bodyA.isCharacter || pair.bodyB.isCharacter) {
+          const someBodyIsPlayer =
+            pair.bodyA.label === "player" || pair.bodyB.label === "player";
 
-        if (labels.includes('player')) {
-          // reset players action promt
-          this.pawnHandler.characters['player'].addActionForApproval(undefined);
+          if (someBodyIsPlayer) {
+            // reset players action promt
+            this.pawnHandler.characters["player"].addActionForApproval(
+              undefined,
+            );
+          }
         }
       }
     });
