@@ -376,7 +376,7 @@
   <object id="4" x="1110.79" y="2552.07">
    <point/>
   </object>
-  <object id="5" x="1699.89" y="2613.38">
+  <object id="5" x="1705.83" y="2613.38">
    <point/>
   </object>
   <object id="6" x="64.6846" y="1537.81">
@@ -391,7 +391,7 @@
    </properties>
    <point/>
   </object>
-  <object id="27" x="311.423" y="2631.3">
+  <object id="27" x="303.992" y="2601.58">
    <properties>
     <property name="isOn" type="bool" value="true"/>
     <property name="tween">{
@@ -451,13 +451,13 @@
    </properties>
    <point/>
   </object>
-  <object id="46" x="821.791" y="3128.71">
+  <object id="46" x="814.36" y="3107.9">
    <properties>
     <property name="isOn" type="bool" value="false"/>
    </properties>
    <point/>
   </object>
-  <object id="49" x="1480.24" y="3021.29">
+  <object id="49" x="1452" y="2987.11">
    <properties>
     <property name="isOn" type="bool" value="true"/>
    </properties>
