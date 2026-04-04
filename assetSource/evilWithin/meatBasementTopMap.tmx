@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="67">
+<map version="1.10" tiledversion="1.12.1-11-gb81cec583" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="73">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -88,7 +88,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,12,0,12,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,8,7,7,0,0,0,0,8,8,0,
+0,0,0,0,0,8,7,0,0,0,0,0,8,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,20,0,0,0,0,0,16,0,0,8,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -130,7 +130,7 @@
 0,0,12,0,0,12,12,12,0,0,0,0,0,0,0,
 0,0,12,0,0,0,12,12,0,0,0,0,0,0,0,
 0,0,12,4,4,4,0,12,0,0,0,0,0,4,0,
-0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
+0,0,0,0,0,0,12,12,0,0,0,0,0,12,0,
 0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
 0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
 0,0,0,0,0,0,12,4,4,4,4,4,4,12,0
@@ -199,16 +199,16 @@
   <object id="22" gid="45" x="768" y="640" width="128" height="128"/>
   <object id="24" gid="45" x="768" y="384" width="128" height="128"/>
   <object id="25" gid="45" x="768" y="256" width="128" height="128"/>
-  <object id="26" gid="19" x="640" y="128" width="128" height="128">
+  <object id="26" name="saw" gid="19" x="640" y="128" width="128" height="128">
    <properties>
     <property name="onEnter">{
    &quot;goScene&quot;: &quot;bloodPool&quot;
 }</property>
    </properties>
   </object>
-  <object id="28" gid="46" x="442.762" y="2421.53" width="128" height="128"/>
-  <object id="29" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
-  <object id="48" gid="46" x="815.749" y="3146.05" width="128" height="128"/>
+  <object id="28" name="chair" gid="46" x="442.762" y="2421.53" width="128" height="128"/>
+  <object id="29" name="chair" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
+  <object id="48" name="chair" gid="46" x="950.749" y="3146.05" width="128" height="128"/>
   <object id="30" gid="46" x="842.37" y="2095.92" width="128" height="128"/>
   <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128">
    <properties>
@@ -265,15 +265,16 @@
     <property name="onEnter">{
   &quot;character&quot;: {
     &quot;id&quot;: &quot;player&quot;,
-     &quot;actions&quot;: [
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
-           }
+    &quot;actions&quot;: [
+      {
+        &quot;actionByApproval&quot;: {
+          &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
         }
-     ]
+      }
+    ]
   }
-}</property>
+}
+</property>
    </properties>
   </object>
   <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128">
@@ -323,12 +324,49 @@
   &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;The book:\nHow to escape&quot; }
+        { &quot;bark&quot;: &quot;The book:\nHow to escape&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;rulePost&quot;: {
+                 &quot;setVar&quot;: [&quot;readBook&quot;, true]
+              }
+           }
+        }
       ]
    }
-}</property>
+}
+
+</property>
    </properties>
   </object>
+  <object id="68" gid="58" x="-128" y="3328" width="128" height="128"/>
+  <object id="69" name="for Light42" gid="58" x="-128" y="3200" width="128" height="128"/>
+  <object id="70" name="bodyToInspect" gid="7" x="896" y="1792" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot; : [ { &quot;var&quot; : &quot;readBook&quot; }, true ]
+  },
+  &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;The book:\nLook within&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;71&quot;],
+              &quot;rulePost&quot;: {
+                  &quot;setVar&quot;: [&quot;lookWithin&quot;, true]
+              }
+           }
+        }
+      ]
+   }
+}
+
+</property>
+   </properties>
+  </object>
+  <object id="72" name="for LookWithin" gid="58" x="-134.667" y="3090.67" width="128" height="128"/>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="15" height="26">
   <properties>
@@ -418,9 +456,10 @@
    </properties>
    <point/>
   </object>
-  <object id="36" x="1219.72" y="2833.8">
+  <object id="36" name="betweenColumns" x="1219.72" y="2833.8">
    <properties>
     <property name="color" type="color" value="#ffe1947f"/>
+    <property name="lightRay" value="68"/>
     <property name="tween">{
     &quot;intensity&quot;: { &quot;from&quot;: 2, &quot;to&quot;: 0.7 },
     &quot;duration&quot;: 250,
@@ -448,6 +487,7 @@
   <object id="42" x="1217.28" y="2566.7">
    <properties>
     <property name="color" type="color" value="#ffe1947f"/>
+    <property name="lightRay" value="69"/>
    </properties>
    <point/>
   </object>
@@ -474,6 +514,14 @@
     &quot;repeat&quot;: -1,
     &quot;ease&quot;: &quot;Sine.InOut&quot;
 }</property>
+   </properties>
+   <point/>
+  </object>
+  <object id="71" name="lookWithin" x="1086.67" y="1882.67">
+   <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
+    <property name="isOn" type="bool" value="false"/>
+    <property name="lightRay" value="72"/>
    </properties>
    <point/>
   </object>

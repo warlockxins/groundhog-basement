@@ -244,7 +244,7 @@ export class Character {
 
     if (this.actionByApproval) {
       this.actionIndicator.x = this.sprite.x;
-      this.actionIndicator.y = this.sprite.y + 20;
+      this.actionIndicator.y = this.sprite.y - 120;
       this.actionIndicator.setDepth(this.textBubble.depth);
     }
   }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
+<tileset version="1.10" tiledversion="1.12.1-11-gb81cec583" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
  <image source="assets/tilesTop.png" trans="474747" width="1024" height="1024"/>
  <tile id="3">
   <objectgroup draworder="index" id="2">
@@ -281,6 +281,11 @@
  <tile id="56">
   <properties>
    <property name="icons" value="key"/>
+  </properties>
+ </tile>
+ <tile id="57">
+  <properties>
+   <property name="above" type="bool" value="true"/>
   </properties>
  </tile>
 </tileset>

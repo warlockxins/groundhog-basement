@@ -298,6 +298,7 @@ export class GameSceneTop
   >;
   collisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   previousCollisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
+  smartLightRayImage!: Record<string, string>;
 
   constructor() {
     super({
@@ -321,6 +322,7 @@ export class GameSceneTop
     this.pawnHandler = new PawnHandler();
     this.blackboard = {};
     this.smartLights = {};
+    this.smartLightRayImage = {};
 
     this.createKeyFrame();
   }
@@ -529,8 +531,18 @@ export class GameSceneTop
     // todo - make separate Smart object
     toggleLight?.forEach((lightId) => {
       const light = this.smartLights[lightId];
-      const visible = light.visible;
-      light.setVisible(!visible);
+      const visible = !light.visible;
+      light.setVisible(visible);
+
+      const lightMaskToMove = this.children.list.find(
+        ({ name }) => name === this.smartLightRayImage[lightId],
+      );
+
+      if (lightMaskToMove) {
+        // let the mask slightly overlap light source on Y
+        lightMaskToMove.setPosition(light.x, light.y + 100);
+        lightMaskToMove.setVisible(visible);
+      }
 
       this.sounds.itemPut.setVolume(0.3);
       this.sounds.itemPut.play({ loop: false });
@@ -816,6 +828,12 @@ export class GameSceneTop
 
           this.smartLights[o.id] = l;
 
+          const lightRay = o.properties?.find(
+            ({ name }) => name === "lightRay",
+          )?.value;
+
+          this.smartLightRayImage[o.id] = lightRay;
+
           const isLightOn = o.properties?.find(
             ({ name }) => name === "isOn",
           )?.value;
@@ -910,8 +928,13 @@ export class GameSceneTop
           );
           // smartTile.setData("--setData->", t.name);
 
-          if (!tileCollision) return;
-
+          if (!tileCollision) {
+            // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
+            smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+            smartTile.setOrigin(0.5, 1);
+            (smartTile.body as MatterJS.BodyType).isSensor = true;
+            return;
+          }
           const {
             bodyParts: compoundBodyParts,
             kinematic,
