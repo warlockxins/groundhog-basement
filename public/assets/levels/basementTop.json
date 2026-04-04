@@ -616,8 +616,45 @@
                  "type":"",
                  "visible":true,
                  "width":128,
-                 "x":-134.666666666667,
-                 "y":3090.66666666667
+                 "x":-134.667,
+                 "y":3090.67
+                }, 
+                {
+                 "gid":58,
+                 "height":128,
+                 "id":77,
+                 "name":"longGate",
+                 "opacity":1,
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":-202.667,
+                 "y":2017.33
+                }, 
+                {
+                 "gid":59,
+                 "height":128,
+                 "id":78,
+                 "name":"tutorialBook",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"About this nightmare\" },\n        {\n           \"actionByApproval\": {\n               \"toggleLight\": [\"27\"]\n         \n           }\n        }\n      ]\n   }\n}"
+                        }, 
+                        {
+                         "name":"sensor",
+                         "type":"bool",
+                         "value":true
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":386,
+                 "y":2692
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -869,6 +906,11 @@
                          "value":false
                         }, 
                         {
+                         "name":"lightRay",
+                         "type":"string",
+                         "value":"77"
+                        }, 
+                        {
                          "name":"tween",
                          "type":"string",
                          "value":"{\n    \"intensity\": { \"from\": 3, \"to\": 0.95 },\n    \"duration\": 250,\n    \"yoyo\": true,\n    \"repeat\": -1,\n    \"ease\": \"Sine.InOut\"\n}"
@@ -997,8 +1039,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":1086.66666666667,
-                 "y":1882.66666666667
+                 "x":1086.67,
+                 "y":1882.67
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1021,8 +1063,8 @@
                  "type":"",
                  "visible":true,
                  "width":0,
-                 "x":376.595,
-                 "y":2742.51
+                 "x":317.595,
+                 "y":2750.51
                 }, 
                 {
                  "height":0,
@@ -1400,7 +1442,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":73,
+ "nextobjectid":79,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1-11-gb81cec583",
@@ -1555,6 +1597,11 @@
                      "y":0
                     },
                  "properties":[
+                        {
+                         "name":"sensor",
+                         "type":"bool",
+                         "value":false
+                        }, 
                         {
                          "name":"wall",
                          "type":"bool",
@@ -2796,6 +2843,107 @@
                  "properties":[
                         {
                          "name":"above",
+                         "type":"bool",
+                         "value":true
+                        }]
+                },
+            
+                {
+                 "id":58,
+                 "objectgroup":
+                    {
+                     "draworder":"index",
+                     "id":2,
+                     "name":"",
+                     "objects":[
+                            {
+                             "height":0,
+                             "id":1,
+                             "name":"",
+                             "opacity":1,
+                             "polygon":[
+                                    {
+                                     "x":0,
+                                     "y":0
+                                    }, 
+                                    {
+                                     "x":108.767,
+                                     "y":-0.305526
+                                    }, 
+                                    {
+                                     "x":116.405,
+                                     "y":92.2688
+                                    }, 
+                                    {
+                                     "x":-9.77682,
+                                     "y":92.8798
+                                    }],
+                             "properties":[
+                                    {
+                                     "name":"onEnter",
+                                     "type":"string",
+                                     "value":"{}"
+                                    }, 
+                                    {
+                                     "name":"sensor",
+                                     "type":"bool",
+                                     "value":false
+                                    }],
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":10.7768,
+                             "y":107.466
+                            }, 
+                            {
+                             "height":0,
+                             "id":2,
+                             "name":"",
+                             "opacity":1,
+                             "polygon":[
+                                    {
+                                     "x":21.25,
+                                     "y":24.75
+                                    }, 
+                                    {
+                                     "x":26.5,
+                                     "y":37.5
+                                    }, 
+                                    {
+                                     "x":52,
+                                     "y":39.5
+                                    }, 
+                                    {
+                                     "x":55.5,
+                                     "y":23.5
+                                    }],
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":25.6667,
+                             "y":84.3333
+                            }],
+                     "opacity":1,
+                     "type":"objectgroup",
+                     "visible":true,
+                     "x":0,
+                     "y":0
+                    },
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{}"
+                        }, 
+                        {
+                         "name":"sensor",
+                         "type":"bool",
+                         "value":false
+                        }, 
+                        {
+                         "name":"wall",
                          "type":"bool",
                          "value":true
                         }]

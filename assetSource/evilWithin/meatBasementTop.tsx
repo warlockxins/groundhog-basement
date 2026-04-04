@@ -15,6 +15,7 @@
  </tile>
  <tile id="6">
   <properties>
+   <property name="sensor" type="bool" value="false"/>
    <property name="wall" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
@@ -287,5 +288,24 @@
   <properties>
    <property name="above" type="bool" value="true"/>
   </properties>
+ </tile>
+ <tile id="58">
+  <properties>
+   <property name="onEnter" value="{}"/>
+   <property name="sensor" type="bool" value="false"/>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="10.7768" y="107.466">
+    <properties>
+     <property name="onEnter" value="{}"/>
+     <property name="sensor" type="bool" value="false"/>
+    </properties>
+    <polygon points="0,0 108.767,-0.305526 116.405,92.2688 -9.77682,92.8798"/>
+   </object>
+   <object id="2" x="25.6667" y="84.3333">
+    <polygon points="21.25,24.75 26.5,37.5 52,39.5 55.5,23.5"/>
+   </object>
+  </objectgroup>
  </tile>
 </tileset>

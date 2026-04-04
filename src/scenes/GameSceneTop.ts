@@ -932,6 +932,7 @@ export class GameSceneTop
             // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
             smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
             smartTile.setOrigin(0.5, 1);
+            // smartTile.setRotation(Phaser.Math.DegToRad(+t.rotation));
             (smartTile.body as MatterJS.BodyType).isSensor = true;
             return;
           }

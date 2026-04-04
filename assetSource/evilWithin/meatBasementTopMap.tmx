@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1-11-gb81cec583" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="73">
+<map version="1.10" tiledversion="1.12.1-11-gb81cec583" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="79">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -367,6 +367,26 @@
    </properties>
   </object>
   <object id="72" name="for LookWithin" gid="58" x="-134.667" y="3090.67" width="128" height="128"/>
+  <object id="77" name="longGate" gid="58" x="-202.667" y="2017.33" width="128" height="128"/>
+  <object id="78" name="tutorialBook" gid="59" x="386" y="2692" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;About this nightmare&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+               &quot;toggleLight&quot;: [&quot;27&quot;]
+         
+           }
+        }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="15" height="26">
   <properties>
@@ -474,6 +494,7 @@
    <properties>
     <property name="color" type="color" value="#ffe1947f"/>
     <property name="isOn" type="bool" value="false"/>
+    <property name="lightRay" value="77"/>
     <property name="tween">{
     &quot;intensity&quot;: { &quot;from&quot;: 3, &quot;to&quot;: 0.95 },
     &quot;duration&quot;: 250,
@@ -531,7 +552,7 @@
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="376.595" y="2742.51">
+  <object id="8" name="start" x="317.595" y="2750.51">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="1533.27" y="3148.42">
