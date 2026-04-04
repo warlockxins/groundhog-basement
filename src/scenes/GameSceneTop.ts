@@ -22,6 +22,7 @@ import {
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
 import { soundSource } from "../constants/sounds";
 import { PawnHandler } from "./PawnHandler";
+import { GameSceneTopHudScene } from "./GameSceneTopHudScene";
 
 type SceneNavigationMesh = {
   vertices: NavMeshPointMap;
@@ -440,33 +441,36 @@ export class GameSceneTop
 
   onCharacterDeath(character: Character, cause: "insane" | "damage") {
     this.cameras.main.zoomTo(1.5, 2000);
-    if (cause !== "damage") {
-      return;
+    if (cause === "damage") {
+      // console.log("KILLL CHARACTER", character.imageFramePrefix);
+      const bloodTileIndexInTilemap = 24;
+      const x = character.sprite.x;
+      const y = character.sprite.y;
+
+      const bloodTile = this.add
+        .image(x, y, "tiles", bloodTileIndexInTilemap)
+        .setOrigin(0.5, 0.5)
+        .setScale(0)
+        .setTint(0xff0000);
+
+      // https://labs.phaser.io/edit.html?src=src\tweens\tween%20text%20size.js
+
+      this.tweens.addCounter({
+        from: 0,
+        to: 0.5,
+        duration: 2000,
+        yoyo: false,
+        onUpdate: (tween) => {
+          const v = tween.getValue();
+          bloodTile.setScale(v);
+          // this.cameras.main.setZoom(1 + v / 2);
+        },
+      });
     }
-    // console.log("KILLL CHARACTER", character.imageFramePrefix);
-    const bloodTileIndexInTilemap = 24;
-    const x = character.sprite.x;
-    const y = character.sprite.y;
 
-    const bloodTile = this.add
-      .image(x, y, "tiles", bloodTileIndexInTilemap)
-      .setOrigin(0.5, 0.5)
-      .setScale(0)
-      .setTint(0xff0000);
-
-    // https://labs.phaser.io/edit.html?src=src\tweens\tween%20text%20size.js
-
-    this.tweens.addCounter({
-      from: 0,
-      to: 0.5,
-      duration: 2000,
-      yoyo: false,
-      onUpdate: (tween) => {
-        const v = tween.getValue();
-        bloodTile.setScale(v);
-        // this.cameras.main.setZoom(1 + v / 2);
-      },
-    });
+    (
+      this.game.scene.getScene(CST.SCENES.GAME_HUD) as GameSceneTopHudScene
+    ).onGameOver(cause);
   }
 
   jsLogicSetBlackboardVar(key: string, value: unknown) {

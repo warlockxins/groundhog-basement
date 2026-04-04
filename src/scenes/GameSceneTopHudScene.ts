@@ -11,6 +11,8 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
   gameHudContainer!: Phaser.GameObjects.Container;
   pauseHudContainer!: Phaser.GameObjects.Container;
+  gameOverHudContainer!: Phaser.GameObjects.Container;
+  deadLabel: Phaser.GameObjects.Text;
 
   constructor() {
     super({
@@ -27,11 +29,13 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       })
       .setScrollFactor(0);
 
-    clickButton.setInteractive().on("pointerup", () => {
-      this.scene.get(CST.SCENES.GAME).scene.pause();
-      this.gameHudContainer.setVisible(false);
-      this.pauseHudContainer.setVisible(true);
-    })
+    clickButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.pause();
+        this.gameHudContainer.setVisible(false);
+        this.pauseHudContainer.setVisible(true);
+      })
       .on("pointerover", () => clickButton.setColor("#aaaaaa"))
       .on("pointerout", () => clickButton.setColor("#ffffff"));
 
@@ -60,21 +64,23 @@ export class GameSceneTopHudScene extends Phaser.Scene {
         fontFamily: "Arial",
         fontSize: 20,
         fixedWidth: 150,
-        align: "center"
+        align: "center",
       })
       .setPadding(10)
       .setOrigin(0.5, 1);
 
-    resumeButton.setInteractive().on("pointerup", () => {
-      this.scene.get(CST.SCENES.GAME).scene.resume();
-      this.gameHudContainer.setVisible(true);
-      this.pauseHudContainer.setVisible(false);
-    })
+    resumeButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.resume();
+        this.gameHudContainer.setVisible(true);
+        this.pauseHudContainer.setVisible(false);
+      })
       .on("pointerover", () => {
         resumeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
       })
       .on("pointerout", () => {
-        resumeButton.setBackgroundColor("")
+        resumeButton.setBackgroundColor("");
       });
 
     const exitButton = this.add
@@ -83,25 +89,107 @@ export class GameSceneTopHudScene extends Phaser.Scene {
         fontFamily: "Arial",
         fixedWidth: 150,
         fontSize: 20,
-        align: "center"
+        align: "center",
       })
       .setPadding(10)
       .setOrigin(0.5, 1);
 
-    exitButton.setInteractive().on("pointerup", () => {
-      this.scene.launch(CST.SCENES.START_MENU);
-      this.game.events.emit(sceneEventConstants.stopGameplayScene);
-      this.scene.stop();
-    })
-      .on("pointerover", () => exitButton.setBackgroundColor("rgba(255, 255, 255, 0.1)"))
+    exitButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.launch(CST.SCENES.START_MENU);
+        this.game.events.emit(sceneEventConstants.stopGameplayScene);
+        this.scene.stop();
+      })
+      .on("pointerover", () =>
+        exitButton.setBackgroundColor("rgba(255, 255, 255, 0.1)"),
+      )
       .on("pointerout", () => exitButton.setBackgroundColor(""));
 
-    this.pauseHudContainer = this.add.container(0, 0, [pauseGraphics, pauseLabel, resumeButton, exitButton]);
+    this.pauseHudContainer = this.add.container(0, 0, [
+      pauseGraphics,
+      pauseLabel,
+      resumeButton,
+      exitButton,
+    ]);
     this.pauseHudContainer.setVisible(false);
   }
 
-  makeGameHudContainer() {
+  makeGameOverContainer() {
+    const gameOverGraphics = this.add.graphics();
+    const { width, height } = this.game.config;
 
+    gameOverGraphics.fillStyle(0x111111, 0.8);
+    gameOverGraphics.fillRect(0, 0, +width, +height);
+
+    this.deadLabel = this.add.text(+width / 2, 150, "", {
+      fontFamily: "Arial Black",
+      fontSize: 34,
+      align: "center",
+    });
+    this.deadLabel.setOrigin(0.5, 1);
+
+    gameOverGraphics.lineStyle(2, 0xffffff);
+    gameOverGraphics.lineBetween(+width / 2 - 90, 160, +width / 2 + 90, 160);
+
+    const retryButton = this.add
+      .text(+width / 2, 230, "Retry", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+        fixedWidth: 150,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    retryButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.restart();
+        this.gameHudContainer.setVisible(true);
+        this.pauseHudContainer.setVisible(false);
+      })
+      .on("pointerover", () => {
+        retryButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
+      })
+      .on("pointerout", () => {
+        retryButton.setBackgroundColor("");
+      });
+
+    const exitButton = this.add
+      .text(+width / 2, 270, "Quit", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fixedWidth: 150,
+        fontSize: 20,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    exitButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.launch(CST.SCENES.START_MENU);
+        this.game.events.emit(sceneEventConstants.stopGameplayScene);
+        this.scene.stop();
+      })
+      .on("pointerover", () =>
+        exitButton.setBackgroundColor("rgba(255, 255, 255, 0.1)"),
+      )
+      .on("pointerout", () => exitButton.setBackgroundColor(""));
+
+    this.gameOverHudContainer = this.add.container(0, 0, [
+      gameOverGraphics,
+      this.deadLabel,
+      retryButton,
+      exitButton,
+    ]);
+    this.gameOverHudContainer.setVisible(false);
+  }
+
+  makeGameHudContainer() {
     const pauseButton = this.makePauseButton();
 
     this.text = this.add.text(SANITY_BOX_X, 10, "Sanity", {
@@ -110,7 +198,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     });
 
     //  Check the Registry and hit our callback every time the 'score' value is updated
-    this.registry.events.on("changedata", this.updateScore, this);
+    this.registry.events.on("changedata", this.onRegistryDataUpdate, this);
 
     this.sanityBarGraphics = this.add.graphics({
       fillStyle: {
@@ -123,14 +211,27 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
     this.drawSanity(SANITY_BOX_MAX_WIDTH);
 
-    this.gameHudContainer = this.add.container(0, 0, [this.text, pauseButton, this.sanityBarGraphics]);
+    this.gameHudContainer = this.add.container(0, 0, [
+      this.text,
+      pauseButton,
+      this.sanityBarGraphics,
+    ]);
   }
 
   create() {
+    // this.events.on(sceneEventConstants.characterDeath, this.onGameOver, this);
     this.makeGameHudContainer();
     this.makePauseContainer();
+    this.makeGameOverContainer();
   }
-  updateScore(parent, key, data) {
+
+  onGameOver(cause: "insane" | "damage") {
+    this.gameOverHudContainer.setVisible(true);
+    this.deadLabel.text =
+      cause === "insane" ? "You went\nMad" : "You are\nDead";
+  }
+
+  onRegistryDataUpdate(parent, key, data) {
     if (key === "sanity") {
       const newHealth = +data;
       const newWidth = (newHealth / 10) * SANITY_BOX_MAX_WIDTH;
