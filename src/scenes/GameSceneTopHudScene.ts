@@ -196,31 +196,35 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     const noteGraphics = this.add.graphics();
     const { width, height } = this.game.config;
 
-    noteGraphics.fillStyle(0x111111, 0.8);
+    noteGraphics.fillStyle(0x111111, 1);
     const backgroundWidth = +width / 2 - 50;
     noteGraphics.fillRect(0, 50, backgroundWidth, +height - 100);
 
-    this.noteLabel = this.add.text(backgroundWidth / 2, 120, "Note", {
+    this.noteLabel = this.add.text(backgroundWidth / 2, 110, "Note", {
       fontFamily: "Arial Black",
       fontSize: 34,
       align: "center",
     });
     this.noteLabel.setOrigin(0.5, 1);
 
-    this.noteText = this.add.text(50, 250, "Note", {
+    this.noteText = this.add.text(30, 155, "Note", {
       fontFamily: "Arial Black",
-      fontSize: 24,
+      fontSize: 22,
       align: "left",
       wordWrap: {
-        width: backgroundWidth - 100,
+        width: backgroundWidth - 60,
       },
     });
 
     noteGraphics.lineStyle(2, 0xffffff);
-    noteGraphics.lineBetween(50, 150, backgroundWidth - 50, 150);
+    noteGraphics.lineBetween(50, 130, backgroundWidth - 50, 130);
+
+    // add vertical line
+    noteGraphics.lineStyle(2, 0xffffff, 0.1);
+    noteGraphics.lineBetween(0, 50, 0, +height - 50);
 
     const closeButton = this.add
-      .text(backgroundWidth / 2, +height - 100, "Close", {
+      .text(backgroundWidth / 2, +height - 70, "Close", {
         color: "#ffffff",
         fontFamily: "Arial",
         fontSize: 20,
