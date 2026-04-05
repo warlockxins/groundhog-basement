@@ -13,6 +13,9 @@ export class GameSceneTopHudScene extends Phaser.Scene {
   pauseHudContainer!: Phaser.GameObjects.Container;
   gameOverHudContainer!: Phaser.GameObjects.Container;
   deadLabel: Phaser.GameObjects.Text;
+  noteReadingContainer: Phaser.GameObjects.Container;
+  noteLabel: Phaser.GameObjects.Text;
+  noteText: Phaser.GameObjects.Text;
 
   constructor() {
     super({
@@ -189,6 +192,67 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.gameOverHudContainer.setVisible(false);
   }
 
+  makeNoteReadingContainer() {
+    const noteGraphics = this.add.graphics();
+    const { width, height } = this.game.config;
+
+    noteGraphics.fillStyle(0x111111, 0.8);
+    const backgroundWidth = +width / 2 - 50;
+    noteGraphics.fillRect(0, 50, backgroundWidth, +height - 100);
+
+    this.noteLabel = this.add.text(backgroundWidth / 2, 120, "Note", {
+      fontFamily: "Arial Black",
+      fontSize: 34,
+      align: "center",
+    });
+    this.noteLabel.setOrigin(0.5, 1);
+
+    this.noteText = this.add.text(50, 250, "Note", {
+      fontFamily: "Arial Black",
+      fontSize: 24,
+      align: "left",
+      wordWrap: {
+        width: backgroundWidth - 100,
+      },
+    });
+
+    noteGraphics.lineStyle(2, 0xffffff);
+    noteGraphics.lineBetween(50, 150, backgroundWidth - 50, 150);
+
+    const closeButton = this.add
+      .text(backgroundWidth / 2, +height - 100, "Close", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+        fixedWidth: 150,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    closeButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.resume();
+        this.gameHudContainer.setVisible(true);
+        this.noteReadingContainer.setVisible(false);
+      })
+      .on("pointerover", () => {
+        closeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
+      })
+      .on("pointerout", () => {
+        closeButton.setBackgroundColor("");
+      });
+
+    this.noteReadingContainer = this.add.container(+width / 2, 0, [
+      noteGraphics,
+      this.noteLabel,
+      this.noteText,
+      closeButton,
+    ]);
+    this.noteReadingContainer.setVisible(false);
+  }
+
   makeGameHudContainer() {
     const pauseButton = this.makePauseButton();
 
@@ -223,12 +287,21 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.makeGameHudContainer();
     this.makePauseContainer();
     this.makeGameOverContainer();
+    this.makeNoteReadingContainer();
   }
 
   onGameOver(cause: "insane" | "damage") {
     this.gameOverHudContainer.setVisible(true);
     this.deadLabel.text =
       cause === "insane" ? "You went\nMad" : "You are\nDead";
+  }
+
+  onShowNoteReader(title: string, text: string) {
+    this.scene.get(CST.SCENES.GAME).scene.pause();
+    this.gameHudContainer.setVisible(false);
+    this.noteReadingContainer.setVisible(true);
+    this.noteLabel.text = title;
+    this.noteText.text = text;
   }
 
   onRegistryDataUpdate(parent, key, data) {

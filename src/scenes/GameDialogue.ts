@@ -8,13 +8,16 @@ export type CharacterActionByApproval = {
 
 export type CharacterAction = CharacterActionByApproval & CharacterBark;
 
-
 export type GameDialogue = {
   goScene?: string;
   toggleLight?: string[]; // id of light
   rulePre?: Record<string, unknown>;
   rulePreFail?: GameDialogue;
   rulePost?: Record<string, unknown>;
+  noteRead?: {
+    title: string;
+    text: string;
+  };
   character?: {
     id: string;
     actions: CharacterAction[];

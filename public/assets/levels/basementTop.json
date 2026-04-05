@@ -104,7 +104,7 @@
             0, 12, 0, 12, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 8, 7, 0, 0, 0, 0, 0, 8, 8, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 20, 0, 0, 0, 0, 0, 16, 0, 0, 8, 0, 0, 0,
+            0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0,
@@ -552,7 +552,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"rulePre\": {\n    \"==\" : [ { \"var\" : \"haveKey\" }, true ]\n  },\n  \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"The book:\\nHow to escape\" },\n        {\n           \"actionByApproval\": {\n              \"rulePost\": {\n                 \"setVar\": [\"readBook\", true]\n              }\n           }\n        }\n      ]\n   }\n}\n\n"
+                         "value":"{\n  \"rulePre\": {\n    \"==\" : [ { \"var\" : \"haveKey\" }, true ]\n  },\n  \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"The book:\\nHow to escape\" },\n        {\n           \"actionByApproval\": {\n               \"noteRead\": {\n                   \"title\": \"The Book\",\n                   \"text\": \"One book points...\\nthe other reveals.\\nSomething dark stands in the way.\"\n               },\n              \"rulePost\": {\n                 \"setVar\": [\"readBook\", true]\n              }\n           }\n        }\n      ]\n   }\n}\n\n"
                         }],
                  "rotation":0,
                  "type":"",
@@ -597,7 +597,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n  \"rulePre\": {\n    \"==\" : [ { \"var\" : \"readBook\" }, true ]\n  },\n  \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"The book:\\nLook within\" },\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"71\"],\n              \"rulePost\": {\n                  \"setVar\": [\"lookWithin\", true]\n              }\n           }\n        }\n      ]\n   }\n}\n\n"
+                         "value":"{\n  \"rulePre\": {\n    \"==\": [{ \"var\": \"readBook\" }, true]\n  },\n  \"character\": {\n    \"id\": \"player\",\n    \"actions\": [\n      { \"bark\": \"The book:\\nLook within\" },\n      {\n        \"actionByApproval\": {\n          \"noteRead\": {\n            \"title\": \"The Book\",\n            \"text\": \"Inspect yourself - the way out is within.\\nThough you lie there upon the table.\"\n          },\n          \"toggleLight\": [\"71\"],\n          \"rulePost\": {\n            \"setVar\": [\"lookWithin\", true]\n          }\n        }\n      }\n    ]\n  }\n}\n"
                         }],
                  "rotation":0,
                  "type":"",
@@ -642,7 +642,7 @@
                         {
                          "name":"onEnter",
                          "type":"string",
-                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"About this nightmare\" },\n        {\n           \"actionByApproval\": {\n               \"toggleLight\": [\"27\"]\n         \n           }\n        }\n      ]\n   }\n}"
+                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"About this nightmare\" },\n        {\n           \"actionByApproval\": {\n               \"noteRead\": {\n                   \"title\": \"Remember\",\n                   \"text\": \"Stay in the light. Preserve your sanity. \\n\\nEscape!\"\n               }\n         \n           }\n        }\n      ]\n   }\n}"
                         }, 
                         {
                          "name":"sensor",
@@ -655,6 +655,25 @@
                  "width":128,
                  "x":386,
                  "y":2692
+                }, 
+                {
+                 "gid":16,
+                 "height":128,
+                 "id":79,
+                 "name":"",
+                 "opacity":1,
+                 "properties":[
+                        {
+                         "name":"onEnter",
+                         "type":"string",
+                         "value":"{\n  \"rulePre\": {\n    \"==\": [{ \"var\": \"lookWithin\" }, true]\n  },\n  \"character\": {\n    \"id\": \"player\",\n    \"actions\": [\n      {\n        \"actionByApproval\": {\n          \"noteRead\": {\n            \"title\": \"The Within\",\n            \"text\": \"Faces are blurred here.\\nI reach between the ribs and touch my own shadow.\\nThe memory returns. The mental block is gone.\"\n          },\n          \"moveTo\": [\n            {\n              \"tileId\": \"63\",\n              \"x\": -1024,\n              \"y\": 2304\n            },\n            {\n              \"tileId\": \"64\",\n              \"x\": -1152,\n              \"y\": 2304\n            }\n          ]\n        }\n      }\n    ]\n  }\n}\n"
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":128,
+                 "x":1024,
+                 "y":2048
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -1442,7 +1461,7 @@
          "y":0
         }],
  "nextlayerid":13,
- "nextobjectid":79,
+ "nextobjectid":80,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.12.1-11-gb81cec583",
@@ -2022,6 +2041,46 @@
                              "width":0,
                              "x":2.55526,
                              "y":85.1752
+                            }, 
+                            {
+                             "height":0,
+                             "id":2,
+                             "name":"",
+                             "opacity":1,
+                             "polygon":[
+                                    {
+                                     "x":0,
+                                     "y":0
+                                    }, 
+                                    {
+                                     "x":1.40351,
+                                     "y":53.8947
+                                    }, 
+                                    {
+                                     "x":99.3684,
+                                     "y":55.0175
+                                    }, 
+                                    {
+                                     "x":101.614,
+                                     "y":-4.77193
+                                    }],
+                             "properties":[
+                                    {
+                                     "name":"onEnter",
+                                     "type":"string",
+                                     "value":"{}"
+                                    }, 
+                                    {
+                                     "name":"sensor",
+                                     "type":"bool",
+                                     "value":false
+                                    }],
+                             "rotation":0,
+                             "type":"",
+                             "visible":true,
+                             "width":0,
+                             "x":13.4737,
+                             "y":116.772
                             }],
                      "opacity":1,
                      "type":"objectgroup",

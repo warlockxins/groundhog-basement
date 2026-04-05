@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.1-11-gb81cec583" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="79">
+<map version="1.10" tiledversion="1.12.1-11-gb81cec583" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="80">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -90,7 +90,7 @@
 0,12,0,12,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,8,7,0,0,0,0,0,8,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,20,0,0,0,0,0,16,0,0,8,0,0,0,
+0,0,20,0,0,0,0,0,0,0,0,8,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,10,0,0,0,0,0,0,0,0,0,0,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,
@@ -327,6 +327,10 @@
         { &quot;bark&quot;: &quot;The book:\nHow to escape&quot; },
         {
            &quot;actionByApproval&quot;: {
+               &quot;noteRead&quot;: {
+                   &quot;title&quot;: &quot;The Book&quot;,
+                   &quot;text&quot;: &quot;One book points...\nthe other reveals.\nSomething dark stands in the way.&quot;
+               },
               &quot;rulePost&quot;: {
                  &quot;setVar&quot;: [&quot;readBook&quot;, true]
               }
@@ -345,24 +349,27 @@
    <properties>
     <property name="onEnter">{
   &quot;rulePre&quot;: {
-    &quot;==&quot; : [ { &quot;var&quot; : &quot;readBook&quot; }, true ]
+    &quot;==&quot;: [{ &quot;var&quot;: &quot;readBook&quot; }, true]
   },
   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;The book:\nLook within&quot; },
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;71&quot;],
-              &quot;rulePost&quot;: {
-                  &quot;setVar&quot;: [&quot;lookWithin&quot;, true]
-              }
-           }
+    &quot;id&quot;: &quot;player&quot;,
+    &quot;actions&quot;: [
+      { &quot;bark&quot;: &quot;The book:\nLook within&quot; },
+      {
+        &quot;actionByApproval&quot;: {
+          &quot;noteRead&quot;: {
+            &quot;title&quot;: &quot;The Book&quot;,
+            &quot;text&quot;: &quot;Inspect yourself - the way out is within.\nThough you lie there upon the table.&quot;
+          },
+          &quot;toggleLight&quot;: [&quot;71&quot;],
+          &quot;rulePost&quot;: {
+            &quot;setVar&quot;: [&quot;lookWithin&quot;, true]
+          }
         }
-      ]
-   }
+      }
+    ]
+  }
 }
-
 </property>
    </properties>
   </object>
@@ -377,7 +384,10 @@
         { &quot;bark&quot;: &quot;About this nightmare&quot; },
         {
            &quot;actionByApproval&quot;: {
-               &quot;toggleLight&quot;: [&quot;27&quot;]
+               &quot;noteRead&quot;: {
+                   &quot;title&quot;: &quot;Remember&quot;,
+                   &quot;text&quot;: &quot;Stay in the light. Preserve your sanity. \n\nEscape!&quot;
+               }
          
            }
         }
@@ -385,6 +395,41 @@
    }
 }</property>
     <property name="sensor" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="79" gid="16" x="1024" y="2048" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot;: [{ &quot;var&quot;: &quot;lookWithin&quot; }, true]
+  },
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+    &quot;actions&quot;: [
+      {
+        &quot;actionByApproval&quot;: {
+          &quot;noteRead&quot;: {
+            &quot;title&quot;: &quot;The Within&quot;,
+            &quot;text&quot;: &quot;Faces are blurred here.\nI reach between the ribs and touch my own shadow.\nThe memory returns. The mental block is gone.&quot;
+          },
+          &quot;moveTo&quot;: [
+            {
+              &quot;tileId&quot;: &quot;63&quot;,
+              &quot;x&quot;: -1024,
+              &quot;y&quot;: 2304
+            },
+            {
+              &quot;tileId&quot;: &quot;64&quot;,
+              &quot;x&quot;: -1152,
+              &quot;y&quot;: 2304
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+</property>
    </properties>
   </object>
  </objectgroup>

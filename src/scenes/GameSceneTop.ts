@@ -500,6 +500,7 @@ export class GameSceneTop
       toggleLight,
       sound,
       moveTo,
+      noteRead,
     } = d;
 
     if (rulePre) {
@@ -557,6 +558,12 @@ export class GameSceneTop
           playerPawn.addActionForApproval(a.actionByApproval);
         }
       });
+    }
+
+    if (noteRead) {
+      (
+        this.scene.get(CST.SCENES.GAME_HUD) as GameSceneTopHudScene
+      ).onShowNoteReader(noteRead.title, noteRead.text);
     }
 
     if (goScene) {

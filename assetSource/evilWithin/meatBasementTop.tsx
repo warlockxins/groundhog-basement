@@ -108,6 +108,13 @@
    <object id="1" x="2.55526" y="85.1752">
     <polygon points="0,0 -0.851752,42.1617 126.059,42.1617 124.356,-0.851752"/>
    </object>
+   <object id="2" x="13.4737" y="116.772">
+    <properties>
+     <property name="onEnter" value="{}"/>
+     <property name="sensor" type="bool" value="false"/>
+    </properties>
+    <polygon points="0,0 1.40351,53.8947 99.3684,55.0175 101.614,-4.77193"/>
+   </object>
   </objectgroup>
  </tile>
  <tile id="16">
