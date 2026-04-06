@@ -1,13 +1,21 @@
 import { CST } from "../constants/CST";
 import { sceneEventConstants } from "./sceneEvents";
 
-const SANITY_BOX_X = 80;
+const SANITY_BOX_X = 100;
 
 const SANITY_BOX_MAX_WIDTH = 70;
 export class GameSceneTopHudScene extends Phaser.Scene {
   text: Phaser.GameObjects.Text;
   sanityBarGraphics: Phaser.GameObjects.Graphics;
   currentSanity: number = 10;
+
+  gameHudContainer!: Phaser.GameObjects.Container;
+  pauseHudContainer!: Phaser.GameObjects.Container;
+  gameOverHudContainer!: Phaser.GameObjects.Container;
+  deadLabel: Phaser.GameObjects.Text;
+  noteReadingContainer: Phaser.GameObjects.Container;
+  noteLabel: Phaser.GameObjects.Text;
+  noteText: Phaser.GameObjects.Text;
 
   constructor() {
     super({
@@ -17,32 +25,248 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
   makePauseButton() {
     const clickButton = this.add
-      .text(10, 10, "Exit", {
+      .text(10, 10, "Pause", {
         color: "#ffffff",
-        fontFamily: "Arial Black",
-        fontSize: 24,
+        fontFamily: "Arial",
+        fontSize: 18,
       })
       .setScrollFactor(0);
 
-    clickButton.setInteractive().on("pointerdown", () => this.pausePressed());
+    clickButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.pause();
+        this.gameHudContainer.setVisible(false);
+        this.pauseHudContainer.setVisible(true);
+      })
+      .on("pointerover", () => clickButton.setColor("#aaaaaa"))
+      .on("pointerout", () => clickButton.setColor("#ffffff"));
+
+    return clickButton;
   }
 
-  pausePressed() {
-    this.scene.launch(CST.SCENES.START_MENU);
-    this.game.events.emit(sceneEventConstants.stopGameplayScene);
-    this.scene.stop();
+  makePauseContainer() {
+    const pauseGraphics = this.add.graphics();
+    const { width, height } = this.game.config;
+
+    pauseGraphics.fillStyle(0x111111, 0.8);
+    pauseGraphics.fillRect(0, 0, +width, +height);
+
+    const pauseLabel = this.add.text(+width / 2, 150, "PAUSE MENU", {
+      fontFamily: "Arial Black",
+      fontSize: 34,
+    });
+    pauseLabel.setOrigin(0.5, 1);
+
+    pauseGraphics.lineStyle(2, 0xffffff);
+    pauseGraphics.lineBetween(+width / 2 - 90, 160, +width / 2 + 90, 160);
+
+    const resumeButton = this.add
+      .text(+width / 2, 230, "Resume", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+        fixedWidth: 150,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    resumeButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.resume();
+        this.gameHudContainer.setVisible(true);
+        this.pauseHudContainer.setVisible(false);
+      })
+      .on("pointerover", () => {
+        resumeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
+      })
+      .on("pointerout", () => {
+        resumeButton.setBackgroundColor("");
+      });
+
+    const exitButton = this.add
+      .text(+width / 2, 270, "Quit", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fixedWidth: 150,
+        fontSize: 20,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    exitButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.launch(CST.SCENES.START_MENU);
+        this.game.events.emit(sceneEventConstants.stopGameplayScene);
+        this.scene.stop();
+      })
+      .on("pointerover", () =>
+        exitButton.setBackgroundColor("rgba(255, 255, 255, 0.1)"),
+      )
+      .on("pointerout", () => exitButton.setBackgroundColor(""));
+
+    this.pauseHudContainer = this.add.container(0, 0, [
+      pauseGraphics,
+      pauseLabel,
+      resumeButton,
+      exitButton,
+    ]);
+    this.pauseHudContainer.setVisible(false);
   }
 
-  create() {
-    this.makePauseButton();
+  makeGameOverContainer() {
+    const gameOverGraphics = this.add.graphics();
+    const { width, height } = this.game.config;
+
+    gameOverGraphics.fillStyle(0x111111, 0.8);
+    gameOverGraphics.fillRect(0, 0, +width, +height);
+
+    this.deadLabel = this.add.text(+width / 2, 150, "", {
+      fontFamily: "Arial Black",
+      fontSize: 34,
+      align: "center",
+    });
+    this.deadLabel.setOrigin(0.5, 1);
+
+    gameOverGraphics.lineStyle(2, 0xffffff);
+    gameOverGraphics.lineBetween(+width / 2 - 90, 160, +width / 2 + 90, 160);
+
+    const retryButton = this.add
+      .text(+width / 2, 230, "Retry", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+        fixedWidth: 150,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    retryButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.restart();
+        this.gameHudContainer.setVisible(true);
+        this.pauseHudContainer.setVisible(false);
+      })
+      .on("pointerover", () => {
+        retryButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
+      })
+      .on("pointerout", () => {
+        retryButton.setBackgroundColor("");
+      });
+
+    const exitButton = this.add
+      .text(+width / 2, 270, "Quit", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fixedWidth: 150,
+        fontSize: 20,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    exitButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.launch(CST.SCENES.START_MENU);
+        this.game.events.emit(sceneEventConstants.stopGameplayScene);
+        this.scene.stop();
+      })
+      .on("pointerover", () =>
+        exitButton.setBackgroundColor("rgba(255, 255, 255, 0.1)"),
+      )
+      .on("pointerout", () => exitButton.setBackgroundColor(""));
+
+    this.gameOverHudContainer = this.add.container(0, 0, [
+      gameOverGraphics,
+      this.deadLabel,
+      retryButton,
+      exitButton,
+    ]);
+    this.gameOverHudContainer.setVisible(false);
+  }
+
+  makeNoteReadingContainer() {
+    const noteGraphics = this.add.graphics();
+    const { width, height } = this.game.config;
+
+    noteGraphics.fillStyle(0x111111, 1);
+    const backgroundWidth = +width / 2 - 50;
+    noteGraphics.fillRect(0, 50, backgroundWidth, +height - 100);
+
+    this.noteLabel = this.add.text(backgroundWidth / 2, 110, "Note", {
+      fontFamily: "Arial Black",
+      fontSize: 34,
+      align: "center",
+    });
+    this.noteLabel.setOrigin(0.5, 1);
+
+    this.noteText = this.add.text(30, 155, "Note", {
+      fontFamily: "Arial Black",
+      fontSize: 22,
+      align: "left",
+      wordWrap: {
+        width: backgroundWidth - 60,
+      },
+    });
+
+    noteGraphics.lineStyle(2, 0xffffff);
+    noteGraphics.lineBetween(50, 130, backgroundWidth - 50, 130);
+
+    // add vertical line
+    noteGraphics.lineStyle(2, 0xffffff, 0.1);
+    noteGraphics.lineBetween(0, 50, 0, +height - 50);
+
+    const closeButton = this.add
+      .text(backgroundWidth / 2, +height - 70, "Close", {
+        color: "#ffffff",
+        fontFamily: "Arial",
+        fontSize: 20,
+        fixedWidth: 150,
+        align: "center",
+      })
+      .setPadding(10)
+      .setOrigin(0.5, 1);
+
+    closeButton
+      .setInteractive()
+      .on("pointerup", () => {
+        this.scene.get(CST.SCENES.GAME).scene.resume();
+        this.gameHudContainer.setVisible(true);
+        this.noteReadingContainer.setVisible(false);
+      })
+      .on("pointerover", () => {
+        closeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
+      })
+      .on("pointerout", () => {
+        closeButton.setBackgroundColor("");
+      });
+
+    this.noteReadingContainer = this.add.container(+width / 2, 0, [
+      noteGraphics,
+      this.noteLabel,
+      this.noteText,
+      closeButton,
+    ]);
+    this.noteReadingContainer.setVisible(false);
+  }
+
+  makeGameHudContainer() {
+    const pauseButton = this.makePauseButton();
 
     this.text = this.add.text(SANITY_BOX_X, 10, "Sanity", {
-      fontFamily: "Arial Black",
-      fontSize: 24,
+      fontFamily: "Arial",
+      fontSize: 18,
     });
 
     //  Check the Registry and hit our callback every time the 'score' value is updated
-    this.registry.events.on("changedata", this.updateScore, this);
+    this.registry.events.on("changedata", this.onRegistryDataUpdate, this);
 
     this.sanityBarGraphics = this.add.graphics({
       fillStyle: {
@@ -54,8 +278,37 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     });
 
     this.drawSanity(SANITY_BOX_MAX_WIDTH);
+
+    this.gameHudContainer = this.add.container(0, 0, [
+      this.text,
+      pauseButton,
+      this.sanityBarGraphics,
+    ]);
   }
-  updateScore(parent, key, data) {
+
+  create() {
+    // this.events.on(sceneEventConstants.characterDeath, this.onGameOver, this);
+    this.makeGameHudContainer();
+    this.makePauseContainer();
+    this.makeGameOverContainer();
+    this.makeNoteReadingContainer();
+  }
+
+  onGameOver(cause: "insane" | "damage") {
+    this.gameOverHudContainer.setVisible(true);
+    this.deadLabel.text =
+      cause === "insane" ? "You went\nMad" : "You are\nDead";
+  }
+
+  onShowNoteReader(title: string, text: string) {
+    this.scene.get(CST.SCENES.GAME).scene.pause();
+    this.gameHudContainer.setVisible(false);
+    this.noteReadingContainer.setVisible(true);
+    this.noteLabel.text = title;
+    this.noteText.text = text;
+  }
+
+  onRegistryDataUpdate(parent, key, data) {
     if (key === "sanity") {
       const newHealth = +data;
       const newWidth = (newHealth / 10) * SANITY_BOX_MAX_WIDTH;

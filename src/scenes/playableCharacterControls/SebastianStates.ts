@@ -1,3 +1,4 @@
+import { Character } from "../Character";
 import { GameSceneTopPossibilities } from "../GameSceneTopInterface";
 import { AnimationDirection } from "../types";
 import { I_AnimationState, TMoveSpeed } from "./AnimationStateTypes";
@@ -9,9 +10,11 @@ export class SebastianStates implements I_AnimationState {
     facing: { vertical: 'N' | 'S' | ''; horizontal: 'E' | ''; } = { vertical: 'S', horizontal: '' };
     animationDirection: AnimationDirection = 'S';
     currentState!: I_AnimationState;
+    character: Character;
 
     states = {
         idle: new Standing(this, 'idle'),
+        action: new ArmAction(this, 'armActionTake'),
         goUp: new Moving(this, 'walk', { x: 0, y: -walkSpeed }),
         goUpRight: new Moving(this, 'walk', { x: walkSpeed, y: -walkSpeed }),
         goRight: new Moving(this, 'walk', { x: walkSpeed, y: 0 }),
@@ -23,15 +26,17 @@ export class SebastianStates implements I_AnimationState {
     }
 
     moveIntent = {
-        up: false, right: false, down: false, left: false
+        up: false, right: false, down: false, left: false,
+        action: false
     }
 
     updaterState = {
         fn: this.start.bind(this)
     }
 
-    constructor(sprite: Phaser.Physics.Matter.Sprite) {
-        this.sprite = sprite;
+    constructor(character: Character) {
+        this.character = character;
+        this.sprite = character.sprite;
         this.currentState = this.states.idle;
     }
     start() {
@@ -88,16 +93,25 @@ class MovableRoot implements I_AnimationState {
             return this.controller.states.goLeft;
         }
 
+        if (this.controller.moveIntent.action) {
+            return this.controller.states.action;
+        }
+
         return this.controller.states.idle;
     }
     end() { }
 
-    playAnimation() {
+    playAnimation(repeat: boolean = true) {
         this.controller.animationDirection = `${this.controller.facing.vertical}${this.controller.facing.horizontal}` as AnimationDirection
         const newAnimation: string = `sebastian-${this.animation}-${this.controller.animationDirection}`;
 
         if (this.controller.sprite.anims.getName() !== newAnimation) {
-            this.controller.sprite.play(newAnimation);
+            this.controller.sprite.play(
+                {
+                    repeat: repeat ? -1 : 0,
+                    key: newAnimation,
+                }
+            );
         }
     }
 }
@@ -106,6 +120,26 @@ class Standing extends MovableRoot {
     start() {
         this.controller.sprite.setVelocity(this.speed.x, this.speed.y);
         this.playAnimation();
+    }
+}
+
+class ArmAction extends MovableRoot {
+    start() {
+        this.controller.sprite.setVelocity(this.speed.x, this.speed.y);
+        // action is always going to be North .... prbbly. Will keep horizontal dir.
+        // so will animate in NE, N, NW
+        this.controller.facing.vertical = 'N';
+        this.playAnimation(false);
+
+        this.controller.character.executeActionByApproving();
+    }
+
+    update(): I_AnimationState {
+        if (!this.controller.sprite.anims.isPlaying) {
+            return this.controller.states.idle;
+        }
+
+        return this;
     }
 }
 

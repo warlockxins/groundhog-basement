@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
+<tileset version="1.10" tiledversion="1.12.1-11-gb81cec583" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
  <image source="assets/tilesTop.png" trans="474747" width="1024" height="1024"/>
  <tile id="3">
   <objectgroup draworder="index" id="2">
@@ -15,11 +15,19 @@
  </tile>
  <tile id="6">
   <properties>
+   <property name="sensor" type="bool" value="false"/>
    <property name="wall" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.425876" y="92.4151">
     <polygon points="0,0 0,35.3477 127.337,35.7736 126.911,0"/>
+   </object>
+   <object id="2" x="12.221" y="122.21">
+    <properties>
+     <property name="onEnter" value="{}"/>
+     <property name="sensor" type="bool" value="false"/>
+    </properties>
+    <polygon points="0,0 13.4431,33.9134 90.1301,34.8299 104.184,-1.2221"/>
    </object>
   </objectgroup>
  </tile>
@@ -99,6 +107,13 @@
   <objectgroup draworder="index" id="2">
    <object id="1" x="2.55526" y="85.1752">
     <polygon points="0,0 -0.851752,42.1617 126.059,42.1617 124.356,-0.851752"/>
+   </object>
+   <object id="2" x="13.4737" y="116.772">
+    <properties>
+     <property name="onEnter" value="{}"/>
+     <property name="sensor" type="bool" value="false"/>
+    </properties>
+    <polygon points="0,0 1.40351,53.8947 99.3684,55.0175 101.614,-4.77193"/>
    </object>
   </objectgroup>
  </tile>
@@ -275,5 +290,29 @@
   <properties>
    <property name="icons" value="key"/>
   </properties>
+ </tile>
+ <tile id="57">
+  <properties>
+   <property name="above" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="58">
+  <properties>
+   <property name="onEnter" value="{}"/>
+   <property name="sensor" type="bool" value="false"/>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="10.7768" y="107.466">
+    <properties>
+     <property name="onEnter" value="{}"/>
+     <property name="sensor" type="bool" value="false"/>
+    </properties>
+    <polygon points="0,0 108.767,-0.305526 116.405,92.2688 -9.77682,92.8798"/>
+   </object>
+   <object id="2" x="25.6667" y="84.3333">
+    <polygon points="21.25,24.75 26.5,37.5 52,39.5 55.5,23.5"/>
+   </object>
+  </objectgroup>
  </tile>
 </tileset>

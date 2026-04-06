@@ -17,7 +17,7 @@ export class MenuScene extends Phaser.Scene {
     console.log("data passed to this scene", data);
   }
 
-  preload() {}
+  preload() { }
   create() {
     console.log("===? goooooooo");
 
@@ -35,12 +35,12 @@ export class MenuScene extends Phaser.Scene {
 
     this.startButton
       .setInteractive()
-      .on("pointerdown", () => this.startPressed())
+      .on("pointerup", () => this.startPressed())
       .on("pointerover", () => this.enterButtonHoverState())
       .on("pointerout", () => this.enterButtonRestState());
 
     this.add.text(UI_X, 150, "Dream Butcher", {
-      fontFamily: "Arial Black",
+      fontFamily: "Arial",
       fontSize: 70,
     });
     // .setOrigin(0.5, 0);

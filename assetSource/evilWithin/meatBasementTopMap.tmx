@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="61">
+<map version="1.10" tiledversion="1.12.1-11-gb81cec583" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="13" nextobjectid="80">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -37,7 +37,7 @@
 0,0,0,0,0,0,1,1,1,1,1,1,1,0,0
 </data>
  </layer>
- <layer id="7" name="bloodOnFloor" width="15" height="26">
+ <layer id="7" name="decals" width="15" height="26">
   <properties>
    <property name="physics" type="bool" value="true"/>
   </properties>
@@ -61,11 +61,11 @@
 0,0,0,0,0,0,0,0,25,0,0,0,0,0,0,
 0,0,0,39,36,38,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,52,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,25,0,25,0,0,0,0,
-0,0,0,0,0,0,25,0,0,25,0,25,0,0,0,
+0,0,0,0,0,0,0,0,0,24,0,24,0,0,0,
+0,0,0,0,0,0,0,0,25,0,25,32,0,0,0,
+0,0,0,0,0,0,25,0,0,25,32,25,0,0,0,
 0,0,0,0,0,0,25,27,25,27,25,0,27,0,0,
 0,0,0,0,0,0,25,25,0,0,25,0,0,0,0
 </data>
@@ -88,19 +88,19 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,12,0,12,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,8,7,7,0,0,0,7,8,8,0,
+0,0,0,0,0,8,7,0,0,0,0,0,8,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,20,0,0,0,0,0,16,0,0,8,0,0,0,
+0,0,20,0,0,0,0,0,0,0,0,8,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,10,0,0,0,0,0,0,0,0,0,0,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,8,8,0,12,0,0,0,0,0,0,8,8,0,
 0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,32,0,8,16,0,0,
-0,0,0,0,0,0,47,0,24,40,0,0,0,0,0,
-0,0,0,0,0,0,0,24,0,0,0,0,0,0,0
+0,0,0,0,0,0,0,0,0,32,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,40,0,8,16,0,0,
+0,0,0,0,0,0,47,0,0,0,40,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 </data>
  </layer>
  <layer id="2" name="edgeWalls" width="15" height="26">
@@ -130,7 +130,7 @@
 0,0,12,0,0,12,12,12,0,0,0,0,0,0,0,
 0,0,12,0,0,0,12,12,0,0,0,0,0,0,0,
 0,0,12,4,4,4,0,12,0,0,0,0,0,4,0,
-0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
+0,0,0,0,0,0,12,12,0,0,0,0,0,12,0,
 0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
 0,0,0,0,0,0,12,0,0,0,0,0,0,12,0,
 0,0,0,0,0,0,12,4,4,4,4,4,4,12,0
@@ -165,7 +165,7 @@
 0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,15,0,0,0,
-0,0,0,0,0,0,15,0,32,0,0,0,0,0,0,
+0,0,0,0,0,0,15,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,4,0,0,0,0,0,0,0,0
 </data>
  </layer>
@@ -199,21 +199,30 @@
   <object id="22" gid="45" x="768" y="640" width="128" height="128"/>
   <object id="24" gid="45" x="768" y="384" width="128" height="128"/>
   <object id="25" gid="45" x="768" y="256" width="128" height="128"/>
-  <object id="26" gid="19" x="640" y="128" width="128" height="128">
+  <object id="26" name="saw" gid="19" x="640" y="128" width="128" height="128">
    <properties>
     <property name="onEnter">{
    &quot;goScene&quot;: &quot;bloodPool&quot;
 }</property>
    </properties>
   </object>
-  <object id="28" gid="46" x="442.762" y="2421.53" width="128" height="128"/>
-  <object id="29" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
-  <object id="48" gid="46" x="815.749" y="3146.05" width="128" height="128"/>
+  <object id="28" name="chair" gid="46" x="442.762" y="2421.53" width="128" height="128"/>
+  <object id="29" name="chair" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
+  <object id="48" name="chair" gid="46" x="950.749" y="3146.05" width="128" height="128"/>
   <object id="30" gid="46" x="842.37" y="2095.92" width="128" height="128"/>
   <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128">
    <properties>
     <property name="onEnter">{
-  &quot;toggleLight&quot;: [&quot;46&quot;]
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;46&quot;]
+           }
+        }
+     ]
+  }
 }</property>
    </properties>
   </object>
@@ -223,32 +232,67 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Toggle Light&quot; }
+        { &quot;bark&quot;: &quot;Toggle the Light&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;41&quot;]
+           }
+        }
       ]
-   },
-   &quot;toggleLight&quot;: [&quot;41&quot;]
+   }
 }</property>
    </properties>
   </object>
   <object id="51" gid="44" x="256.191" y="1678.05" width="128" height="128">
    <properties>
     <property name="onEnter">{
-   &quot;toggleLight&quot;: [&quot;6&quot;]
-}</property>
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;6&quot;]
+           }
+        }
+     ]
+  }
+}
+</property>
    </properties>
   </object>
   <object id="47" gid="44" x="1026.75" y="2977.22" width="128" height="128">
    <properties>
     <property name="onEnter">{
-  &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
-}</property>
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+    &quot;actions&quot;: [
+      {
+        &quot;actionByApproval&quot;: {
+          &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
+        }
+      }
+    ]
+  }
+}
+</property>
    </properties>
   </object>
   <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128">
    <properties>
     <property name="onEnter">{
-  &quot;toggleLight&quot;: [&quot;3&quot;]
-}</property>
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+     &quot;actions&quot;: [
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;3&quot;]
+           }
+        }
+     ]
+  }
+}
+
+</property>
    </properties>
   </object>
   <object id="56" gid="44" x="388.467" y="2571.33" width="128" height="128">
@@ -257,14 +301,137 @@
    &quot;character&quot;: {
       &quot;id&quot;: &quot;player&quot;,
       &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Keep light on&quot; }
+        { &quot;bark&quot;: &quot;Keep the light on&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+              &quot;toggleLight&quot;: [&quot;27&quot;]
+           }
+        }
       ]
-   },
-   &quot;toggleLight&quot;: [&quot;27&quot;]
+   }
 }</property>
    </properties>
   </object>
   <object id="58" gid="46" x="265.317" y="2656.2" width="128" height="128"/>
+  <object id="63" name="Removable wall2" gid="17" x="0" y="3328" width="128" height="128"/>
+  <object id="64" name="Removable wall1" gid="17" x="128" y="3328" width="128" height="128"/>
+  <object id="65" name="book to read" gid="7" x="1408" y="1792" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
+  },
+  &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;The book:\nHow to escape&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+               &quot;noteRead&quot;: {
+                   &quot;title&quot;: &quot;The Book&quot;,
+                   &quot;text&quot;: &quot;One book points...\nthe other reveals.\nSomething dark stands in the way.&quot;
+               },
+              &quot;rulePost&quot;: {
+                 &quot;setVar&quot;: [&quot;readBook&quot;, true]
+              }
+           }
+        }
+      ]
+   }
+}
+
+</property>
+   </properties>
+  </object>
+  <object id="68" gid="58" x="-128" y="3328" width="128" height="128"/>
+  <object id="69" name="for Light42" gid="58" x="-128" y="3200" width="128" height="128"/>
+  <object id="70" name="bodyToInspect" gid="7" x="896" y="1792" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot;: [{ &quot;var&quot;: &quot;readBook&quot; }, true]
+  },
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+    &quot;actions&quot;: [
+      { &quot;bark&quot;: &quot;The book:\nLook within&quot; },
+      {
+        &quot;actionByApproval&quot;: {
+          &quot;noteRead&quot;: {
+            &quot;title&quot;: &quot;The Book&quot;,
+            &quot;text&quot;: &quot;Inspect yourself - the way out is within.\nThough you lie there upon the table.&quot;
+          },
+          &quot;toggleLight&quot;: [&quot;71&quot;],
+          &quot;rulePost&quot;: {
+            &quot;setVar&quot;: [&quot;lookWithin&quot;, true]
+          }
+        }
+      }
+    ]
+  }
+}
+</property>
+   </properties>
+  </object>
+  <object id="72" name="for LookWithin" gid="58" x="-134.667" y="3090.67" width="128" height="128"/>
+  <object id="77" name="longGate" gid="58" x="-202.667" y="2017.33" width="128" height="128"/>
+  <object id="78" name="tutorialBook" gid="59" x="386" y="2692" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;About this nightmare&quot; },
+        {
+           &quot;actionByApproval&quot;: {
+               &quot;noteRead&quot;: {
+                   &quot;title&quot;: &quot;Remember&quot;,
+                   &quot;text&quot;: &quot;Stay in the light. Preserve your sanity. \n\nEscape!&quot;
+               }
+         
+           }
+        }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+  </object>
+  <object id="79" gid="16" x="1024" y="2048" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot;: [{ &quot;var&quot;: &quot;lookWithin&quot; }, true]
+  },
+  &quot;character&quot;: {
+    &quot;id&quot;: &quot;player&quot;,
+    &quot;actions&quot;: [
+      {
+        &quot;actionByApproval&quot;: {
+          &quot;noteRead&quot;: {
+            &quot;title&quot;: &quot;The Within&quot;,
+            &quot;text&quot;: &quot;Faces are blurred here.\nI reach between the ribs and touch my own shadow.\nThe memory returns. The mental block is gone.&quot;
+          },
+          &quot;moveTo&quot;: [
+            {
+              &quot;tileId&quot;: &quot;63&quot;,
+              &quot;x&quot;: -1024,
+              &quot;y&quot;: 2304
+            },
+            {
+              &quot;tileId&quot;: &quot;64&quot;,
+              &quot;x&quot;: -1152,
+              &quot;y&quot;: 2304
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+</property>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="15" height="26">
   <properties>
@@ -312,7 +479,7 @@
   <object id="4" x="1110.79" y="2552.07">
    <point/>
   </object>
-  <object id="5" x="1699.89" y="2613.38">
+  <object id="5" x="1705.83" y="2613.38">
    <point/>
   </object>
   <object id="6" x="64.6846" y="1537.81">
@@ -327,7 +494,7 @@
    </properties>
    <point/>
   </object>
-  <object id="27" x="311.423" y="2631.3">
+  <object id="27" x="303.992" y="2601.58">
    <properties>
     <property name="isOn" type="bool" value="true"/>
     <property name="tween">{
@@ -354,9 +521,10 @@
    </properties>
    <point/>
   </object>
-  <object id="36" x="1219.72" y="2833.8">
+  <object id="36" name="betweenColumns" x="1219.72" y="2833.8">
    <properties>
     <property name="color" type="color" value="#ffe1947f"/>
+    <property name="lightRay" value="68"/>
     <property name="tween">{
     &quot;intensity&quot;: { &quot;from&quot;: 2, &quot;to&quot;: 0.7 },
     &quot;duration&quot;: 250,
@@ -371,6 +539,7 @@
    <properties>
     <property name="color" type="color" value="#ffe1947f"/>
     <property name="isOn" type="bool" value="false"/>
+    <property name="lightRay" value="77"/>
     <property name="tween">{
     &quot;intensity&quot;: { &quot;from&quot;: 3, &quot;to&quot;: 0.95 },
     &quot;duration&quot;: 250,
@@ -384,16 +553,17 @@
   <object id="42" x="1217.28" y="2566.7">
    <properties>
     <property name="color" type="color" value="#ffe1947f"/>
+    <property name="lightRay" value="69"/>
    </properties>
    <point/>
   </object>
-  <object id="46" x="821.791" y="3128.71">
+  <object id="46" x="814.36" y="3107.9">
    <properties>
     <property name="isOn" type="bool" value="false"/>
    </properties>
    <point/>
   </object>
-  <object id="49" x="1480.24" y="3021.29">
+  <object id="49" x="1452" y="2987.11">
    <properties>
     <property name="isOn" type="bool" value="true"/>
    </properties>
@@ -413,13 +583,21 @@
    </properties>
    <point/>
   </object>
+  <object id="71" name="lookWithin" x="1086.67" y="1882.67">
+   <properties>
+    <property name="color" type="color" value="#ffe1947f"/>
+    <property name="isOn" type="bool" value="false"/>
+    <property name="lightRay" value="72"/>
+   </properties>
+   <point/>
+  </object>
  </objectgroup>
  <objectgroup id="9" name="logic">
   <properties>
    <property name="blackboard">{
 }</property>
   </properties>
-  <object id="8" name="start" x="329.65" y="2789.16">
+  <object id="8" name="start" x="317.595" y="2750.51">
    <point/>
   </object>
   <object id="9" name="enemyStart" x="1533.27" y="3148.42">
@@ -437,11 +615,30 @@
    <properties>
     <property name="icon" value="key"/>
     <property name="onEnter">{
-  &quot;removeTrigger&quot;:true,
+  &quot;removeTrigger&quot;: true,
   &quot;rulePost&quot;: {
-     &quot;setVar&quot;: [&quot;haveKey&quot;, true]
-  }
-}</property>
+    &quot;setVar&quot;: [&quot;haveKey&quot;, true]
+  },
+  &quot;moveTo&quot;: [
+    {
+      &quot;tileId&quot;: &quot;63&quot;,
+      &quot;x&quot;: 1024,
+      &quot;y&quot;: 2304
+    },
+    {
+      &quot;tileId&quot;: &quot;64&quot;,
+      &quot;x&quot;: 1152,
+      &quot;y&quot;: 2304
+    }
+  ],
+  &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Now to that door!&quot; }
+      ]
+   }
+}
+</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
@@ -483,7 +680,7 @@
    </properties>
    <point/>
   </object>
-  <object id="52" name="2ndButcherSchedulePoint2" x="1573.39" y="2869.53">
+  <object id="52" name="2ndButcherSchedulePoint2" x="986.506" y="2626.04">
    <point/>
   </object>
   <object id="53" name="2ndButcherSchedulePoint" x="1266.41" y="3095.32">
@@ -509,6 +706,54 @@
   </object>
   <object id="59" name="2ndButcherSchedulePoint2" x="1579.05" y="2740.95">
    <point/>
+  </object>
+  <object id="61" name="is that blood" x="854.301" y="3013.85" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Is that\nBlood?&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="62" name="bodies everywhere" x="1160.37" y="2772.25" width="128" height="128">
+   <properties>
+    <property name="onEnter">{
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;Bodies everywhere!&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
+  </object>
+  <object id="66" name="but where" x="1145.89" y="2229.2" width="95.1118" height="85.1457">
+   <properties>
+    <property name="onEnter">{
+  &quot;rulePre&quot;: {
+    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
+  },
+  &quot;removeTrigger&quot;:true,
+   &quot;character&quot;: {
+      &quot;id&quot;: &quot;player&quot;,
+      &quot;actions&quot;: [
+        { &quot;bark&quot;: &quot;But ...\n where?!&quot; }
+      ]
+   }
+}</property>
+    <property name="sensor" type="bool" value="true"/>
+   </properties>
+   <ellipse/>
   </object>
  </objectgroup>
  <layer id="6" name="alwaysAbove" width="15" height="26">
