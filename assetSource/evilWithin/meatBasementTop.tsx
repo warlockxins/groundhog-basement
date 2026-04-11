@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.12.1-11-gb81cec583" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
+<tileset version="1.10" tiledversion="1.10.2" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
  <image source="assets/tilesTop.png" trans="474747" width="1024" height="1024"/>
  <tile id="3">
   <objectgroup draworder="index" id="2">
@@ -250,6 +250,7 @@
  <tile id="45">
   <properties>
    <property name="isKinematic" type="bool" value="true"/>
+   <property name="kind" value="chair"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="51.1051" y="77.9354">

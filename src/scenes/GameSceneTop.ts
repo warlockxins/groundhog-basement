@@ -23,6 +23,10 @@ import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
 import { soundSource } from "../constants/sounds";
 import { PawnHandler } from "./PawnHandler";
 import { GameSceneTopHudScene } from "./GameSceneTopHudScene";
+import { CustomTileObject } from "./types";
+import { SpriteWithDepth } from "./smartSprites/SpriteWithDepth";
+import { LightSwitchSmartObject } from "./smartSprites/LightSwitchSmartObject";
+import { ChairSmartObject } from "./smartSprites/ChairSmartObject";
 
 type SceneNavigationMesh = {
   vertices: NavMeshPointMap;
@@ -42,7 +46,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-        (p.y - points[a].y) * (p.y - points[a].y),
+      (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -271,8 +275,7 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities
-{
+  implements GameSceneTopPossibilities {
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -740,7 +743,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() {}
+  addPhysicsListeners() { }
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -824,7 +827,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch {}
+            } catch { }
             // console.log("??????>>>>>>>", color)
           }
 
@@ -860,133 +863,133 @@ export class GameSceneTop
       } else if (n === "logic") {
         this.processLogicLayerObjects(this.map.getObjectLayer(n));
       } else if (n === "tileLogic") {
-        type CustomTileObjectProperty = {
-          value: unknown;
-          name: string;
-          type: string;
-        };
-
-        type CustomTileObject = {
-          flippedAntiDiagonal: boolean;
-          flippedHorizontal: boolean;
-          flippedVertical: boolean;
-          gid: number;
-          height: number;
-          id: number;
-          name: string;
-          rotation: number;
-          type: string;
-          visible: boolean;
-          width: number;
-          x: number;
-          y: number;
-          properties: CustomTileObjectProperty[];
-        };
-        const objects: CustomTileObject[] = (this.map.getObjectLayer(n)
-          ?.objects ?? []) as unknown as CustomTileObject[];
-
-        // console.log("objects in ", n, objects);
-
-        objects.forEach((t) => {
-          // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
-
-          // read smart object type ----------------
-
-          let smartTile: SpriteWithDepth | null = null;
-          let collisionGroup = this.tileset.getTileProperties(t.gid);
-          // console.log(",,,,,,,,,,,", collisionGroup.kind);
-
-          // @ts-ignore
-          if (collisionGroup.kind === "lightSwitch") {
-            smartTile = new LightSwitchSmartObject(
-              this,
-              t.x,
-              t.y - t.height,
-              "tiles",
-              t.gid - 1,
-            );
-          } else {
-            smartTile = new SpriteWithDepth(
-              this,
-              t.x,
-              t.y - t.height,
-              "tiles",
-              t.gid - 1,
-            );
-          }
-
-          smartTile
-            .setDepth(t.y)
-            .setOrigin(0, 0)
-            .setPipeline("Light2D")
-            .setName(t.id.toString());
-          // console.log("----ID", t.id.toString());
-
-          // console.log('-----props', t);
-
-          const tileCollision = this.makeTileCollision(
-            {
-              index: t.gid,
-              pixelX: 0,
-              pixelY: 0,
-              allowStatic: false,
-            },
-            t.properties,
-          );
-          // smartTile.setData("--setData->", t.name);
-
-          if (!tileCollision) {
-            // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
-            smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
-            smartTile.setOrigin(0.5, 1);
-            // smartTile.setRotation(Phaser.Math.DegToRad(+t.rotation));
-            (smartTile.body as MatterJS.BodyType).isSensor = true;
-            return;
-          }
-          const {
-            bodyParts: compoundBodyParts,
-            kinematic,
-            tween,
-            radius,
-            dialogue,
-            sensor,
-          } = tileCollision;
-
-          if (!kinematic && compoundBodyParts.length > 0) {
-            const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
-              parts: compoundBodyParts,
-              inertia: Infinity,
-            });
-
-            smartTile.setExistingBody(compoundBody, true);
-            smartTile.setStatic(true);
-            smartTile.setPosition(t.x + t.width / 2, t.y);
-            smartTile.setOrigin(0.5, 1);
-            // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
-          } else {
-            // Movable items like a chair
-            smartTile.setCircle(radius, { dialogue, isSensor: sensor });
-            // smartTile.body.dialogue = dialogue;
-            smartTile.setFixedRotation();
-            smartTile.setMass(100);
-            smartTile.setFrictionAir(1);
-            smartTile.setOrigin(0.5, 0.5);
-            smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
-
-            const smartTileBody = smartTile.body! as MatterJS.BodyType;
-            smartTileBody.onCollideCallback =
-              this.onLevelTriggerCollide.bind(this);
-
-            if (tween) {
-              this.tweens.add({
-                targets: smartTile,
-                ...tween,
-              });
-            }
-          }
-        });
+        const layer: Phaser.Tilemaps.ObjectLayer | null = this.map.getObjectLayer(n);
+        this.processTileLogicLayer(layer);
       }
     });
+  }
+
+  processTileLogicLayer(layer: Phaser.Tilemaps.ObjectLayer | null) {
+    if (!layer) {
+      return;
+    }
+
+    const objects: CustomTileObject[] = (
+      layer.objects ?? []) as unknown as CustomTileObject[];
+
+    // console.log("objects in ", n, objects);
+
+    objects.forEach((t) => {
+      // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
+
+      // read smart object type ----------------
+
+      let smartTile: SpriteWithDepth | null = null;
+      let collisionGroup = this.tileset.getTileProperties(t.gid);
+      // @ts-ignore
+      console.log(",,,,,,,,,,,", collisionGroup.kind);
+
+      // @ts-ignore
+      if (collisionGroup.kind === "lightSwitch") {
+        smartTile = new LightSwitchSmartObject(
+          this,
+          t.x,
+          t.y - t.height,
+          "tiles",
+          t.gid - 1,
+        );
+      }
+      // @ts-ignore 
+      else if (collisionGroup.kind === "chair") {
+        smartTile = new ChairSmartObject(
+          this,
+          t.x,
+          t.y - t.height,
+          "tiles",
+          t.gid - 1,
+        );
+      }
+      else {
+        smartTile = new SpriteWithDepth(
+          this,
+          t.x,
+          t.y - t.height,
+          "tiles",
+          t.gid - 1,
+        );
+      }
+
+      smartTile
+        .setDepth(t.y)
+        .setOrigin(0, 0)
+        .setPipeline("Light2D")
+        .setName(t.id.toString());
+      // console.log("----ID", t.id.toString());
+
+      // console.log('-----props', t);
+
+      const tileCollision = this.makeTileCollision(
+        {
+          index: t.gid,
+          pixelX: 0,
+          pixelY: 0,
+          allowStatic: false,
+        },
+        t.properties,
+      );
+      // smartTile.setData("--setData->", t.name);
+
+      if (!tileCollision) {
+        // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
+        smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+        smartTile.setOrigin(0.5, 1);
+        // smartTile.setRotation(Phaser.Math.DegToRad(+t.rotation));
+        (smartTile.body as MatterJS.BodyType).isSensor = true;
+        return;
+      }
+      const {
+        bodyParts: compoundBodyParts,
+        kinematic,
+        tween,
+        radius,
+        dialogue,
+        sensor,
+      } = tileCollision;
+
+      if (!kinematic && compoundBodyParts.length > 0) {
+        const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
+          parts: compoundBodyParts,
+          inertia: Infinity,
+        });
+
+        smartTile.setExistingBody(compoundBody, true);
+        smartTile.setStatic(true);
+        smartTile.setPosition(t.x + t.width / 2, t.y);
+        smartTile.setOrigin(0.5, 1);
+        // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
+      } else {
+        // Movable items like a chair
+        smartTile.setCircle(radius, { dialogue, isSensor: sensor });
+        // smartTile.body.dialogue = dialogue;
+        smartTile.setFixedRotation();
+        smartTile.setMass(100);
+        smartTile.setFrictionAir(1);
+        smartTile.setOrigin(0.5, 0.5);
+        smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+
+        const smartTileBody = smartTile.body! as MatterJS.BodyType;
+        smartTileBody.onCollideCallback =
+          this.onLevelTriggerCollide.bind(this);
+
+        if (tween) {
+          this.tweens.add({
+            targets: smartTile,
+            ...tween,
+          });
+        }
+      }
+    });
+
   }
 
   processLogicLayerObjects(currLayer: Phaser.Tilemaps.ObjectLayer | null) {
@@ -1351,51 +1354,3 @@ export class GameSceneTop
   }
 }
 
-class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
-  constructor(scene: Phaser.Scene, x, y, texture, frame) {
-    super(scene.matter.world, x, y, texture, frame);
-    this.setTexture(texture);
-    scene.add.existing(this);
-
-    this.setFrame(frame);
-  }
-
-  preUpdate(time: number, delta: number) {
-    super.preUpdate(time, delta);
-    this.setDepth(this.y + 1);
-  }
-}
-
-class LightSwitchSmartObject extends SpriteWithDepth {
-  indicator: Phaser.GameObjects.Ellipse;
-
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    texture: string,
-    frame: number,
-  ) {
-    super(scene, x, y, texture, frame);
-    // console.log("switch time-----");
-
-    this.indicator = scene.add
-      .ellipse(x + 64, y + 64, 10, 10, 0xff1111, 1)
-      .setDepth(y + 130)
-      .setSmoothness(5);
-
-    // in case if needed, can add this to any other object .... copy to config in tiled editor
-    scene.tweens.add({
-      targets: this.indicator,
-      alpha: { from: 0.1, to: 1 },
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.InOut",
-    });
-  }
-
-  preUpdate(time: number, delta: number) {
-    super.preUpdate(time, delta);
-  }
-}

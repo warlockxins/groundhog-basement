@@ -227,7 +227,6 @@
                  "height":128,
                  "id":11,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -251,7 +250,6 @@
                  "height":128,
                  "id":20,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"isKinematic",
@@ -270,7 +268,6 @@
                  "height":128,
                  "id":21,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -283,7 +280,6 @@
                  "height":128,
                  "id":22,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -296,7 +292,6 @@
                  "height":128,
                  "id":24,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -309,7 +304,6 @@
                  "height":128,
                  "id":25,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -322,7 +316,6 @@
                  "height":128,
                  "id":26,
                  "name":"saw",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -341,7 +334,6 @@
                  "height":128,
                  "id":28,
                  "name":"chair",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -354,7 +346,6 @@
                  "height":128,
                  "id":29,
                  "name":"chair",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -367,7 +358,6 @@
                  "height":128,
                  "id":48,
                  "name":"chair",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -380,7 +370,6 @@
                  "height":128,
                  "id":30,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -393,7 +382,6 @@
                  "height":128,
                  "id":44,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -412,7 +400,6 @@
                  "height":128,
                  "id":45,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -431,7 +418,6 @@
                  "height":128,
                  "id":51,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -450,7 +436,6 @@
                  "height":128,
                  "id":47,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -470,7 +455,6 @@
                  "height":128,
                  "id":50,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -489,7 +473,6 @@
                  "height":128,
                  "id":56,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -508,7 +491,6 @@
                  "height":128,
                  "id":58,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -521,7 +503,6 @@
                  "height":128,
                  "id":63,
                  "name":"Removable wall2",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -534,7 +515,6 @@
                  "height":128,
                  "id":64,
                  "name":"Removable wall1",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -547,7 +527,6 @@
                  "height":128,
                  "id":65,
                  "name":"book to read",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -566,7 +545,6 @@
                  "height":128,
                  "id":68,
                  "name":"",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -579,7 +557,6 @@
                  "height":128,
                  "id":69,
                  "name":"for Light42",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -592,7 +569,6 @@
                  "height":128,
                  "id":70,
                  "name":"bodyToInspect",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -611,7 +587,6 @@
                  "height":128,
                  "id":72,
                  "name":"for LookWithin",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -624,7 +599,6 @@
                  "height":128,
                  "id":77,
                  "name":"longGate",
-                 "opacity":1,
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -637,7 +611,6 @@
                  "height":128,
                  "id":78,
                  "name":"tutorialBook",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -661,7 +634,6 @@
                  "height":128,
                  "id":79,
                  "name":"",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -733,7 +705,6 @@
                  "height":0,
                  "id":2,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -752,7 +723,6 @@
                  "height":0,
                  "id":3,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -765,7 +735,6 @@
                  "height":0,
                  "id":4,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -778,7 +747,6 @@
                  "height":0,
                  "id":5,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -791,7 +759,6 @@
                  "height":0,
                  "id":6,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -810,7 +777,6 @@
                  "height":0,
                  "id":7,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -829,7 +795,6 @@
                  "height":0,
                  "id":27,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -853,7 +818,6 @@
                  "height":0,
                  "id":33,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -882,7 +846,6 @@
                  "height":0,
                  "id":36,
                  "name":"betweenColumns",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -911,7 +874,6 @@
                  "height":0,
                  "id":41,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -945,7 +907,6 @@
                  "height":0,
                  "id":42,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -969,7 +930,6 @@
                  "height":0,
                  "id":46,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -988,7 +948,6 @@
                  "height":0,
                  "id":49,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -1007,7 +966,6 @@
                  "height":0,
                  "id":55,
                  "name":"",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -1036,7 +994,6 @@
                  "height":0,
                  "id":71,
                  "name":"lookWithin",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -1076,7 +1033,6 @@
                  "height":0,
                  "id":8,
                  "name":"start",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1089,7 +1045,6 @@
                  "height":0,
                  "id":9,
                  "name":"enemyStart",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -1114,7 +1069,6 @@
                  "height":91.0064,
                  "id":10,
                  "name":"pickupDoorKey",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"icon",
@@ -1143,7 +1097,6 @@
                  "height":128,
                  "id":32,
                  "name":"triggerSawCollapseRight",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -1166,7 +1119,6 @@
                  "height":0,
                  "id":37,
                  "name":"scheduleEnemy1",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1179,7 +1131,6 @@
                  "height":0,
                  "id":38,
                  "name":"scheduleEnemy3",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1192,7 +1143,6 @@
                  "height":0,
                  "id":39,
                  "name":"scheduleEnemy2",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1205,7 +1155,6 @@
                  "height":0,
                  "id":40,
                  "name":"enemyStart",
-                 "opacity":1,
                  "point":true,
                  "properties":[
                         {
@@ -1229,7 +1178,6 @@
                  "height":0,
                  "id":52,
                  "name":"2ndButcherSchedulePoint2",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1242,7 +1190,6 @@
                  "height":0,
                  "id":53,
                  "name":"2ndButcherSchedulePoint",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1255,7 +1202,6 @@
                  "height":0,
                  "id":54,
                  "name":"2ndButcherSchedulePoint",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1269,7 +1215,6 @@
                  "height":128,
                  "id":57,
                  "name":"triggerSawCollapseLeft",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -1292,7 +1237,6 @@
                  "height":0,
                  "id":59,
                  "name":"2ndButcherSchedulePoint2",
-                 "opacity":1,
                  "point":true,
                  "rotation":0,
                  "type":"",
@@ -1306,7 +1250,6 @@
                  "height":128,
                  "id":61,
                  "name":"is that blood",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -1330,7 +1273,6 @@
                  "height":128,
                  "id":62,
                  "name":"bodies everywhere",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -1355,7 +1297,6 @@
                  "height":85.1457,
                  "id":66,
                  "name":"but where",
-                 "opacity":1,
                  "properties":[
                         {
                          "name":"onEnter",
@@ -1464,7 +1405,7 @@
  "nextobjectid":80,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.12.1-11-gb81cec583",
+ "tiledversion":"1.10.2",
  "tileheight":128,
  "tilesets":[
         {
@@ -1491,7 +1432,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1544,7 +1484,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1573,7 +1512,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1639,7 +1577,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1689,7 +1626,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1733,7 +1669,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1762,7 +1697,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1812,7 +1746,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1856,7 +1789,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1900,7 +1832,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -1950,7 +1881,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2017,7 +1947,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2046,7 +1975,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2107,7 +2035,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2166,7 +2093,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2195,7 +2121,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2257,7 +2182,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2286,7 +2210,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2330,7 +2253,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2355,7 +2277,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2399,7 +2320,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2449,7 +2369,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2493,7 +2412,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2537,7 +2455,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2581,7 +2498,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2621,7 +2537,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2681,7 +2596,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2758,7 +2672,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2805,6 +2718,11 @@
                          "name":"isKinematic",
                          "type":"bool",
                          "value":true
+                        }, 
+                        {
+                         "name":"kind",
+                         "type":"string",
+                         "value":"chair"
                         }]
                 }, 
                 {
@@ -2819,7 +2737,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2919,7 +2836,6 @@
                              "height":0,
                              "id":1,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":0,
@@ -2959,7 +2875,6 @@
                              "height":0,
                              "id":2,
                              "name":"",
-                             "opacity":1,
                              "polygon":[
                                     {
                                      "x":21.25,
