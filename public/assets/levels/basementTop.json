@@ -613,11 +613,6 @@
                  "name":"tutorialBook",
                  "properties":[
                         {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"About this nightmare\" },\n        {\n           \"actionByApproval\": {\n               \"noteRead\": {\n                   \"title\": \"Remember\",\n                   \"text\": \"Stay in the light. Preserve your sanity. \\n\\nEscape!\"\n               }\n         \n           }\n        }\n      ]\n   }\n}"
-                        }, 
-                        {
                          "name":"sensor",
                          "type":"bool",
                          "value":true

@@ -27,6 +27,8 @@ import { CustomTileObject } from "./types";
 import { SpriteWithDepth } from "./smartSprites/SpriteWithDepth";
 import { LightSwitchSmartObject } from "./smartSprites/LightSwitchSmartObject";
 import { ChairSmartObject } from "./smartSprites/ChairSmartObject";
+import { Level } from "./levelLogic/Level";
+import { LevelOne } from "./levelLogic/LevelOne";
 
 type SceneNavigationMesh = {
   vertices: NavMeshPointMap;
@@ -249,6 +251,7 @@ export type LevelConfig = {
   tilesetKey: string;
   tilesetSprite: string;
   level: string;
+  levelLogic: (scene: Phaser.Scene & GameSceneTopPossibilities) => Level
 };
 
 const Levels: { [key: string]: LevelConfig } = {
@@ -257,12 +260,15 @@ const Levels: { [key: string]: LevelConfig } = {
     tilesetKey: "tiles",
     tilesetSprite: "assets/levels/tilesTop.png",
     level: "assets/levels/basementTop.json",
+    levelLogic: (scene) => { return new LevelOne(scene) }
   },
   bloodPool: {
     tilesetName: "tilesTop",
     tilesetKey: "tiles",
     tilesetSprite: "assets/levels/tilesTop.png",
     level: "assets/levels/bloodPool.json",
+    // Note - change to actual level 2, when imlpemented
+    levelLogic: (scene) => { return new LevelOne(scene) }
   },
 };
 
@@ -302,6 +308,7 @@ export class GameSceneTop
   collisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   previousCollisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   smartLightRayImage!: Record<string, string>;
+  levelLogic!: Level;
 
   constructor() {
     super({
@@ -310,13 +317,16 @@ export class GameSceneTop
   }
 
   init({ levelId }: { levelId: string }) {
-    const { tilesetKey, tilesetSprite, tilesetName, level } = Levels[levelId];
+    const { tilesetKey, tilesetSprite, tilesetName, level, levelLogic } = Levels[levelId];
+
+    this.levelLogic = levelLogic(this);
 
     this.tilesetConfig = {
       tilesetName: tilesetName,
       tilesetKey: tilesetKey,
       tilesetSprite: tilesetSprite,
       level: level,
+      levelLogic
     };
 
     console.log("data passed to this scene", this.tilesetConfig);
@@ -887,7 +897,7 @@ export class GameSceneTop
       let smartTile: SpriteWithDepth | null = null;
       let collisionGroup = this.tileset.getTileProperties(t.gid);
       // @ts-ignore
-      console.log(",,,,,,,,,,,", collisionGroup.kind);
+      // console.log(",,,,,,,,,,,", collisionGroup.kind);
 
       // @ts-ignore
       if (collisionGroup.kind === "lightSwitch") {
@@ -910,6 +920,7 @@ export class GameSceneTop
         );
       }
       else {
+        console.log("---id?????-->", t.id, t.name);
         smartTile = new SpriteWithDepth(
           this,
           t.x,
@@ -934,6 +945,7 @@ export class GameSceneTop
           pixelX: 0,
           pixelY: 0,
           allowStatic: false,
+          id: t.id
         },
         t.properties,
       );
@@ -1157,6 +1169,9 @@ export class GameSceneTop
       pixelX: number;
       pixelY: number;
       allowStatic: boolean;
+
+      // smart tile id, used to identify levelLogic portion
+      id: number;
     },
     objectProps: { name: string; value: string | boolean }[] = [],
   ): {
@@ -1216,17 +1231,30 @@ export class GameSceneTop
         physicsOptions.isStatic = true;
       }
 
-      const onEnterEvent = props.find(({ name }) => name === "onEnter");
 
-      const onEnterEventFromMainObjectOrEmpty: string = (objectProps.find(
+      // tileId is a reference to level logic item
+      const levelLogicDialogueOrConfig = !!tile.id ? this.levelLogic.dialogues[tile.id.toString()]?.().onEnter : {};
+      console.log('---wooooooo-->', levelLogicDialogueOrConfig);
+
+
+      const onEnterEvent = JSON.parse(
+        props.find(({ name }) => name === "onEnter")?.value as string ?? "{}"
+      );
+
+      const onEnterEventFromMainObjectOrEmpty: { [key: string]: unknown } = JSON.parse((objectProps.find(
         ({ name }) => name === "onEnter",
-      )?.value ?? "{ }") as string;
+      )?.value ?? "{ }") as string);
 
-      if (onEnterEvent?.value) {
+      if (tile.id === 78) {
+        debugger
+      }
+
+      if (onEnterEvent) {
         dialogue = {
           ...dialogue,
-          ...JSON.parse(onEnterEvent.value as string),
-          ...JSON.parse(onEnterEventFromMainObjectOrEmpty),
+          ...onEnterEvent,
+          ...onEnterEventFromMainObjectOrEmpty,
+          ...levelLogicDialogueOrConfig
         };
       }
 
@@ -1234,10 +1262,11 @@ export class GameSceneTop
         hasSensor = true;
         physicsOptions.isSensor = true;
 
-        if (onEnterEvent?.value) {
+        if (onEnterEvent) {
           physicsOptions.dialogue = {
-            ...JSON.parse(onEnterEvent.value as string),
-            ...JSON.parse(onEnterEventFromMainObjectOrEmpty),
+            ...onEnterEvent,
+            ...onEnterEventFromMainObjectOrEmpty,
+            ...levelLogicDialogueOrConfig
           };
         }
       }

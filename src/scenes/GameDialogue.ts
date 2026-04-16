@@ -6,7 +6,7 @@ export type CharacterActionByApproval = {
   actionByApproval: GameDialogue;
 };
 
-export type CharacterAction = CharacterActionByApproval & CharacterBark;
+export type CharacterAction = CharacterActionByApproval | CharacterBark;
 
 export type GameDialogue = {
   goScene?: string;
@@ -22,7 +22,7 @@ export type GameDialogue = {
     id: string;
     actions: CharacterAction[];
   };
-  removeTrigger: boolean;
+  removeTrigger?: boolean;
   newDialogue?: GameDialogue[];
 
   changeTileGameObjectToId?: number;
@@ -33,8 +33,8 @@ export type GameDialogue = {
   schedule?: {
     ids: string[];
   };
-  sound: string;
-  moveTo: {
+  sound?: string;
+  moveTo?: {
     tileId: string;
     x: number;
     y: number;
