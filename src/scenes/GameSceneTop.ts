@@ -29,6 +29,7 @@ import { LightSwitchSmartObject } from "./smartSprites/LightSwitchSmartObject";
 import { ChairSmartObject } from "./smartSprites/ChairSmartObject";
 import { Level } from "./levelLogic/Level";
 import { LevelOne } from "./levelLogic/LevelOne";
+import VisibilityPolygon from "../levelComponents/visibility_polygon_dev";
 
 type SceneNavigationMesh = {
   vertices: NavMeshPointMap;
@@ -309,6 +310,9 @@ export class GameSceneTop
   previousCollisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   smartLightRayImage!: Record<string, string>;
   levelLogic!: Level;
+  shadowCasterPoints: [number, number][][];
+  shadowCasterGraphics: Phaser.GameObjects.Graphics;
+  shadowCasterPointsCompiled: any[][];
 
   constructor() {
     super({
@@ -336,6 +340,7 @@ export class GameSceneTop
     this.blackboard = {};
     this.smartLights = {};
     this.smartLightRayImage = {};
+    this.shadowCasterPoints = [];
 
     this.createKeyFrame();
   }
@@ -413,6 +418,98 @@ export class GameSceneTop
       console.log("try destroy");
       this.scene.stop();
     });
+
+    this.displayShadowCasters();
+  }
+
+
+  displayShadowCasters() {
+
+    const segments = VisibilityPolygon.convertToSegments(this.shadowCasterPoints);
+    this.shadowCasterPointsCompiled = VisibilityPolygon.breakIntersections(segments);
+
+
+    this.shadowCasterGraphics = this.add.graphics();
+    this.shadowCasterGraphics.setBlendMode(Phaser.BlendModes.MULTIPLY);
+    // Note - right above ground tiles
+    this.shadowCasterGraphics.setDepth(1);
+    this.shadowCasterGraphics.alpha = 0.8;
+    // this.shadowCasterGraphics.lineStyle(1, 0x00ff00);
+
+    // for (let i = 0; i < this.shadowCasterPoints.length; i++) {
+    //   for (let j = 0; j < this.shadowCasterPoints[i].length - 1; j++) {
+    //     const l1 = this.shadowCasterPoints[i][j];
+    //     const l2 = this.shadowCasterPoints[i][j + 1];
+    //     this.shadowCasterGraphics.moveTo(l1[0], l1[1]);
+    //     this.shadowCasterGraphics.lineTo(l2[0], l2[1]);
+
+    //     this.shadowCasterGraphics.strokePath();
+    //   }
+    // }
+  }
+
+  drawShadowTriangles(visibility: [number, number][], transparencies: number[]) {
+
+    this.shadowCasterGraphics.clear();
+
+
+    if (!visibility?.length) {
+      return;
+    }
+
+    for (let i = 0; i < visibility.length - 4; i += 4) {
+
+      const one = {
+        x: visibility[i][0],
+        y: visibility[i][1]
+      };
+      // debugger
+      const two = {
+        x: visibility[i + 1][0],
+        y: visibility[i + 1][1]
+      };
+
+      const three = {
+        x: visibility[i + 2][0],
+        y: visibility[i + 2][1]
+      }
+
+      const four = {
+        x: visibility[i + 3][0],
+        y: visibility[i + 3][1]
+      };
+
+      const c1 = transparencies[i];
+      const c2 = transparencies[i + 1];
+      const c3 = transparencies[i + 2];
+      const c4 = transparencies[i + 3];
+
+      const color1 = new Phaser.Display.Color(c1, c1, c1).color;
+      const color2 = new Phaser.Display.Color(c2, c2, c2).color;
+      const color3 = new Phaser.Display.Color(c3, c3, c3).color;
+      const color4 = new Phaser.Display.Color(c4, c4, c4).color;
+
+      // debugger
+      // Draw the triangle using coordinates (x1, y1, x2, y2, x3, y3)
+      // this.triangleGraphics.fillGradientStyle(0xff0000, 0x00ff00, 0x0000ff, 0x000000, 1);
+      this.shadowCasterGraphics.fillGradientStyle(
+        color3,
+        color2,
+        color1,
+        0,
+        1);
+
+      this.shadowCasterGraphics.fillTriangle(three.x, three.y, two.x, two.y, one.x, one.y,);
+
+      this.shadowCasterGraphics.fillGradientStyle(
+        color1,
+        color3,
+        color4,
+        0,
+        1);
+
+      this.shadowCasterGraphics.fillTriangle(one.x, one.y, three.x, three.y, four.x, four.y,);
+    }
   }
 
   findClosestLight(p: { x: number; y: number }, maxDistance: number = 256) {
@@ -920,7 +1017,7 @@ export class GameSceneTop
         );
       }
       else {
-        console.log("---id?????-->", t.id, t.name);
+        // console.log("---id?????-->", t.id, t.name);
         smartTile = new SpriteWithDepth(
           this,
           t.x,
@@ -1234,7 +1331,11 @@ export class GameSceneTop
 
       // tileId is a reference to level logic item
       const levelLogicDialogueOrConfig = !!tile.id ? this.levelLogic.dialogues[tile.id.toString()]?.().onEnter : {};
-      console.log('---wooooooo-->', levelLogicDialogueOrConfig);
+
+      const isShadowCaster = props.find(({ name }) => name === "shadow")?.value as boolean;
+      // if (isShadowCaster) {
+      //   console.log('---wooooooo-->', isShadowCaster, object);
+      // }
 
 
       const onEnterEvent = JSON.parse(
@@ -1245,9 +1346,9 @@ export class GameSceneTop
         ({ name }) => name === "onEnter",
       )?.value ?? "{ }") as string);
 
-      if (tile.id === 78) {
-        debugger
-      }
+      // if (tile.id === 78) {
+      //   debugger
+      // }
 
       if (onEnterEvent) {
         dialogue = {
@@ -1282,6 +1383,8 @@ export class GameSceneTop
           : object.polyline;
         const visualPoints = [];
 
+        const shadowCasterShape: [number, number][] = [];
+
         for (let j = 0; j < originalPoints.length; j++) {
           const point = originalPoints[j];
           const pPos = point;
@@ -1290,6 +1393,18 @@ export class GameSceneTop
             x: objectX + pPos.x,
             y: objectY + pPos.y,
           });
+
+          if (isShadowCaster) {
+            shadowCasterShape.push([
+              objectX + pPos.x,
+              objectY + pPos.y,
+            ])
+          }
+        }
+
+        if (isShadowCaster && shadowCasterShape.length) {
+          shadowCasterShape.push(shadowCasterShape[0]);
+          this.shadowCasterPoints.push(shadowCasterShape);
         }
 
         const c = this.matter.verts.centre(visualPoints);
@@ -1357,7 +1472,16 @@ export class GameSceneTop
 
     this.collisionCache.clear();
     this.pawnHandler.update(time, delta);
+
+    this.updateShadowForCharacter();
   }
+
+  updateShadowForCharacter() {
+    const { x, y } = this.pawnHandler.characters["player"].sprite;
+    const { transparencies, quad } = VisibilityPolygon.computeInverse([x, y], this.shadowCasterPointsCompiled);
+    this.drawShadowTriangles(quad, transparencies);
+  }
+
 
   bounceCollectable(sprite: any) {
     const tween = {

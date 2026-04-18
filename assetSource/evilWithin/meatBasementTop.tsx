@@ -37,11 +37,17 @@
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.278382" y="89.9174">
-    <polygon points="0,0 0,37.8599 127.777,38.4167 127.221,-2.50544"/>
+    <properties>
+     <property name="shadow" type="bool" value="true"/>
+    </properties>
+    <polygon points="1.88883,0 1.25922,37.8599 127.777,38.4167 127.221,-2.50544"/>
    </object>
   </objectgroup>
  </tile>
  <tile id="8">
+  <properties>
+   <property name="wall" type="bool" value="false"/>
+  </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.278382" y="128.334">
     <polygon points="0,0 127.499,0 127.499,-21.9922 0,-22.2706"/>
@@ -62,6 +68,9 @@
   </objectgroup>
  </tile>
  <tile id="10">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.278382" y="111.631">
     <polygon points="0,0 0,16.4245 127.777,16.7029 128.056,-0.278382"/>
@@ -90,8 +99,11 @@
    <property name="wall" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="23.6625" y="109.404">
-    <polygon points="0,0 44.8195,17.8164 90.4741,0.835146 85.6953,-20.7527 40.2859,-35.1954 -0.278382,-26.3436"/>
+   <object id="1" name="column" x="23.6625" y="109.404">
+    <properties>
+     <property name="shadow" type="bool" value="true"/>
+    </properties>
+    <polygon points="6.61092,-0.944417 44.8195,17.8164 81.0299,-1.36849 80.3436,-20.1231 40.9155,-35.5102 7.59176,-24.4548"/>
    </object>
   </objectgroup>
  </tile>
@@ -106,6 +118,9 @@
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="2.55526" y="85.1752">
+    <properties>
+     <property name="shadow" type="bool" value="true"/>
+    </properties>
     <polygon points="0,0 -0.851752,42.1617 126.059,42.1617 124.356,-0.851752"/>
    </object>
    <object id="2" x="13.4737" y="116.772">
@@ -175,6 +190,9 @@
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="12.1497" y="97.5897">
+    <properties>
+     <property name="shadow" type="bool" value="true"/>
+    </properties>
     <polygon points="0,0 45.4635,29.0025 112.091,5.09504 60.3567,-33.7057"/>
    </object>
   </objectgroup>
