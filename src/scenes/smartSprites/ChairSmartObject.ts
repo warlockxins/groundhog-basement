@@ -26,9 +26,9 @@ export class ChairSmartObject extends SpriteWithDepth {
             this.timeLoud += delta;
 
             if (this.timeLoud > 50) {
-                console.log('chair loud', speedSquared, velocity);
+                // console.log('chair loud', speedSquared, velocity);
 
-                const soundToPlay = (this.scene as Phaser.Scene & GameSceneTopPossibilities).sounds['slamDoor'];
+                const soundToPlay = (this.scene as Phaser.Scene & GameSceneTopPossibilities).sounds.movingItem;
                 if (!soundToPlay.isPlaying) {
                     soundToPlay.play({ loop: false }); // Note - change to different later
                 }

@@ -2,6 +2,9 @@
 <tileset version="1.10" tiledversion="1.10.2" name="tilesTop" tilewidth="128" tileheight="128" tilecount="64" columns="8">
  <image source="assets/tilesTop.png" trans="474747" width="1024" height="1024"/>
  <tile id="3">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
   <objectgroup draworder="index" id="2">
    <object id="2" x="0.425876" y="109.45">
     <polygon points="0,0 0.425876,19.5903 127.763,18.7386 127.337,-0.425876"/>
@@ -78,8 +81,14 @@
   </objectgroup>
  </tile>
  <tile id="11">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
   <objectgroup draworder="index" id="3">
    <object id="2" x="0.556764" y="0.556764">
+    <properties>
+     <property name="shadow" type="bool" value="true"/>
+    </properties>
     <polygon points="0,0 -0.278382,126.942 13.6407,127.221 13.3623,0"/>
    </object>
   </objectgroup>

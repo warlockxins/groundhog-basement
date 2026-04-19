@@ -383,6 +383,11 @@ export class GameSceneTop
       slamDoor: this.sound.add(soundSource.slamDoor),
       step: this.sound.add(soundSource.step),
       tryDoor: this.sound.add(soundSource.tryDoor),
+      switch: this.sound.add(soundSource.switch),
+      maniacLaugh: this.sound.add(soundSource.maniacLaugh),
+      hurt: this.sound.add(soundSource.hurt),
+      cry: this.sound.add(soundSource.cry),
+      movingItem: this.sound.add(soundSource.movingItem),
     };
   }
 
@@ -433,7 +438,7 @@ export class GameSceneTop
     this.shadowCasterGraphics.setBlendMode(Phaser.BlendModes.MULTIPLY);
     // Note - right above ground tiles
     this.shadowCasterGraphics.setDepth(1);
-    this.shadowCasterGraphics.alpha = 0.8;
+    this.shadowCasterGraphics.alpha = 0.6;
     // this.shadowCasterGraphics.lineStyle(1, 0x00ff00);
 
     // for (let i = 0; i < this.shadowCasterPoints.length; i++) {
@@ -655,8 +660,8 @@ export class GameSceneTop
         lightMaskToMove.setVisible(visible);
       }
 
-      this.sounds.itemPut.setVolume(0.3);
-      this.sounds.itemPut.play({ loop: false });
+      this.sounds.switch.setVolume(0.3);
+      this.sounds.switch.play({ loop: false });
     });
 
     if (character) {

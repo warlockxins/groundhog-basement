@@ -55,7 +55,14 @@ export class SebastianPlayerControlls extends Controlls {
     this.states.update();
   }
 
-  onDamage(cause: string): void {
+  onDamage(cause: "damage" | "insane"): void {
+
+    if (cause === "damage") {
+      this.scene.sounds.hurt.play({ loop: false });
+    } else if (cause === "insane") {
+      this.scene.sounds.cry.play({ loop: false });
+    }
+
     const deathAnim = "sebastian-death-" + this.states.animationDirection;
 
     const { sprite } = this.character;

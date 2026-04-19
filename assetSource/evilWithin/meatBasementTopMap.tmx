@@ -95,7 +95,7 @@
 0,0,10,0,0,0,0,0,0,0,0,0,0,8,0,
 0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,8,8,0,12,0,0,0,0,0,0,8,8,0,
+0,0,8,0,8,12,0,0,0,0,0,0,8,8,0,
 0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,32,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,40,0,8,16,0,0,
@@ -375,7 +375,7 @@
   </object>
   <object id="72" name="for LookWithin" gid="58" x="-134.667" y="3090.67" width="128" height="128"/>
   <object id="77" name="longGate" gid="58" x="-202.667" y="2017.33" width="128" height="128"/>
-  <object id="78" name="tutorialBook" gid="59" x="386" y="2692" width="128" height="128">
+  <object id="78" name="tutorialBook" gid="59" x="483.015" y="2694.99" width="128" height="128">
    <properties>
     <property name="sensor" type="bool" value="true"/>
    </properties>

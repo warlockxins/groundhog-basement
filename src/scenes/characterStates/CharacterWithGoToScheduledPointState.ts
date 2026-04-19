@@ -180,6 +180,8 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
                 if (this.followingWithAngerTimer.elapsed > 5000) {
                     this.followingWithAngerTimer.coolingDown = true;
                     this.character.bark("That's it, BITCH!");
+
+                    this.character.scene.sounds.maniacLaugh.play({ loop: false });
                 }
             }
 
@@ -188,6 +190,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
                 if (this.character.controller?.scene.pawnHandler.characters[this.followingCharacter].isDead) {
                     this.setEnemyFollowId(null);
                     this.character.bark("Wuss!");
+                    this.character.scene.sounds.maniacLaugh.play({ loop: false });
                 }
             }
         } else {
