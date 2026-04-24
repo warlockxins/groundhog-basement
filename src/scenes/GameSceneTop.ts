@@ -28,7 +28,7 @@ import { SpriteWithDepth } from "./smartSprites/SpriteWithDepth";
 import { LightSwitchSmartObject } from "./smartSprites/LightSwitchSmartObject";
 import { ChairSmartObject } from "./smartSprites/ChairSmartObject";
 import { Level } from "./levelLogic/Level";
-import { LevelOne } from "./levelLogic/LevelOne";
+import { LevelOne } from "./levelLogic/LevelOneBasement";
 import VisibilityPolygon from "../levelComponents/visibility_polygon_dev";
 
 type SceneNavigationMesh = {
@@ -49,7 +49,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-      (p.y - points[a].y) * (p.y - points[a].y),
+        (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -252,7 +252,7 @@ export type LevelConfig = {
   tilesetKey: string;
   tilesetSprite: string;
   level: string;
-  levelLogic: (scene: Phaser.Scene & GameSceneTopPossibilities) => Level
+  levelLogic: (scene: Phaser.Scene & GameSceneTopPossibilities) => Level;
 };
 
 const Levels: { [key: string]: LevelConfig } = {
@@ -261,7 +261,9 @@ const Levels: { [key: string]: LevelConfig } = {
     tilesetKey: "tiles",
     tilesetSprite: "assets/levels/tilesTop.png",
     level: "assets/levels/basementTop.json",
-    levelLogic: (scene) => { return new LevelOne(scene) }
+    levelLogic: (scene) => {
+      return new LevelOne(scene);
+    },
   },
   bloodPool: {
     tilesetName: "tilesTop",
@@ -269,7 +271,9 @@ const Levels: { [key: string]: LevelConfig } = {
     tilesetSprite: "assets/levels/tilesTop.png",
     level: "assets/levels/bloodPool.json",
     // Note - change to actual level 2, when imlpemented
-    levelLogic: (scene) => { return new LevelOne(scene) }
+    levelLogic: (scene) => {
+      return new LevelOne(scene);
+    },
   },
 };
 
@@ -282,7 +286,8 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities {
+  implements GameSceneTopPossibilities
+{
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -321,7 +326,8 @@ export class GameSceneTop
   }
 
   init({ levelId }: { levelId: string }) {
-    const { tilesetKey, tilesetSprite, tilesetName, level, levelLogic } = Levels[levelId];
+    const { tilesetKey, tilesetSprite, tilesetName, level, levelLogic } =
+      Levels[levelId];
 
     this.levelLogic = levelLogic(this);
 
@@ -330,7 +336,7 @@ export class GameSceneTop
       tilesetKey: tilesetKey,
       tilesetSprite: tilesetSprite,
       level: level,
-      levelLogic
+      levelLogic,
     };
 
     console.log("data passed to this scene", this.tilesetConfig);
@@ -427,12 +433,12 @@ export class GameSceneTop
     this.displayShadowCasters();
   }
 
-
   displayShadowCasters() {
-
-    const segments = VisibilityPolygon.convertToSegments(this.shadowCasterPoints);
-    this.shadowCasterPointsCompiled = VisibilityPolygon.breakIntersections(segments);
-
+    const segments = VisibilityPolygon.convertToSegments(
+      this.shadowCasterPoints,
+    );
+    this.shadowCasterPointsCompiled =
+      VisibilityPolygon.breakIntersections(segments);
 
     this.shadowCasterGraphics = this.add.graphics();
     this.shadowCasterGraphics.setBlendMode(Phaser.BlendModes.MULTIPLY);
@@ -453,35 +459,35 @@ export class GameSceneTop
     // }
   }
 
-  drawShadowTriangles(visibility: [number, number][], transparencies: number[]) {
-
+  drawShadowTriangles(
+    visibility: [number, number][],
+    transparencies: number[],
+  ) {
     this.shadowCasterGraphics.clear();
-
 
     if (!visibility?.length) {
       return;
     }
 
     for (let i = 0; i < visibility.length - 4; i += 4) {
-
       const one = {
         x: visibility[i][0],
-        y: visibility[i][1]
+        y: visibility[i][1],
       };
       // debugger
       const two = {
         x: visibility[i + 1][0],
-        y: visibility[i + 1][1]
+        y: visibility[i + 1][1],
       };
 
       const three = {
         x: visibility[i + 2][0],
-        y: visibility[i + 2][1]
-      }
+        y: visibility[i + 2][1],
+      };
 
       const four = {
         x: visibility[i + 3][0],
-        y: visibility[i + 3][1]
+        y: visibility[i + 3][1],
       };
 
       const c1 = transparencies[i];
@@ -497,23 +503,27 @@ export class GameSceneTop
       // debugger
       // Draw the triangle using coordinates (x1, y1, x2, y2, x3, y3)
       // this.triangleGraphics.fillGradientStyle(0xff0000, 0x00ff00, 0x0000ff, 0x000000, 1);
-      this.shadowCasterGraphics.fillGradientStyle(
-        color3,
-        color2,
-        color1,
-        0,
-        1);
+      this.shadowCasterGraphics.fillGradientStyle(color3, color2, color1, 0, 1);
 
-      this.shadowCasterGraphics.fillTriangle(three.x, three.y, two.x, two.y, one.x, one.y,);
+      this.shadowCasterGraphics.fillTriangle(
+        three.x,
+        three.y,
+        two.x,
+        two.y,
+        one.x,
+        one.y,
+      );
 
-      this.shadowCasterGraphics.fillGradientStyle(
-        color1,
-        color3,
-        color4,
-        0,
-        1);
+      this.shadowCasterGraphics.fillGradientStyle(color1, color3, color4, 0, 1);
 
-      this.shadowCasterGraphics.fillTriangle(one.x, one.y, three.x, three.y, four.x, four.y,);
+      this.shadowCasterGraphics.fillTriangle(
+        one.x,
+        one.y,
+        three.x,
+        three.y,
+        four.x,
+        four.y,
+      );
     }
   }
 
@@ -855,7 +865,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() { }
+  addPhysicsListeners() {}
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -939,7 +949,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch { }
+            } catch {}
             // console.log("??????>>>>>>>", color)
           }
 
@@ -975,7 +985,8 @@ export class GameSceneTop
       } else if (n === "logic") {
         this.processLogicLayerObjects(this.map.getObjectLayer(n));
       } else if (n === "tileLogic") {
-        const layer: Phaser.Tilemaps.ObjectLayer | null = this.map.getObjectLayer(n);
+        const layer: Phaser.Tilemaps.ObjectLayer | null =
+          this.map.getObjectLayer(n);
         this.processTileLogicLayer(layer);
       }
     });
@@ -986,8 +997,8 @@ export class GameSceneTop
       return;
     }
 
-    const objects: CustomTileObject[] = (
-      layer.objects ?? []) as unknown as CustomTileObject[];
+    const objects: CustomTileObject[] = (layer.objects ??
+      []) as unknown as CustomTileObject[];
 
     // console.log("objects in ", n, objects);
 
@@ -1011,7 +1022,7 @@ export class GameSceneTop
           t.gid - 1,
         );
       }
-      // @ts-ignore 
+      // @ts-ignore
       else if (collisionGroup.kind === "chair") {
         smartTile = new ChairSmartObject(
           this,
@@ -1020,8 +1031,7 @@ export class GameSceneTop
           "tiles",
           t.gid - 1,
         );
-      }
-      else {
+      } else {
         // console.log("---id?????-->", t.id, t.name);
         smartTile = new SpriteWithDepth(
           this,
@@ -1047,7 +1057,7 @@ export class GameSceneTop
           pixelX: 0,
           pixelY: 0,
           allowStatic: false,
-          id: t.id
+          id: t.id,
         },
         t.properties,
       );
@@ -1092,8 +1102,7 @@ export class GameSceneTop
         smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
 
         const smartTileBody = smartTile.body! as MatterJS.BodyType;
-        smartTileBody.onCollideCallback =
-          this.onLevelTriggerCollide.bind(this);
+        smartTileBody.onCollideCallback = this.onLevelTriggerCollide.bind(this);
 
         if (tween) {
           this.tweens.add({
@@ -1103,7 +1112,6 @@ export class GameSceneTop
         }
       }
     });
-
   }
 
   processLogicLayerObjects(currLayer: Phaser.Tilemaps.ObjectLayer | null) {
@@ -1333,23 +1341,26 @@ export class GameSceneTop
         physicsOptions.isStatic = true;
       }
 
-
       // tileId is a reference to level logic item
-      const levelLogicDialogueOrConfig = !!tile.id ? this.levelLogic.dialogues[tile.id.toString()]?.().onEnter : {};
+      const levelLogicDialogueOrConfig = !!tile.id
+        ? this.levelLogic.dialogues[tile.id.toString()]?.().onEnter
+        : {};
 
-      const isShadowCaster = props.find(({ name }) => name === "shadow")?.value as boolean;
+      const isShadowCaster = props.find(({ name }) => name === "shadow")
+        ?.value as boolean;
       // if (isShadowCaster) {
       //   console.log('---wooooooo-->', isShadowCaster, object);
       // }
 
-
       const onEnterEvent = JSON.parse(
-        props.find(({ name }) => name === "onEnter")?.value as string ?? "{}"
+        (props.find(({ name }) => name === "onEnter")?.value as string) ?? "{}",
       );
 
-      const onEnterEventFromMainObjectOrEmpty: { [key: string]: unknown } = JSON.parse((objectProps.find(
-        ({ name }) => name === "onEnter",
-      )?.value ?? "{ }") as string);
+      const onEnterEventFromMainObjectOrEmpty: { [key: string]: unknown } =
+        JSON.parse(
+          (objectProps.find(({ name }) => name === "onEnter")?.value ??
+            "{ }") as string,
+        );
 
       // if (tile.id === 78) {
       //   debugger
@@ -1360,7 +1371,7 @@ export class GameSceneTop
           ...dialogue,
           ...onEnterEvent,
           ...onEnterEventFromMainObjectOrEmpty,
-          ...levelLogicDialogueOrConfig
+          ...levelLogicDialogueOrConfig,
         };
       }
 
@@ -1372,7 +1383,7 @@ export class GameSceneTop
           physicsOptions.dialogue = {
             ...onEnterEvent,
             ...onEnterEventFromMainObjectOrEmpty,
-            ...levelLogicDialogueOrConfig
+            ...levelLogicDialogueOrConfig,
           };
         }
       }
@@ -1400,10 +1411,7 @@ export class GameSceneTop
           });
 
           if (isShadowCaster) {
-            shadowCasterShape.push([
-              objectX + pPos.x,
-              objectY + pPos.y,
-            ])
+            shadowCasterShape.push([objectX + pPos.x, objectY + pPos.y]);
           }
         }
 
@@ -1483,10 +1491,12 @@ export class GameSceneTop
 
   updateShadowForCharacter() {
     const { x, y } = this.pawnHandler.characters["player"].sprite;
-    const { transparencies, quad } = VisibilityPolygon.computeInverse([x, y], this.shadowCasterPointsCompiled);
+    const { transparencies, quad } = VisibilityPolygon.computeInverse(
+      [x, y],
+      this.shadowCasterPointsCompiled,
+    );
     this.drawShadowTriangles(quad, transparencies);
   }
-
 
   bounceCollectable(sprite: any) {
     const tween = {
@@ -1511,4 +1521,3 @@ export class GameSceneTop
     // tileTexture.add(newTextureFrame, 0, 0, 0, 64, 64);
   }
 }
-
