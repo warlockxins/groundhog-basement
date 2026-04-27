@@ -49,7 +49,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-        (p.y - points[a].y) * (p.y - points[a].y),
+      (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -286,8 +286,7 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities
-{
+  implements GameSceneTopPossibilities {
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -412,7 +411,7 @@ export class GameSceneTop
 
     // this.createAnimatedTiles();
     // this.cameras.main.setOrigin(-0.1, 1.5);
-    this.lights.enable().setAmbientColor(0x111111);
+    this.lights.enable().setAmbientColor(0x222222);
 
     jsonLogic.rm_operation("setVar");
     jsonLogic.add_operation("setVar", this.jsLogicSetBlackboardVar.bind(this));
@@ -865,7 +864,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() {}
+  addPhysicsListeners() { }
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -949,7 +948,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch {}
+            } catch { }
             // console.log("??????>>>>>>>", color)
           }
 

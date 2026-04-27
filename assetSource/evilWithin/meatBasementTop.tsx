@@ -49,7 +49,7 @@
  </tile>
  <tile id="8">
   <properties>
-   <property name="wall" type="bool" value="false"/>
+   <property name="wall" type="bool" value="true"/>
   </properties>
   <objectgroup draworder="index" id="2">
    <object id="1" x="0.278382" y="128.334">
@@ -192,6 +192,11 @@
     <polygon points="0,0 74.1025,70.2696 74.1025,61.3262 4.25876,0"/>
    </object>
   </objectgroup>
+ </tile>
+ <tile id="27">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
  </tile>
  <tile id="32">
   <properties>
