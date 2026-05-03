@@ -11,6 +11,13 @@
    </object>
   </objectgroup>
  </tile>
+ <tile id="4">
+  <objectgroup draworder="index" id="2">
+   <object id="1" x="0.310414" y="113.922">
+    <polygon points="0,0 0,13.9686 14.2791,14.1239 9.46764,3.41456"/>
+   </object>
+  </objectgroup>
+ </tile>
  <tile id="5">
   <properties>
    <property name="above" type="bool" value="true"/>
