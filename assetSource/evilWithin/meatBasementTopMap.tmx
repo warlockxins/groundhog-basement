@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="14" nextobjectid="80">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="14" nextobjectid="81">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -96,11 +96,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,52,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,24,0,24,0,0,0,
-0,0,0,0,0,0,0,0,25,0,25,32,0,0,0,
-0,0,0,0,0,0,25,0,0,25,32,25,0,0,0,
-0,0,0,0,0,0,25,0,25,0,25,0,0,0,0,
-0,0,0,0,0,0,25,25,0,0,25,0,0,0,0
+0,0,0,0,0,0,0,0,0,24,0,0,0,0,0,
+0,0,0,0,0,0,0,0,25,0,25,22,22,0,0,
+0,0,0,0,0,0,25,32,32,25,32,25,0,0,0,
+0,0,0,0,0,0,25,24,32,24,25,0,0,0,0,
+0,0,0,0,0,0,25,25,24,32,25,32,0,0,0
 </data>
  </layer>
  <layer id="5" name="onflorObjects" width="15" height="26">
@@ -448,6 +448,7 @@
 </property>
    </properties>
   </object>
+  <object id="80" name="rack" gid="23" x="1464.33" y="2945.11" width="128" height="128"/>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="15" height="26">
   <properties>

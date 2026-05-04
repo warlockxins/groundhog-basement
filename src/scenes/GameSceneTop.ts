@@ -1009,36 +1009,38 @@ export class GameSceneTop
       let smartTile: SpriteWithDepth | null = null;
       let collisionGroup = this.tileset.getTileProperties(t.gid);
       // @ts-ignore
-      // console.log(",,,,,,,,,,,", collisionGroup.kind);
+      // console.log(",,,,,,,,,,,", t.gid, t.name, collisionGroup?.kind);
 
       // @ts-ignore
-      if (collisionGroup.kind === "lightSwitch") {
-        smartTile = new LightSwitchSmartObject(
-          this,
-          t.x,
-          t.y - t.height,
-          "tiles",
-          t.gid - 1,
-        );
-      }
-      // @ts-ignore
-      else if (collisionGroup.kind === "chair") {
-        smartTile = new ChairSmartObject(
-          this,
-          t.x,
-          t.y - t.height,
-          "tiles",
-          t.gid - 1,
-        );
-      } else {
-        // console.log("---id?????-->", t.id, t.name);
-        smartTile = new SpriteWithDepth(
-          this,
-          t.x,
-          t.y - t.height,
-          "tiles",
-          t.gid - 1,
-        );
+      switch (collisionGroup?.kind) {
+        case "lightSwitch":
+          smartTile = new LightSwitchSmartObject(
+            this,
+            t.x,
+            t.y - t.height,
+            "tiles",
+            t.gid - 1,
+          );
+          break;
+
+        case "chair":
+          smartTile = new ChairSmartObject(
+            this,
+            t.x,
+            t.y - t.height,
+            "tiles",
+            t.gid - 1,
+          );
+          break
+        default:
+          smartTile = new SpriteWithDepth(
+            this,
+            t.x,
+            t.y - t.height / 2,
+            "tiles",
+            t.gid - 1,
+          );
+          break;
       }
 
       smartTile
@@ -1064,10 +1066,12 @@ export class GameSceneTop
 
       if (!tileCollision) {
         // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
-        smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+        // smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
         smartTile.setOrigin(0.5, 1);
+        smartTile.setPosition(t.x + t.width / 2, t.y);
         // smartTile.setRotation(Phaser.Math.DegToRad(+t.rotation));
         (smartTile.body as MatterJS.BodyType).isSensor = true;
+        // console.log('--------offset here?', t.height);
         return;
       }
       const {

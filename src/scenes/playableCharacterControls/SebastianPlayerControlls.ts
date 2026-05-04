@@ -48,9 +48,7 @@ export class SebastianPlayerControlls extends Controlls {
 
     // Note - action intent only available if character has saved pending Action
     // and displays action icon
-    if (this.character.actionByApproval) {
-      this.states.moveIntent.action = this.cursors.space.isDown;
-    }
+    this.states.moveIntent.action = !!this.character.actionByApproval && this.cursors.space.isDown;
 
     this.states.update();
   }

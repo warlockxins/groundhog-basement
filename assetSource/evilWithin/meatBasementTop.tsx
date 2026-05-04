@@ -191,12 +191,12 @@
   </objectgroup>
  </tile>
  <tile id="21">
+  <properties>
+   <property name="wall" type="bool" value="true"/>
+  </properties>
   <objectgroup draworder="index" id="2">
-   <object id="1" x="1.7035" y="68.992">
-    <polygon points="0,0 83.8976,58.7709 -0.425876,57.0674"/>
-   </object>
-   <object id="2" x="20.8679" y="0.851752">
-    <polygon points="0,0 74.1025,70.2696 74.1025,61.3262 4.25876,0"/>
+   <object id="3" name="rack" x="21.092" y="128.441">
+    <polygon points="0,0 50.9985,0 68.3128,-41.8692 12.907,-39.9803"/>
    </object>
   </objectgroup>
  </tile>
