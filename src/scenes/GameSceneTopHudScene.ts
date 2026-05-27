@@ -12,14 +12,21 @@ export class GameSceneTopHudScene extends Phaser.Scene {
   gameHudContainer!: Phaser.GameObjects.Container;
   pauseHudContainer!: Phaser.GameObjects.Container;
   gameOverHudContainer!: Phaser.GameObjects.Container;
+  noteReadingContainer!: Phaser.GameObjects.Container;
+
+  activeContainer?: {
+    container: Phaser.GameObjects.Container;
+    onDismiss?: () => void;
+  };
+
   deadLabel: Phaser.GameObjects.Text;
-  noteReadingContainer: Phaser.GameObjects.Container;
   noteLabel: Phaser.GameObjects.Text;
   noteText: Phaser.GameObjects.Text;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 
   keyboardCache = {
     space: false,
+    escape: false,
   };
   keyEscape!: Phaser.Input.Keyboard.Key;
 
@@ -27,6 +34,19 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     super({
       key: CST.SCENES.GAME_HUD,
     });
+  }
+
+  onPauseClick() {
+    this.scene.get(CST.SCENES.GAME).scene.pause();
+    this.gameHudContainer.setVisible(false);
+    this.pauseHudContainer.setVisible(true);
+
+    this.collectKeysWhenOpenMenu();
+
+    this.activeContainer = {
+      container: this.pauseHudContainer,
+      onDismiss: this.onResume.bind(this),
+    };
   }
 
   makePauseButton() {
@@ -41,9 +61,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     clickButton
       .setInteractive()
       .on("pointerup", () => {
-        this.scene.get(CST.SCENES.GAME).scene.pause();
-        this.gameHudContainer.setVisible(false);
-        this.pauseHudContainer.setVisible(true);
+        this.onPauseClick();
       })
       .on("pointerover", () => clickButton.setColor("#aaaaaa"))
       .on("pointerout", () => clickButton.setColor("#ffffff"));
@@ -311,16 +329,23 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.keyEscape = this.input.keyboard!.addKey(
       Phaser.Input.Keyboard.KeyCodes.ESC,
     );
+
+    this.activeContainer = undefined;
   }
 
   onGameOver(cause: "insane" | "damage") {
     this.gameOverHudContainer.setVisible(true);
     this.deadLabel.text =
       cause === "insane" ? "You went\nMad" : "You are\nDead";
+
+    this.activeContainer = {
+      container: this.gameOverHudContainer,
+    };
   }
 
   collectKeysWhenOpenMenu() {
     this.keyboardCache.space = this.cursors.space.isDown;
+    this.keyboardCache.escape = this.keyEscape.isDown;
   }
 
   onShowNoteReader(title: string, text: string) {
@@ -370,6 +395,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     );
   }
 
+  // wow this sucks. Should have made different scenes to handle all cases separaely. But it works
   update(time: number, delta: number): void {
     if (!this.keyboardCache.space && this.cursors.space.isDown) {
       if (this.noteReadingContainer.visible) {
@@ -377,12 +403,30 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       }
     }
 
-    if (this.pauseHudContainer.visible && this.keyEscape.isDown) {
-      this.onResume();
+    if (
+      this.activeContainer &&
+      this.activeContainer.onDismiss &&
+      this.keyEscape.isDown &&
+      !this.keyboardCache.escape
+    ) {
+      this.activeContainer.onDismiss();
+      this.activeContainer = undefined;
+      this.keyboardCache.escape = true;
+    } else if (
+      !this.activeContainer &&
+      !this.keyboardCache.escape &&
+      this.keyEscape.isDown &&
+      !this.noteReadingContainer.visible
+    ) {
+      this.onPauseClick();
     }
 
     if (this.cursors.space.isUp) {
       this.keyboardCache.space = false;
+    }
+
+    if (this.keyEscape.isUp) {
+      this.keyboardCache.escape = false;
     }
   }
 }
