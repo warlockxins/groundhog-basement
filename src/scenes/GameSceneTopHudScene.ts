@@ -16,6 +16,12 @@ export class GameSceneTopHudScene extends Phaser.Scene {
   noteReadingContainer: Phaser.GameObjects.Container;
   noteLabel: Phaser.GameObjects.Text;
   noteText: Phaser.GameObjects.Text;
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+
+  keyboardCache = {
+    space: false,
+  };
+  keyEscape!: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super({
@@ -43,6 +49,12 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       .on("pointerout", () => clickButton.setColor("#ffffff"));
 
     return clickButton;
+  }
+
+  onResume() {
+    this.scene.get(CST.SCENES.GAME).scene.resume();
+    this.gameHudContainer.setVisible(true);
+    this.pauseHudContainer.setVisible(false);
   }
 
   makePauseContainer() {
@@ -75,9 +87,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     resumeButton
       .setInteractive()
       .on("pointerup", () => {
-        this.scene.get(CST.SCENES.GAME).scene.resume();
-        this.gameHudContainer.setVisible(true);
-        this.pauseHudContainer.setVisible(false);
+        this.onResume();
       })
       .on("pointerover", () => {
         resumeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
@@ -192,6 +202,12 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.gameOverHudContainer.setVisible(false);
   }
 
+  onCloseNoteReadingContainer() {
+    this.scene.get(CST.SCENES.GAME).scene.resume();
+    this.gameHudContainer.setVisible(true);
+    this.noteReadingContainer.setVisible(false);
+  }
+
   makeNoteReadingContainer() {
     const noteGraphics = this.add.graphics();
     const { width, height } = this.game.config;
@@ -237,9 +253,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     closeButton
       .setInteractive()
       .on("pointerup", () => {
-        this.scene.get(CST.SCENES.GAME).scene.resume();
-        this.gameHudContainer.setVisible(true);
-        this.noteReadingContainer.setVisible(false);
+        this.onCloseNoteReadingContainer();
       })
       .on("pointerover", () => {
         closeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
@@ -288,10 +302,15 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
   create() {
     // this.events.on(sceneEventConstants.characterDeath, this.onGameOver, this);
+    this.cursors = this.input.keyboard!.createCursorKeys();
     this.makeGameHudContainer();
     this.makePauseContainer();
     this.makeGameOverContainer();
     this.makeNoteReadingContainer();
+
+    this.keyEscape = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ESC,
+    );
   }
 
   onGameOver(cause: "insane" | "damage") {
@@ -300,12 +319,17 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       cause === "insane" ? "You went\nMad" : "You are\nDead";
   }
 
+  collectKeysWhenOpenMenu() {
+    this.keyboardCache.space = this.cursors.space.isDown;
+  }
+
   onShowNoteReader(title: string, text: string) {
     this.scene.get(CST.SCENES.GAME).scene.pause();
     this.gameHudContainer.setVisible(false);
     this.noteReadingContainer.setVisible(true);
     this.noteLabel.text = title;
     this.noteText.text = text;
+    this.collectKeysWhenOpenMenu();
   }
 
   onRegistryDataUpdate(parent, key, data) {
@@ -344,5 +368,21 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       SANITY_BOX_MAX_WIDTH,
       8,
     );
+  }
+
+  update(time: number, delta: number): void {
+    if (!this.keyboardCache.space && this.cursors.space.isDown) {
+      if (this.noteReadingContainer.visible) {
+        this.onCloseNoteReadingContainer();
+      }
+    }
+
+    if (this.pauseHudContainer.visible && this.keyEscape.isDown) {
+      this.onResume();
+    }
+
+    if (this.cursors.space.isUp) {
+      this.keyboardCache.space = false;
+    }
   }
 }

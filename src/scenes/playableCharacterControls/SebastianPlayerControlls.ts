@@ -48,13 +48,13 @@ export class SebastianPlayerControlls extends Controlls {
 
     // Note - action intent only available if character has saved pending Action
     // and displays action icon
-    this.states.moveIntent.action = !!this.character.actionByApproval && this.cursors.space.isDown;
+    this.states.moveIntent.action =
+      !!this.character.actionByApproval && this.cursors.space.isDown;
 
     this.states.update();
   }
 
   onDamage(cause: "damage" | "insane"): void {
-
     if (cause === "damage") {
       this.scene.sounds.hurt.play({ loop: false });
     } else if (cause === "insane") {
