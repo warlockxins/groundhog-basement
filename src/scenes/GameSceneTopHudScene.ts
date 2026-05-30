@@ -47,6 +47,18 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       container: this.pauseHudContainer,
       onDismiss: this.onResume.bind(this),
     };
+
+    // ---- animate appearance
+    this.pauseHudContainer.alpha = 0;
+
+    const tween = {
+      alpha: { from: "0", to: "1" },
+      duration: 300,
+      yoyo: false,
+      repeat: false,
+      ease: "Sine.InOut",
+    };
+    this.tweens.add({ ...tween, targets: this.pauseHudContainer });
   }
 
   makePauseButton() {
@@ -355,6 +367,29 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.noteLabel.text = title;
     this.noteText.text = text;
     this.collectKeysWhenOpenMenu();
+
+    const originalPosition = this.noteReadingContainer.x;
+    this.noteReadingContainer.x = this.game.canvas.width;
+
+    // animate appearance
+    const tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      x: { from: this.game.canvas.width, to: originalPosition },
+      duration: 250,
+      yoyo: false,
+      ease: "Sine.InOut",
+      targets: this.noteReadingContainer,
+    };
+
+    const tweenAlpha: Phaser.Types.Tweens.TweenBuilderConfig = {
+      alpha: { from: "0", to: "1" },
+      duration: 350,
+      yoyo: false,
+      ease: "Sine.InOut",
+      targets: this.noteReadingContainer,
+    };
+
+    this.tweens.add(tween);
+    this.tweens.add(tweenAlpha);
   }
 
   onRegistryDataUpdate(parent, key, data) {

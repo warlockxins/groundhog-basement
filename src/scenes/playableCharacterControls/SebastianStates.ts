@@ -6,177 +6,193 @@ import { I_AnimationState, TMoveSpeed } from "./AnimationStateTypes";
 const walkSpeed = 2.5;
 
 export class SebastianStates implements I_AnimationState {
-    sprite: Phaser.Physics.Matter.Sprite;
-    facing: { vertical: 'N' | 'S' | ''; horizontal: 'E' | ''; } = { vertical: 'S', horizontal: '' };
-    animationDirection: AnimationDirection = 'S';
-    currentState!: I_AnimationState;
-    character: Character;
+  sprite: Phaser.Physics.Matter.Sprite;
+  facing: { vertical: "N" | "S" | ""; horizontal: "E" | "" } = {
+    vertical: "S",
+    horizontal: "",
+  };
+  animationDirection: AnimationDirection = "S";
+  currentState!: I_AnimationState;
+  character: Character;
 
-    states = {
-        idle: new Standing(this, 'idle'),
-        action: new ArmAction(this, 'armActionTake'),
-        goUp: new Moving(this, 'walk', { x: 0, y: -walkSpeed }),
-        goUpRight: new Moving(this, 'walk', { x: walkSpeed, y: -walkSpeed }),
-        goRight: new Moving(this, 'walk', { x: walkSpeed, y: 0 }),
-        goDownRight: new Moving(this, 'walk', { x: walkSpeed, y: walkSpeed }),
-        goDown: new Moving(this, 'walk', { x: 0, y: walkSpeed }),
-        goDownLeft: new Moving(this, 'walk', { x: -walkSpeed, y: walkSpeed }),
-        goLeft: new Moving(this, 'walk', { x: -walkSpeed, y: 0 }),
-        goUpLeft: new Moving(this, 'walk', { x: -walkSpeed, y: -walkSpeed }),
+  states = {
+    idle: new Standing(this, "idle"),
+    action: new ArmAction(this, "armActionTake"),
+    goUp: new Moving(this, "walk", { x: 0, y: -walkSpeed }),
+    goUpRight: new Moving(this, "walk", { x: walkSpeed, y: -walkSpeed }),
+    goRight: new Moving(this, "walk", { x: walkSpeed, y: 0 }),
+    goDownRight: new Moving(this, "walk", { x: walkSpeed, y: walkSpeed }),
+    goDown: new Moving(this, "walk", { x: 0, y: walkSpeed }),
+    goDownLeft: new Moving(this, "walk", { x: -walkSpeed, y: walkSpeed }),
+    goLeft: new Moving(this, "walk", { x: -walkSpeed, y: 0 }),
+    goUpLeft: new Moving(this, "walk", { x: -walkSpeed, y: -walkSpeed }),
+  };
+
+  moveIntent = {
+    up: false,
+    right: false,
+    down: false,
+    left: false,
+    action: false,
+  };
+
+  updaterState = {
+    fn: this.start.bind(this),
+  };
+
+  constructor(character: Character) {
+    this.character = character;
+    this.sprite = character.sprite;
+    this.currentState = this.states.idle;
+  }
+  start() {
+    this.states.idle.start();
+  }
+
+  end() {}
+
+  update(): I_AnimationState {
+    const nextState = this.currentState.update();
+    if (nextState !== this.currentState) {
+      this.currentState = nextState;
+      nextState.start();
     }
 
-    moveIntent = {
-        up: false, right: false, down: false, left: false,
-        action: false
-    }
-
-    updaterState = {
-        fn: this.start.bind(this)
-    }
-
-    constructor(character: Character) {
-        this.character = character;
-        this.sprite = character.sprite;
-        this.currentState = this.states.idle;
-    }
-    start() {
-        this.states.idle.start();
-    }
-
-    end() { }
-
-    update(): I_AnimationState {
-        const nextState = this.currentState.update();
-        if (nextState !== this.currentState) {
-            this.currentState = nextState;
-            nextState.start();
-        }
-
-        return this;
-    }
+    return this;
+  }
 }
 
 class MovableRoot implements I_AnimationState {
-    controller: SebastianStates;
-    animation: string;
-    speed: TMoveSpeed;
+  controller: SebastianStates;
+  animation: string;
+  speed: TMoveSpeed;
 
-    constructor(controller: SebastianStates, animation: string, speed: TMoveSpeed = { x: 0, y: 0 }) {
-        this.controller = controller;
-        this.animation = animation;
-        this.speed = speed;
+  constructor(
+    controller: SebastianStates,
+    animation: string,
+    speed: TMoveSpeed = { x: 0, y: 0 },
+  ) {
+    this.controller = controller;
+    this.animation = animation;
+    this.speed = speed;
+  }
+  start() {}
+  update(): I_AnimationState {
+    if (this.controller.moveIntent.up) {
+      if (this.controller.moveIntent.right) {
+        return this.controller.states.goUpRight;
+      } else if (this.controller.moveIntent.left) {
+        return this.controller.states.goUpLeft;
+      }
+
+      return this.controller.states.goUp;
+    } else if (this.controller.moveIntent.down) {
+      if (this.controller.moveIntent.right) {
+        return this.controller.states.goDownRight;
+      } else if (this.controller.moveIntent.left) {
+        return this.controller.states.goDownLeft;
+      }
+
+      return this.controller.states.goDown;
     }
-    start() {
+
+    if (this.controller.moveIntent.right) {
+      return this.controller.states.goRight;
+    } else if (this.controller.moveIntent.left) {
+      return this.controller.states.goLeft;
     }
-    update(): I_AnimationState {
-        if (this.controller.moveIntent.up) {
-            if (this.controller.moveIntent.right) {
-                return this.controller.states.goUpRight;
-            } else if (this.controller.moveIntent.left) {
-                return this.controller.states.goUpLeft;
-            }
 
-            return this.controller.states.goUp;
-        } else if (this.controller.moveIntent.down) {
-            if (this.controller.moveIntent.right) {
-                return this.controller.states.goDownRight;
-            } else if (this.controller.moveIntent.left) {
-                return this.controller.states.goDownLeft;
-            }
-
-            return this.controller.states.goDown;
-        }
-
-        if (this.controller.moveIntent.right) {
-            return this.controller.states.goRight;
-        } else if (this.controller.moveIntent.left) {
-            return this.controller.states.goLeft;
-        }
-
-        if (this.controller.moveIntent.action) {
-            return this.controller.states.action;
-        }
-
-        return this.controller.states.idle;
+    if (this.controller.moveIntent.action) {
+      return this.controller.states.action;
     }
-    end() { }
 
-    playAnimation(repeat: boolean = true) {
-        this.controller.animationDirection = `${this.controller.facing.vertical}${this.controller.facing.horizontal}` as AnimationDirection
-        const newAnimation: string = `sebastian-${this.animation}-${this.controller.animationDirection}`;
+    return this.controller.states.idle;
+  }
+  end() {}
 
-        if (this.controller.sprite.anims.getName() !== newAnimation) {
-            this.controller.sprite.play(
-                {
-                    repeat: repeat ? -1 : 0,
-                    key: newAnimation,
-                }
-            );
-        }
+  playAnimation(repeat: boolean = true) {
+    this.controller.animationDirection =
+      `${this.controller.facing.vertical}${this.controller.facing.horizontal}` as AnimationDirection;
+    const newAnimation: string = `sebastian-${this.animation}-${this.controller.animationDirection}`;
+
+    if (this.controller.sprite.anims.getName() !== newAnimation) {
+      this.controller.sprite.play({
+        repeat: repeat ? -1 : 0,
+        key: newAnimation,
+      });
     }
+  }
 }
 
 class Standing extends MovableRoot {
-    start() {
-        this.controller.sprite.setVelocity(this.speed.x, this.speed.y);
-        this.playAnimation();
-    }
+  start() {
+    this.controller.sprite.setVelocity(this.speed.x, this.speed.y);
+    this.playAnimation();
+  }
 }
 
 class ArmAction extends MovableRoot {
-    start() {
-        this.controller.sprite.setVelocity(this.speed.x, this.speed.y);
-        // action is always going to be North .... prbbly. Will keep horizontal dir.
-        // so will animate in NE, N, NW
-        this.controller.facing.vertical = 'N';
-        this.playAnimation(false);
+  actionTaken = false;
+  start() {
+    this.controller.sprite.setVelocity(this.speed.x, this.speed.y);
+    // action is always going to be North .... prbbly. Will keep horizontal dir.
+    // so will animate in NE, N, NW
+    this.controller.facing.vertical = "N";
+    this.actionTaken = false;
+    this.playAnimation(false);
+  }
 
-        this.controller.character.executeActionByApproving();
+  update(): I_AnimationState {
+    if (!this.actionTaken && this.controller.sprite.anims.getProgress() > 0.7) {
+      this.actionTaken = true;
+      this.controller.character.executeActionByApproving();
     }
 
-    update(): I_AnimationState {
-        if (!this.controller.sprite.anims.isPlaying) {
-            return this.controller.states.idle;
-        }
-
-        return this;
+    if (!this.controller.sprite.anims.isPlaying) {
+      return this.controller.states.idle;
     }
+
+    return this;
+  }
 }
 
 class Moving extends MovableRoot {
-    start() {
-
-        if (this.speed.y < 0) {
-            this.controller.facing.vertical = 'N';
-        } else if (this.speed.y > 0) {
-            this.controller.facing.vertical = 'S';
-        } else {
-            this.controller.facing.vertical = '';
-        }
-
-        // x > 0 & x < 0 share direction E, just flipped in one state
-        this.controller.sprite.flipX = this.speed.x < 0;
-
-        if (this.speed.x !== 0) {
-            this.controller.facing.horizontal = 'E';
-        } else {
-            this.controller.facing.horizontal = '';
-        }
-
-
-        this.playAnimation();
+  start() {
+    if (this.speed.y < 0) {
+      this.controller.facing.vertical = "N";
+    } else if (this.speed.y > 0) {
+      this.controller.facing.vertical = "S";
+    } else {
+      this.controller.facing.vertical = "";
     }
-    update(): I_AnimationState {
-        // const multiplier = (this.controller.moveIntent.run ? 1.5 : 1);
-        const multiplier = 1;
-        this.controller.sprite.setVelocity(this.speed.x * multiplier, this.speed.y * multiplier);
 
-        const sound = (this.controller.sprite.scene as unknown as GameSceneTopPossibilities).sounds.step;
-        if (!sound.isPlaying) {
-            sound.volume = 0.3;
-            sound.play();
-        }
+    // x > 0 & x < 0 share direction E, just flipped in one state
+    this.controller.sprite.flipX = this.speed.x < 0;
 
-        return super.update();
+    if (this.speed.x !== 0) {
+      this.controller.facing.horizontal = "E";
+    } else {
+      this.controller.facing.horizontal = "";
     }
+
+    this.playAnimation();
+  }
+  update(): I_AnimationState {
+    // const multiplier = (this.controller.moveIntent.run ? 1.5 : 1);
+    const multiplier = 1;
+    this.controller.sprite.setVelocity(
+      this.speed.x * multiplier,
+      this.speed.y * multiplier,
+    );
+
+    const sound = (
+      this.controller.sprite.scene as unknown as GameSceneTopPossibilities
+    ).sounds.step;
+    if (!sound.isPlaying) {
+      sound.volume = 0.3;
+      sound.play();
+    }
+
+    return super.update();
+  }
 }
