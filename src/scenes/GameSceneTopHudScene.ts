@@ -347,12 +347,24 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
   onGameOver(cause: "insane" | "damage") {
     this.gameOverHudContainer.setVisible(true);
+    this.gameHudContainer.setVisible(false);
     this.deadLabel.text =
       cause === "insane" ? "You went\nMad" : "You are\nDead";
 
     this.activeContainer = {
       container: this.gameOverHudContainer,
     };
+
+    // animate appearance
+    this.gameOverHudContainer.alpha = 0;
+    const tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      alpha: { from: "0", to: "1" },
+      duration: 300,
+      yoyo: false,
+      ease: "Sine.InOut",
+      targets: this.gameOverHudContainer,
+    };
+    this.tweens.add(tween);
   }
 
   collectKeysWhenOpenMenu() {
