@@ -49,7 +49,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-      (p.y - points[a].y) * (p.y - points[a].y),
+        (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -286,7 +286,8 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities {
+  implements GameSceneTopPossibilities
+{
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -848,9 +849,10 @@ export class GameSceneTop
       if (wasProcessed) {
         if (dialogue.removeTrigger) {
           if (trigger.gameObject instanceof Phaser.Physics.Matter.Sprite) {
-            // >>>>>>>>>>>>>>>>>>>>
-            // debugger
-            (trigger.gameObject as Phaser.Physics.Matter.Sprite).destroy();
+            const gObject = trigger.gameObject as Phaser.Physics.Matter.Sprite;
+            gObject.stop();
+            this.tweens.killTweensOf(gObject);
+            gObject.destroy();
           } else {
             this.matter.world.remove(trigger);
           }
@@ -864,7 +866,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() { }
+  addPhysicsListeners() {}
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -948,7 +950,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch { }
+            } catch {}
             // console.log("??????>>>>>>>", color)
           }
 
@@ -1031,7 +1033,7 @@ export class GameSceneTop
             "tiles",
             t.gid - 1,
           );
-          break
+          break;
         default:
           smartTile = new SpriteWithDepth(
             this,
@@ -1501,15 +1503,19 @@ export class GameSceneTop
     this.drawShadowTriangles(quad, transparencies);
   }
 
-  bounceCollectable(sprite: any) {
-    const tween = {
-      alpha: { from: "0.5", to: "1" },
+  bounceCollectable(sprite: Phaser.Physics.Matter.Sprite) {
+    const originalY = sprite.y;
+    const targetY = originalY - 10;
+
+    const tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      y: { from: originalY, to: targetY },
       duration: 1000,
       yoyo: true,
       repeat: -1,
       ease: "Sine.InOut",
+      targets: sprite,
     };
-    this.tweens.add({ ...tween, targets: sprite });
+    this.tweens.add(tween);
   }
 
   createKeyFrame() {

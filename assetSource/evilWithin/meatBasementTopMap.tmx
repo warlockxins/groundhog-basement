@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="14" nextobjectid="81">
+<map version="1.10" tiledversion="1.12.2-33-gd8732acd8" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="14" nextobjectid="81">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -484,13 +484,13 @@
 </data>
  </layer>
  <objectgroup id="8" name="lights">
-  <object id="2" x="687.646" y="1742.23">
+  <object id="2" x="703.646" y="1710.23">
    <properties>
     <property name="isOn" type="bool" value="true"/>
    </properties>
    <point/>
   </object>
-  <object id="3" x="1452.5" y="1982.68">
+  <object id="3" x="1471.17" y="1966.68">
    <point/>
   </object>
   <object id="4" x="1110.79" y="2552.07">
@@ -511,7 +511,7 @@
    </properties>
    <point/>
   </object>
-  <object id="27" x="303.992" y="2601.58">
+  <object id="27" x="318.659" y="2603.58">
    <properties>
     <property name="isOn" type="bool" value="true"/>
     <property name="tween">{
@@ -574,13 +574,13 @@
    </properties>
    <point/>
   </object>
-  <object id="46" x="814.36" y="3107.9">
+  <object id="46" x="830.36" y="3110.57">
    <properties>
     <property name="isOn" type="bool" value="false"/>
    </properties>
    <point/>
   </object>
-  <object id="49" x="1452" y="2987.11">
+  <object id="49" x="1470" y="2981">
    <properties>
     <property name="isOn" type="bool" value="true"/>
    </properties>
@@ -636,6 +636,7 @@
   &quot;rulePost&quot;: {
     &quot;setVar&quot;: [&quot;haveKey&quot;, true]
   },
+  &quot;sound&quot;: &quot;itemPut&quot;,
   &quot;moveTo&quot;: [
     {
       &quot;tileId&quot;: &quot;63&quot;,
