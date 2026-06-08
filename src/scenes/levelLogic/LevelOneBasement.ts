@@ -137,6 +137,24 @@ export class LevelOne extends Level {
         onEnter: dialogue,
       };
     },
+    // behind door  light switch
+    "51": () => {
+      const dialogue: GameDialogue = {
+        character: {
+          id: this.playerId,
+          actions: [
+            {
+              actionByApproval: {
+                toggleLight: ["6"],
+              },
+            },
+          ],
+        },
+      };
+      return {
+        onEnter: dialogue,
+      };
+    },
     // locked door
     "11": () => {
       const dialogue: GameDialogue = {
@@ -321,6 +339,48 @@ export class LevelOne extends Level {
           ],
         },
       };
+      return {
+        onEnter: dialogue,
+      };
+    },
+    // question before saw room
+    "57": () => {
+      const dialogue: GameDialogue = {
+        removeTrigger: true,
+        character: {
+          id: this.playerId,
+          actions: [{ bark: "Now what" }],
+        },
+      };
+
+      return {
+        onEnter: dialogue,
+      };
+    },
+    // activate saws
+    "32": () => {
+      const dialogue: GameDialogue = {
+        removeTrigger: true,
+        tween: {
+          ids: ["20", "21", "22", "24", "25"],
+          x: 600,
+          duration: 3000,
+          yoyo: true,
+          ease: "Linear",
+          repeat: -1,
+        },
+      };
+
+      return {
+        onEnter: dialogue,
+      };
+    },
+    // exit door
+    "26": () => {
+      const dialogue: GameDialogue = {
+        goScene: "bloodPool",
+      };
+
       return {
         onEnter: dialogue,
       };

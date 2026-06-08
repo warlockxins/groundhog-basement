@@ -217,36 +217,14 @@
   <object id="22" gid="45" x="768" y="640" width="128" height="128"/>
   <object id="24" gid="45" x="768" y="384" width="128" height="128"/>
   <object id="25" gid="45" x="768" y="256" width="128" height="128"/>
-  <object id="26" name="saw" gid="19" x="640" y="128" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-   &quot;goScene&quot;: &quot;bloodPool&quot;
-}</property>
-   </properties>
-  </object>
+  <object id="26" name="saw" gid="19" x="640" y="128" width="128" height="128"/>
   <object id="28" name="chair" gid="46" x="442.762" y="2421.53" width="128" height="128"/>
   <object id="29" name="chair" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
   <object id="48" name="chair" gid="46" x="950.749" y="3146.05" width="128" height="128"/>
   <object id="30" gid="46" x="842.37" y="2095.92" width="128" height="128"/>
   <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128"/>
   <object id="45" gid="44" x="509.584" y="2322.52" width="128" height="128"/>
-  <object id="51" gid="44" x="256.191" y="1678.05" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;character&quot;: {
-    &quot;id&quot;: &quot;player&quot;,
-     &quot;actions&quot;: [
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;6&quot;]
-           }
-        }
-     ]
-  }
-}
-</property>
-   </properties>
-  </object>
+  <object id="51" gid="44" x="256.191" y="1678.05" width="128" height="128"/>
   <object id="47" gid="44" x="1026.75" y="2977.22" width="128" height="128"/>
   <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128"/>
   <object id="56" gid="44" x="388.467" y="2571.33" width="128" height="128"/>
@@ -454,17 +432,6 @@
   </object>
   <object id="32" name="triggerSawCollapseRight" x="638.395" y="658.745" width="128" height="128">
    <properties>
-    <property name="onEnter">{
-  &quot;removeTrigger&quot;:true,
-  &quot;tween&quot;: {
-     &quot;ids&quot;: [&quot;20&quot;, &quot;21&quot;, &quot;22&quot;, &quot;24&quot;, &quot;25&quot;],
-     &quot;x&quot;: 600,
-     &quot;duration&quot;: 3000,
-            &quot;yoyo&quot;: true,
-            &quot;ease&quot;: &quot;Linear&quot;,
-            &quot;repeat&quot;: -1
-  }
-}</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
@@ -500,15 +467,6 @@
   </object>
   <object id="57" name="triggerSawCollapseLeft" x="645.793" y="917.784" width="128" height="128">
    <properties>
-    <property name="onEnter">{
-  &quot;removeTrigger&quot;:true,
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Now what&quot; }
-      ]
-   }
-}</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
