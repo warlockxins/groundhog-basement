@@ -19,7 +19,7 @@ export type GameDialogue = {
     text: string;
   };
   character?: {
-    id: string;
+    id: number;
     actions: CharacterAction[];
   };
   removeTrigger?: boolean;

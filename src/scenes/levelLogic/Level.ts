@@ -1,3 +1,4 @@
 export class Level {
-    dialogues: { [key: string]: () => { [key: string]: object } } = {};
+  playerId: number = -1;
+  dialogues: { [key: string]: () => { [key: string]: object } } = {};
 }

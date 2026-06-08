@@ -318,6 +318,7 @@ export class GameSceneTop
   shadowCasterPoints: [number, number][][];
   shadowCasterGraphics: Phaser.GameObjects.Graphics;
   shadowCasterPointsCompiled: any[][];
+  playerObjectId: number;
 
   constructor() {
     super({
@@ -550,7 +551,7 @@ export class GameSceneTop
     {
       characterId,
       point,
-    }: { characterId: string | null; point: { x: number; y: number } },
+    }: { characterId: number | null; point: { x: number; y: number } },
   ) {
     let pointTo = point;
     if (characterId) {
@@ -824,7 +825,7 @@ export class GameSceneTop
     }
 
     const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
-    let trigger: MatterJS.BodyType = null;
+    let trigger: MatterJS.BodyType | null = null;
 
     let actor = null;
     if (bodyA.dialogue) {
@@ -1171,8 +1172,14 @@ export class GameSceneTop
           ({ name }) => name === "onEnter",
         );
 
-        if (onEnterEvent?.value) {
-          physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
+        const parsedOnEnterEvent = onEnterEvent?.value
+          ? JSON.parse(onEnterEvent.value)
+          : this.levelLogic.dialogues[o.id.toString()]?.().onEnter;
+
+        // console.lo
+
+        if (parsedOnEnterEvent) {
+          physicsOptions.dialogue = parsedOnEnterEvent;
 
           if (icon) {
             const triggerSprite = this.matter.add
@@ -1220,7 +1227,9 @@ export class GameSceneTop
     pawn.moveAnim = "walk";
 
     const enemyId = o.properties.find(({ name }) => name === "id")?.value;
-    this.pawnHandler.add(enemyId ?? "butcher", pawn);
+    // this.pawnHandler.add(enemyId ?? "butcher", pawn);
+    this.pawnHandler.add(o.id, pawn);
+    // console.log("--Enemy id->", o.id, ", label:", enemyId);
 
     pawn.id = enemyId;
 
@@ -1254,6 +1263,8 @@ export class GameSceneTop
       throw "Not spawning from correct Logic TiledObject, expecting 'start'";
     }
 
+    this.playerObjectId = o.id;
+
     const pawn = new Character(
       this,
       o.x ?? 0,
@@ -1263,7 +1274,7 @@ export class GameSceneTop
     );
     pawn.controller = new SebastianPlayerControlls(this, pawn);
 
-    this.pawnHandler.add("player", pawn);
+    this.pawnHandler.add(o.id, pawn);
     pawn.id = "player";
 
     this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
@@ -1474,9 +1485,9 @@ export class GameSceneTop
 
           if (someBodyIsPlayer) {
             // reset players action promt
-            this.pawnHandler.characters["player"].addActionForApproval(
-              undefined,
-            );
+            this.pawnHandler.characters[
+              this.playerObjectId
+            ].addActionForApproval(undefined);
           }
         }
       }
@@ -1495,7 +1506,7 @@ export class GameSceneTop
   }
 
   updateShadowForCharacter() {
-    const { x, y } = this.pawnHandler.characters["player"].sprite;
+    const { x, y } = this.pawnHandler.characters[this.playerObjectId].sprite;
     const { transparencies, quad } = VisibilityPolygon.computeInverse(
       [x, y],
       this.shadowCasterPointsCompiled,

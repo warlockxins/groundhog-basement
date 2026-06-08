@@ -181,7 +181,7 @@ export class Character {
       this.barkList.clear();
       return;
     }
-
+    console.log("will bark", text);
     if (!text) return;
 
     this.barkList.add(text);

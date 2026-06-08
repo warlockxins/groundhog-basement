@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.12.2-33-gd8732acd8" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="14" nextobjectid="81">
+<map version="1.10" tiledversion="1.12.2-45-g04a4be28f" orientation="orthogonal" renderorder="right-down" width="15" height="26" tilewidth="128" tileheight="128" infinite="0" nextlayerid="14" nextobjectid="81">
  <editorsettings>
   <export target="../../public/assets/levels/basementTop.json" format="json"/>
  </editorsettings>
@@ -205,21 +205,6 @@
  <objectgroup id="10" name="tileLogic">
   <object id="11" gid="19" x="258.541" y="2304" width="128" height="128">
    <properties>
-    <property name="onEnter">{
-  &quot;changeTileGameObjectToId&quot;: &quot;17&quot;,
-  &quot;rulePre&quot;: {
-    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
-  },
-  &quot;rulePreFail&quot;: {
-   &quot;sound&quot;: &quot;tryDoor&quot;,
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;It's locked&quot; }
-      ]
-   }
-  }
-}</property>
     <property name="wall" type="bool" value="true"/>
    </properties>
   </object>
@@ -243,39 +228,8 @@
   <object id="29" name="chair" gid="46" x="1005.86" y="2309.6" width="128" height="128"/>
   <object id="48" name="chair" gid="46" x="950.749" y="3146.05" width="128" height="128"/>
   <object id="30" gid="46" x="842.37" y="2095.92" width="128" height="128"/>
-  <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;character&quot;: {
-    &quot;id&quot;: &quot;player&quot;,
-     &quot;actions&quot;: [
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;46&quot;]
-           }
-        }
-     ]
-  }
-}</property>
-   </properties>
-  </object>
-  <object id="45" gid="44" x="509.584" y="2322.52" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Toggle the Light&quot; },
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;41&quot;]
-           }
-        }
-      ]
-   }
-}</property>
-   </properties>
-  </object>
+  <object id="44" gid="44" x="772.026" y="2706.52" width="128" height="128"/>
+  <object id="45" gid="44" x="509.584" y="2322.52" width="128" height="128"/>
   <object id="51" gid="44" x="256.191" y="1678.05" width="128" height="128">
    <properties>
     <property name="onEnter">{
@@ -293,119 +247,16 @@
 </property>
    </properties>
   </object>
-  <object id="47" gid="44" x="1026.75" y="2977.22" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;character&quot;: {
-    &quot;id&quot;: &quot;player&quot;,
-    &quot;actions&quot;: [
-      {
-        &quot;actionByApproval&quot;: {
-          &quot;toggleLight&quot;: [&quot;36&quot;, &quot;42&quot;]
-        }
-      }
-    ]
-  }
-}
-</property>
-   </properties>
-  </object>
-  <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;character&quot;: {
-    &quot;id&quot;: &quot;player&quot;,
-     &quot;actions&quot;: [
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;3&quot;]
-           }
-        }
-     ]
-  }
-}
-
-</property>
-   </properties>
-  </object>
-  <object id="56" gid="44" x="388.467" y="2571.33" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Keep the light on&quot; },
-        {
-           &quot;actionByApproval&quot;: {
-              &quot;toggleLight&quot;: [&quot;27&quot;]
-           }
-        }
-      ]
-   }
-}</property>
-   </properties>
-  </object>
+  <object id="47" gid="44" x="1026.75" y="2977.22" width="128" height="128"/>
+  <object id="50" gid="44" x="1543.01" y="2322.85" width="128" height="128"/>
+  <object id="56" gid="44" x="388.467" y="2571.33" width="128" height="128"/>
   <object id="58" gid="46" x="265.317" y="2656.2" width="128" height="128"/>
   <object id="63" name="Removable wall2" gid="17" x="0" y="3328" width="128" height="128"/>
   <object id="64" name="Removable wall1" gid="17" x="128" y="3328" width="128" height="128"/>
-  <object id="65" name="book to read" gid="7" x="1408" y="1792" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;rulePre&quot;: {
-    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
-  },
-  &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;The book:\nHow to escape&quot; },
-        {
-           &quot;actionByApproval&quot;: {
-               &quot;noteRead&quot;: {
-                   &quot;title&quot;: &quot;The Book&quot;,
-                   &quot;text&quot;: &quot;One book points...\nthe other reveals.\nSomething dark stands in the way.&quot;
-               },
-              &quot;rulePost&quot;: {
-                 &quot;setVar&quot;: [&quot;readBook&quot;, true]
-              }
-           }
-        }
-      ]
-   }
-}
-
-</property>
-   </properties>
-  </object>
+  <object id="65" name="book to read" gid="7" x="1408" y="1792" width="128" height="128"/>
   <object id="68" gid="58" x="-128" y="3328" width="128" height="128"/>
   <object id="69" name="for Light42" gid="58" x="-128" y="3200" width="128" height="128"/>
-  <object id="70" name="bodyToInspect" gid="7" x="896" y="1792" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;rulePre&quot;: {
-    &quot;==&quot;: [{ &quot;var&quot;: &quot;readBook&quot; }, true]
-  },
-  &quot;character&quot;: {
-    &quot;id&quot;: &quot;player&quot;,
-    &quot;actions&quot;: [
-      { &quot;bark&quot;: &quot;The book:\nLook within&quot; },
-      {
-        &quot;actionByApproval&quot;: {
-          &quot;noteRead&quot;: {
-            &quot;title&quot;: &quot;The Book&quot;,
-            &quot;text&quot;: &quot;Inspect yourself - the way out is within.\nThough you lie there upon the table.&quot;
-          },
-          &quot;toggleLight&quot;: [&quot;71&quot;],
-          &quot;rulePost&quot;: {
-            &quot;setVar&quot;: [&quot;lookWithin&quot;, true]
-          }
-        }
-      }
-    ]
-  }
-}
-</property>
-   </properties>
-  </object>
+  <object id="70" name="bodyToInspect" gid="7" x="896" y="1792" width="128" height="128"/>
   <object id="72" name="for LookWithin" gid="58" x="-134.667" y="3090.67" width="128" height="128"/>
   <object id="77" name="longGate" gid="58" x="-202.667" y="2017.33" width="128" height="128"/>
   <object id="78" name="tutorialBook" gid="59" x="483.015" y="2694.99" width="128" height="128">
@@ -413,41 +264,7 @@
     <property name="sensor" type="bool" value="true"/>
    </properties>
   </object>
-  <object id="79" gid="16" x="1024" y="2048" width="128" height="128">
-   <properties>
-    <property name="onEnter">{
-  &quot;rulePre&quot;: {
-    &quot;==&quot;: [{ &quot;var&quot;: &quot;lookWithin&quot; }, true]
-  },
-  &quot;character&quot;: {
-    &quot;id&quot;: &quot;player&quot;,
-    &quot;actions&quot;: [
-      {
-        &quot;actionByApproval&quot;: {
-          &quot;noteRead&quot;: {
-            &quot;title&quot;: &quot;The Within&quot;,
-            &quot;text&quot;: &quot;Faces are blurred here.\nI reach between the ribs and touch my own shadow.\nThe memory returns. The mental block is gone.&quot;
-          },
-          &quot;moveTo&quot;: [
-            {
-              &quot;tileId&quot;: &quot;63&quot;,
-              &quot;x&quot;: -1024,
-              &quot;y&quot;: 2304
-            },
-            {
-              &quot;tileId&quot;: &quot;64&quot;,
-              &quot;x&quot;: -1152,
-              &quot;y&quot;: 2304
-            }
-          ]
-        }
-      }
-    ]
-  }
-}
-</property>
-   </properties>
-  </object>
+  <object id="79" gid="16" x="1024" y="2048" width="128" height="128"/>
   <object id="80" name="rack" gid="23" x="1464.33" y="2945.11" width="128" height="128"/>
  </objectgroup>
  <layer id="4" name="metalBarsPillars" width="15" height="26">
@@ -631,32 +448,6 @@
   <object id="10" name="pickupDoorKey" x="1119.46" y="1947.81" width="91.8973" height="91.0064">
    <properties>
     <property name="icon" value="key"/>
-    <property name="onEnter">{
-  &quot;removeTrigger&quot;: true,
-  &quot;rulePost&quot;: {
-    &quot;setVar&quot;: [&quot;haveKey&quot;, true]
-  },
-  &quot;sound&quot;: &quot;itemPut&quot;,
-  &quot;moveTo&quot;: [
-    {
-      &quot;tileId&quot;: &quot;63&quot;,
-      &quot;x&quot;: 1024,
-      &quot;y&quot;: 2304
-    },
-    {
-      &quot;tileId&quot;: &quot;64&quot;,
-      &quot;x&quot;: 1152,
-      &quot;y&quot;: 2304
-    }
-  ],
-  &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Now to that door!&quot; }
-      ]
-   }
-}
-</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
@@ -727,48 +518,18 @@
   </object>
   <object id="61" name="is that blood" x="854.301" y="3013.85" width="128" height="128">
    <properties>
-    <property name="onEnter">{
-  &quot;removeTrigger&quot;:true,
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Is that\nBlood?&quot; }
-      ]
-   }
-}</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
   </object>
   <object id="62" name="bodies everywhere" x="1160.37" y="2772.25" width="128" height="128">
    <properties>
-    <property name="onEnter">{
-  &quot;removeTrigger&quot;:true,
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;Bodies everywhere!&quot; }
-      ]
-   }
-}</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>
   </object>
   <object id="66" name="but where" x="1145.89" y="2229.2" width="95.1118" height="85.1457">
    <properties>
-    <property name="onEnter">{
-  &quot;rulePre&quot;: {
-    &quot;==&quot; : [ { &quot;var&quot; : &quot;haveKey&quot; }, true ]
-  },
-  &quot;removeTrigger&quot;:true,
-   &quot;character&quot;: {
-      &quot;id&quot;: &quot;player&quot;,
-      &quot;actions&quot;: [
-        { &quot;bark&quot;: &quot;But ...\n where?!&quot; }
-      ]
-   }
-}</property>
     <property name="sensor" type="bool" value="true"/>
    </properties>
    <ellipse/>

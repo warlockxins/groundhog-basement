@@ -273,11 +273,6 @@
                  "opacity":1,
                  "properties":[
                         {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"changeTileGameObjectToId\": \"17\",\n  \"rulePre\": {\n    \"==\" : [ { \"var\" : \"haveKey\" }, true ]\n  },\n  \"rulePreFail\": {\n   \"sound\": \"tryDoor\",\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"It's locked\" }\n      ]\n   }\n  }\n}"
-                        }, 
-                        {
                          "name":"wall",
                          "type":"bool",
                          "value":true
@@ -437,12 +432,6 @@
                  "id":44,
                  "name":"",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n     \"actions\": [\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"46\"]\n           }\n        }\n     ]\n  }\n}"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -456,12 +445,6 @@
                  "id":45,
                  "name":"",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Toggle the Light\" },\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"41\"]\n           }\n        }\n      ]\n   }\n}"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -494,12 +477,6 @@
                  "id":47,
                  "name":"",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n    \"actions\": [\n      {\n        \"actionByApproval\": {\n          \"toggleLight\": [\"36\", \"42\"]\n        }\n      }\n    ]\n  }\n}\n"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -514,12 +491,6 @@
                  "id":50,
                  "name":"",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"character\": {\n    \"id\": \"player\",\n     \"actions\": [\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"3\"]\n           }\n        }\n     ]\n  }\n}\n\n"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -533,12 +504,6 @@
                  "id":56,
                  "name":"",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Keep the light on\" },\n        {\n           \"actionByApproval\": {\n              \"toggleLight\": [\"27\"]\n           }\n        }\n      ]\n   }\n}"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -591,12 +556,6 @@
                  "id":65,
                  "name":"book to read",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"rulePre\": {\n    \"==\" : [ { \"var\" : \"haveKey\" }, true ]\n  },\n  \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"The book:\\nHow to escape\" },\n        {\n           \"actionByApproval\": {\n               \"noteRead\": {\n                   \"title\": \"The Book\",\n                   \"text\": \"One book points...\\nthe other reveals.\\nSomething dark stands in the way.\"\n               },\n              \"rulePost\": {\n                 \"setVar\": [\"readBook\", true]\n              }\n           }\n        }\n      ]\n   }\n}\n\n"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -636,12 +595,6 @@
                  "id":70,
                  "name":"bodyToInspect",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"rulePre\": {\n    \"==\": [{ \"var\": \"readBook\" }, true]\n  },\n  \"character\": {\n    \"id\": \"player\",\n    \"actions\": [\n      { \"bark\": \"The book:\\nLook within\" },\n      {\n        \"actionByApproval\": {\n          \"noteRead\": {\n            \"title\": \"The Book\",\n            \"text\": \"Inspect yourself - the way out is within.\\nThough you lie there upon the table.\"\n          },\n          \"toggleLight\": [\"71\"],\n          \"rulePost\": {\n            \"setVar\": [\"lookWithin\", true]\n          }\n        }\n      }\n    ]\n  }\n}\n"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -700,12 +653,6 @@
                  "id":79,
                  "name":"",
                  "opacity":1,
-                 "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"rulePre\": {\n    \"==\": [{ \"var\": \"lookWithin\" }, true]\n  },\n  \"character\": {\n    \"id\": \"player\",\n    \"actions\": [\n      {\n        \"actionByApproval\": {\n          \"noteRead\": {\n            \"title\": \"The Within\",\n            \"text\": \"Faces are blurred here.\\nI reach between the ribs and touch my own shadow.\\nThe memory returns. The mental block is gone.\"\n          },\n          \"moveTo\": [\n            {\n              \"tileId\": \"63\",\n              \"x\": -1024,\n              \"y\": 2304\n            },\n            {\n              \"tileId\": \"64\",\n              \"x\": -1152,\n              \"y\": 2304\n            }\n          ]\n        }\n      }\n    ]\n  }\n}\n"
-                        }],
                  "rotation":0,
                  "type":"",
                  "visible":true,
@@ -1173,11 +1120,6 @@
                          "value":"key"
                         }, 
                         {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"removeTrigger\": true,\n  \"rulePost\": {\n    \"setVar\": [\"haveKey\", true]\n  },\n  \"sound\": \"itemPut\",\n  \"moveTo\": [\n    {\n      \"tileId\": \"63\",\n      \"x\": 1024,\n      \"y\": 2304\n    },\n    {\n      \"tileId\": \"64\",\n      \"x\": 1152,\n      \"y\": 2304\n    }\n  ],\n  \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Now to that door!\" }\n      ]\n   }\n}\n"
-                        }, 
-                        {
                          "name":"sensor",
                          "type":"bool",
                          "value":true
@@ -1360,11 +1302,6 @@
                  "opacity":1,
                  "properties":[
                         {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"removeTrigger\":true,\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Is that\\nBlood?\" }\n      ]\n   }\n}"
-                        }, 
-                        {
                          "name":"sensor",
                          "type":"bool",
                          "value":true
@@ -1383,11 +1320,6 @@
                  "name":"bodies everywhere",
                  "opacity":1,
                  "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"removeTrigger\":true,\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"Bodies everywhere!\" }\n      ]\n   }\n}"
-                        }, 
                         {
                          "name":"sensor",
                          "type":"bool",
@@ -1408,11 +1340,6 @@
                  "name":"but where",
                  "opacity":1,
                  "properties":[
-                        {
-                         "name":"onEnter",
-                         "type":"string",
-                         "value":"{\n  \"rulePre\": {\n    \"==\" : [ { \"var\" : \"haveKey\" }, true ]\n  },\n  \"removeTrigger\":true,\n   \"character\": {\n      \"id\": \"player\",\n      \"actions\": [\n        { \"bark\": \"But ...\\n where?!\" }\n      ]\n   }\n}"
-                        }, 
                         {
                          "name":"sensor",
                          "type":"bool",
@@ -1515,7 +1442,7 @@
  "nextobjectid":81,
  "orientation":"orthogonal",
  "renderorder":"right-down",
- "tiledversion":"1.12.2-33-gd8732acd8",
+ "tiledversion":"1.12.2-45-g04a4be28f",
  "tileheight":128,
  "tilesets":[
         {

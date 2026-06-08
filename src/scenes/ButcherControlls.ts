@@ -35,7 +35,9 @@ export class ButcherControlls extends Controlls {
             this.circleSearchCharacterEvent,
           );
 
-          this.character.followPathState.setEnemyFollowId("player");
+          this.character.followPathState.setEnemyFollowId(
+            this.scene.levelLogic.playerId,
+          );
         }
       },
       callbackScope: this,
