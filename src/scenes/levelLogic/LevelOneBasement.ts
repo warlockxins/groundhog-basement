@@ -11,6 +11,11 @@ type DialogMap = {
 export class LevelOne extends Level {
   scene: Phaser.Scene & GameSceneTopPossibilities;
   playerId = 8;
+  blackboard = {
+    haveKey: false,
+    readBook: false,
+    lookWithin: false,
+  };
 
   constructor(scene: Phaser.Scene & GameSceneTopPossibilities) {
     super();
@@ -159,8 +164,8 @@ export class LevelOne extends Level {
     "11": () => {
       const dialogue: GameDialogue = {
         changeTileGameObjectToId: "17",
-        rulePre: {
-          "==": [{ var: "haveKey" }, true],
+        rulePre: () => {
+          return this.blackboard.haveKey === true;
         },
         rulePreFail: {
           sound: "tryDoor",
@@ -207,8 +212,8 @@ export class LevelOne extends Level {
     "10": () => {
       const dialogue: GameDialogue = {
         removeTrigger: true,
-        rulePost: {
-          setVar: ["haveKey", true],
+        rulePost: () => {
+          this.blackboard.haveKey = true;
         },
         sound: "itemPut",
         moveTo: [
@@ -235,9 +240,7 @@ export class LevelOne extends Level {
     // unexpected fence
     "66": () => {
       const dialogue: GameDialogue = {
-        rulePre: {
-          "==": [{ var: "haveKey" }, true],
-        },
+        rulePre: () => this.blackboard.haveKey === true,
         removeTrigger: true,
         character: {
           id: this.playerId,
@@ -252,9 +255,7 @@ export class LevelOne extends Level {
     // book 1 - guide to book 2
     "65": () => {
       const dialogue: GameDialogue = {
-        rulePre: {
-          "==": [{ var: "haveKey" }, true],
-        },
+        rulePre: () => this.blackboard.haveKey === true,
         character: {
           id: this.playerId,
           actions: [
@@ -265,8 +266,8 @@ export class LevelOne extends Level {
                   title: "The Book",
                   text: "One book points...\nthe other reveals.\nSomething dark stands in the way.",
                 },
-                rulePost: {
-                  setVar: ["readBook", true],
+                rulePost: () => {
+                  this.blackboard.readBook = true;
                 },
               },
             },
@@ -281,9 +282,7 @@ export class LevelOne extends Level {
     // book 2 - guide to table corpse
     "70": () => {
       const dialogue: GameDialogue = {
-        rulePre: {
-          "==": [{ var: "readBook" }, true],
-        },
+        rulePre: () => this.blackboard.readBook === true,
         character: {
           id: this.playerId,
           actions: [
@@ -295,8 +294,8 @@ export class LevelOne extends Level {
                   text: "Inspect yourself - the way out is within.\nThough you lie there upon the table.",
                 },
                 toggleLight: ["71"],
-                rulePost: {
-                  setVar: ["lookWithin", true],
+                rulePost: () => {
+                  this.blackboard.lookWithin = true;
                 },
               },
             },
@@ -310,9 +309,7 @@ export class LevelOne extends Level {
     // table corpse
     "79": () => {
       const dialogue: GameDialogue = {
-        rulePre: {
-          "==": [{ var: "lookWithin" }, true],
-        },
+        rulePre: () => this.blackboard.lookWithin === true,
         character: {
           id: this.playerId,
           actions: [

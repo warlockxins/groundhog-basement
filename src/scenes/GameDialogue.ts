@@ -11,9 +11,9 @@ export type CharacterAction = CharacterActionByApproval | CharacterBark;
 export type GameDialogue = {
   goScene?: string;
   toggleLight?: string[]; // id of light
-  rulePre?: Record<string, unknown>;
+  rulePre?: () => boolean;
   rulePreFail?: GameDialogue;
-  rulePost?: Record<string, unknown>;
+  rulePost?: () => void;
   noteRead?: {
     title: string;
     text: string;

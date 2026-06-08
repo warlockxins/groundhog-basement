@@ -6,7 +6,6 @@ import { CST } from "../constants/CST";
 
 // import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
 import { NavMeshPoint, NavMeshPointMap } from "../levelComponents/NavMesh";
-import jsonLogic from "../jsonLogic";
 import { Character } from "./Character";
 import { GameDialogue } from "./GameDialogue";
 import { sceneEventConstants } from "./sceneEvents";
@@ -296,7 +295,7 @@ export class GameSceneTop
   graphics!: Phaser.GameObjects.Graphics;
   scriptedDialogs: GameDialogue[] = [];
 
-  blackboard: Record<string, unknown> = {};
+  // blackboard: Record<string, unknown> = {};
   tileset!: Phaser.Tilemaps.Tileset;
   pawnHandler!: PawnHandler;
 
@@ -344,7 +343,7 @@ export class GameSceneTop
 
     this.navMesh = new NavMeshSceneTop();
     this.pawnHandler = new PawnHandler();
-    this.blackboard = {};
+    // this.blackboard = {};
     this.smartLights = {};
     this.smartLightRayImage = {};
     this.shadowCasterPoints = [];
@@ -415,8 +414,8 @@ export class GameSceneTop
     // this.cameras.main.setOrigin(-0.1, 1.5);
     this.lights.enable().setAmbientColor(0x222222);
 
-    jsonLogic.rm_operation("setVar");
-    jsonLogic.add_operation("setVar", this.jsLogicSetBlackboardVar.bind(this));
+    // jsonLogic.rm_operation("setVar");
+    // jsonLogic.add_operation("setVar", this.jsLogicSetBlackboardVar.bind(this));
     this.addPhysicsListeners();
 
     this.events.on(
@@ -427,7 +426,7 @@ export class GameSceneTop
     // this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
 
     this.game.events.once(sceneEventConstants.stopGameplayScene, () => {
-      console.log("try destroy");
+      // console.log("try destroy");
       this.scene.stop();
     });
 
@@ -601,14 +600,6 @@ export class GameSceneTop
     ).onGameOver(cause);
   }
 
-  jsLogicSetBlackboardVar(key: string, value: unknown) {
-    // console.log('>>>>>MMM>>>', key, '|', value);
-    if (!key) {
-      return;
-    }
-    this.blackboard[key] = value;
-  }
-
   /**
    * @returns boolean if dialogue was not processed due to rule Precondition then returns false
    **/
@@ -630,9 +621,10 @@ export class GameSceneTop
     } = d;
 
     if (rulePre) {
-      // console.log('RYYYYLE', rulePre);
-      const res = jsonLogic.apply(rulePre, this.blackboard);
-      if (!res) {
+      // console.log("RYYYYLE", rulePre());
+      // const res = jsonLogic.apply(rulePre, this.blackboard);
+      // return false;
+      if (!rulePre()) {
         // console.log(":::PREEEE:>>>", res);
         if (d.rulePreFail) {
           return this.processGameDialogue(d.rulePreFail, gameObject, receiver);
@@ -758,9 +750,7 @@ export class GameSceneTop
     }
 
     if (rulePost) {
-      // console.log('RYYYYLE POOOOST', rulePost);
-      const res = jsonLogic.apply(rulePost, this.blackboard);
-      // console.log(":::Pooooooost:>>>", res);
+      rulePost();
     }
 
     this.time.delayedCall(
@@ -1130,23 +1120,20 @@ export class GameSceneTop
     }
     if (currLayer.properties) {
       // layer properties is actually an array of name to value objects
-
       /**
        * @typedef {Object} layerObjectPropItem
        * @property {string} name - property name, hoping to get Blackboard
        * @protected {string} value - of a blackboard in Json string, needs to be parsed
        */
-
       /**
        * @type { LogicLayerObjectPropItem[] }
        */
-      const properties = currLayer.properties as Record<string, string>[];
-      const blackboard = properties.find(({ name }) => name === "blackboard");
-      if (!blackboard) {
-        throw "Logic layer doesn't have Blackboard property - a json object";
-      }
-
-      this.blackboard = JSON.parse(blackboard.value);
+      // const properties = currLayer.properties as Record<string, string>[];
+      // const blackboard = properties.find(({ name }) => name === "blackboard");
+      // if (!blackboard) {
+      //   throw "Logic layer doesn't have Blackboard property - a json object";
+      // }
+      // this.blackboard = JSON.parse(blackboard.value);
     }
 
     currLayer.objects.forEach((o) => {
