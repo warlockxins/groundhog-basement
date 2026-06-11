@@ -339,7 +339,7 @@ export class GameSceneTop
       levelLogic,
     };
 
-    console.log("data passed to this scene", this.tilesetConfig);
+    // console.log("data passed to this scene", this.tilesetConfig);
 
     this.navMesh = new NavMeshSceneTop();
     this.pawnHandler = new PawnHandler();
@@ -352,14 +352,14 @@ export class GameSceneTop
   }
 
   preload() {
-    console.log("lets load!");
+    // console.log("lets load!");
 
     this.load.spritesheet(
       this.tilesetConfig.tilesetKey,
       this.tilesetConfig.tilesetSprite,
       { frameWidth: 128, frameHeight: 128 },
     );
-    console.log("key entries", this.cache.binary.getKeys());
+    // console.log("key entries", this.cache.binary.getKeys());
     // experiment with clearing active map
     this.cache.tilemap.remove("map");
     this.load.tilemapTiledJSON("map", this.tilesetConfig.level);
@@ -402,7 +402,7 @@ export class GameSceneTop
 
     this.sound.pauseOnBlur = true;
     this.loadingBar.clear().destroy();
-    console.log("CREATE------");
+    // console.log("CREATE------");
 
     this.scene.launch(CST.SCENES.GAME_HUD);
 

@@ -181,7 +181,7 @@ export class Character {
       this.barkList.clear();
       return;
     }
-    console.log("will bark", text);
+
     if (!text) return;
 
     this.barkList.add(text);
@@ -218,7 +218,7 @@ export class Character {
     this.controller?.onDamage("insane");
   }
 
-  animationDirectionFromSpeed(): string {
+  updateAnimationDirectionFromSpeed(): string {
     const y = this.lastDirection.y ?? 0;
     const xAnimFrame = this.lastDirection.x !== 0 ? "E" : "";
     const yAnimFrame = y > 0 ? "S" : y < 0 ? "N" : "";
@@ -258,7 +258,7 @@ export class Character {
 
     const playerVelocity = this.sprite.getVelocity();
 
-    this.animationDirectionFromSpeed();
+    this.updateAnimationDirectionFromSpeed();
 
     if (playerVelocity.x !== 0 || playerVelocity.y !== 0) {
       this.lastDirection = playerVelocity;

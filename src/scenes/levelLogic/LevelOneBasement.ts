@@ -240,7 +240,8 @@ export class LevelOne extends Level {
     // unexpected fence
     "66": () => {
       const dialogue: GameDialogue = {
-        rulePre: () => this.blackboard.haveKey === true,
+        rulePre: () =>
+          this.blackboard.haveKey === true && !this.blackboard.lookWithin,
         removeTrigger: true,
         character: {
           id: this.playerId,
