@@ -87,7 +87,7 @@ export class ButcherAttackState extends CharacterState {
 
     const { x: playerX, y: playerY } =
       this.character.scene.pawnHandler.characters[
-        this.character.scene.levelLogic.playerId
+        this.character.scene.levelLogic.getPlayerIndex()
       ].sprite;
 
     const direction = new Phaser.Math.Vector2({

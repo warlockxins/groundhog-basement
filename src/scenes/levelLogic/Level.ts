@@ -1,4 +1,13 @@
 export class Level {
-  playerId: number = -1;
+  private _playerIndex: number = -1;
+
+  public getPlayerIndex(): number {
+    return this._playerIndex;
+  }
+
+  public setPlayerIndex(v: number) {
+    this._playerIndex = v;
+  }
+
   dialogues: { [key: string]: () => { [key: string]: object } } = {};
 }

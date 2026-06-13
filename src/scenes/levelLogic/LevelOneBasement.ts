@@ -10,7 +10,7 @@ type DialogMap = {
 
 export class LevelOne extends Level {
   scene: Phaser.Scene & GameSceneTopPossibilities;
-  playerId = 8;
+
   blackboard = {
     haveKey: false,
     readBook: false,
@@ -27,7 +27,7 @@ export class LevelOne extends Level {
     "78": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             { bark: "About this nightmare" },
             {
@@ -50,7 +50,7 @@ export class LevelOne extends Level {
     "56": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             { bark: "Keep the light on" },
             {
@@ -70,7 +70,7 @@ export class LevelOne extends Level {
     "45": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             { bark: "Toggle the Light" },
             {
@@ -90,7 +90,7 @@ export class LevelOne extends Level {
     "44": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             {
               actionByApproval: {
@@ -109,7 +109,7 @@ export class LevelOne extends Level {
     "47": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             {
               actionByApproval: {
@@ -127,7 +127,7 @@ export class LevelOne extends Level {
     "50": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             {
               actionByApproval: {
@@ -146,7 +146,7 @@ export class LevelOne extends Level {
     "51": () => {
       const dialogue: GameDialogue = {
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             {
               actionByApproval: {
@@ -170,7 +170,7 @@ export class LevelOne extends Level {
         rulePreFail: {
           sound: "tryDoor",
           character: {
-            id: this.playerId,
+            getCharacterIndex: this.getPlayerIndex.bind(this),
             actions: [{ bark: "It's locked" }],
           },
         },
@@ -185,7 +185,7 @@ export class LevelOne extends Level {
       const dialogue: GameDialogue = {
         removeTrigger: true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [{ bark: "Is that\nBlood?" }],
         },
       };
@@ -199,7 +199,7 @@ export class LevelOne extends Level {
       const dialogue: GameDialogue = {
         removeTrigger: true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [{ bark: "Bodies everywhere!" }],
         },
       };
@@ -229,7 +229,7 @@ export class LevelOne extends Level {
           },
         ],
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [{ bark: "Now to that door!" }],
         },
       };
@@ -244,7 +244,7 @@ export class LevelOne extends Level {
           this.blackboard.haveKey === true && !this.blackboard.lookWithin,
         removeTrigger: true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [{ bark: "But ...\n where?!" }],
         },
       };
@@ -258,7 +258,7 @@ export class LevelOne extends Level {
       const dialogue: GameDialogue = {
         rulePre: () => this.blackboard.haveKey === true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             { bark: "The book:\nHow to escape" },
             {
@@ -285,7 +285,7 @@ export class LevelOne extends Level {
       const dialogue: GameDialogue = {
         rulePre: () => this.blackboard.readBook === true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             { bark: "The book:\nLook within" },
             {
@@ -312,7 +312,7 @@ export class LevelOne extends Level {
       const dialogue: GameDialogue = {
         rulePre: () => this.blackboard.lookWithin === true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [
             {
               actionByApproval: {
@@ -346,7 +346,7 @@ export class LevelOne extends Level {
       const dialogue: GameDialogue = {
         removeTrigger: true,
         character: {
-          id: this.playerId,
+          getCharacterIndex: this.getPlayerIndex.bind(this),
           actions: [{ bark: "Now what" }],
         },
       };

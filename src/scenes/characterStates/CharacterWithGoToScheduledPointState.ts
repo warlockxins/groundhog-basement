@@ -9,7 +9,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
   fetchFollowPathEvent!: Phaser.Time.TimerEvent;
   pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
 
-  followingCharacter: number | null = null;
+  followingCharacter: number = -1;
   followingWithAngerTimer: {
     elapsed: number; // 5 seconds to get angry
     coolingDown: boolean;
@@ -46,11 +46,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
           },
         );
 
-        // if (this.followingCharacter && newPath?.length > 10) {
-        // this.setEnemyFollowId(null);
-        // } else {
-        this.setAutoFollowPathPoints(newPath);
-        // }
+        this.setAutoFollowPathPoints(newPath ?? []);
       },
       callbackScope: this,
     });
@@ -63,10 +59,10 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     }
   }
 
-  setEnemyFollowId(id: number | null) {
+  setEnemyFollowId(id: number = -1) {
     this.followingCharacter = id;
 
-    if (id) {
+    if (id !== -1) {
       this.followingWithAngerTimer = {
         elapsed: 0,
         coolingDown: false,
@@ -126,10 +122,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
   pickNextPoint() {
     this.currentPointIndex += 1;
     if (this.currentPointIndex >= this.autoFollowPathPoints.length) {
-      // Todo: add if neeed to loop
-      // Todo: if no loop, notify parent
-      // console.log("-----> reached end");
-      if (this.followingCharacter) {
+      if (this.followingCharacter !== -1) {
         this.character.setAttackSchedule();
       } else {
         this.schedulePoints.currentIndex += 1;
@@ -210,7 +203,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
 
       // TODO - this is shit. Move to some state or smth
       if (
-        this.followingCharacter &&
+        this.followingCharacter !== -1 &&
         this.character.controller?.scene.pawnHandler.characters[
           this.followingCharacter
         ]
@@ -220,7 +213,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
             this.followingCharacter
           ].isDead
         ) {
-          this.setEnemyFollowId(null);
+          this.setEnemyFollowId(-1);
           this.character.bark("Wuss!");
           this.character.scene.sounds.maniacLaugh.play({ loop: false });
         }

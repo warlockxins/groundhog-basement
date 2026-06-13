@@ -36,7 +36,7 @@ export class ButcherControlls extends Controlls {
           );
 
           this.character.followPathState.setEnemyFollowId(
-            this.scene.levelLogic.playerId,
+            this.scene.levelLogic.getPlayerIndex(),
           );
         }
       },

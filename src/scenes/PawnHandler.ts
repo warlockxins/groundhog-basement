@@ -1,17 +1,14 @@
 import { Character } from "./Character";
 
 export class PawnHandler {
-  characters: Record<number, Character> = {};
-  _characterCache: Character[] = [];
+  characters: Character[] = [];
 
-  add(key: number, c: Character) {
-    this.characters[key] = c;
-    this._characterCache = Object.values(this.characters);
+  add(key: number, c: Character): number {
+    return this.characters.push(c) - 1;
   }
 
   update(_time: number, delta: number) {
-    // for (const c of Object.values(this.characters)) {
-    for (const c of this._characterCache) {
+    for (const c of this.characters) {
       c.currentState.update(delta);
     }
   }

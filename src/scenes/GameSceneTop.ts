@@ -317,7 +317,6 @@ export class GameSceneTop
   shadowCasterPoints: [number, number][][];
   shadowCasterGraphics: Phaser.GameObjects.Graphics;
   shadowCasterPointsCompiled: any[][];
-  playerObjectId: number;
 
   constructor() {
     super({
@@ -423,10 +422,8 @@ export class GameSceneTop
       this.onCharacterDeath,
       this,
     );
-    // this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
 
     this.game.events.once(sceneEventConstants.stopGameplayScene, () => {
-      // console.log("try destroy");
       this.scene.stop();
     });
 
@@ -553,7 +550,7 @@ export class GameSceneTop
     }: { characterId: number | null; point: { x: number; y: number } },
   ) {
     let pointTo = point;
-    if (characterId) {
+    if (characterId !== null && characterId !== -1) {
       const pawn = this.pawnHandler.characters[characterId];
       if (!pawn) {
         // Todo - inform characterPawn: path finished/not found
@@ -621,11 +618,7 @@ export class GameSceneTop
     } = d;
 
     if (rulePre) {
-      // console.log("RYYYYLE", rulePre());
-      // const res = jsonLogic.apply(rulePre, this.blackboard);
-      // return false;
       if (!rulePre()) {
-        // console.log(":::PREEEE:>>>", res);
         if (d.rulePreFail) {
           return this.processGameDialogue(d.rulePreFail, gameObject, receiver);
         }
@@ -640,7 +633,6 @@ export class GameSceneTop
 
     if (receiver && d.actor) {
       if (d.actor.events) {
-        // console.log('WHHHHHAAAAT?', d.actor);
         d.actor.events.forEach(({ name, value }) => {
           receiver.emit(name, value);
         });
@@ -668,7 +660,9 @@ export class GameSceneTop
     });
 
     if (character) {
-      const playerPawn = this.pawnHandler.characters[character.id];
+      const playerPawn =
+        this.pawnHandler.characters[character.getCharacterIndex()];
+
       character.actions.forEach((a) => {
         if (a.bark) {
           playerPawn.bark(a.bark);
@@ -696,25 +690,8 @@ export class GameSceneTop
         );
 
         if (objectToMove) {
-          // const circle = new Phaser.Geom.Circle(0, 0, 5);
-          // circle.setPosition(x + 64, y - 64);
-
-          // const graphics = this.add.graphics({
-          //   lineStyle: { color: 0x0000ff },
-          // });
-          // graphics.strokeCircleShape(circle);
-          // graphics.setDepth(y + 10000000);
-          // console.log(" >>>>>qqqqqq", objectToMove.data.get("--setData->"));
-
           objectToMove.setPosition(x + 64, y); // 64 is a half width of a tile - necessary evil
 
-          // if (objectToMove.body) {
-          //   objectToMove.body.position.x = x + 64;
-          //   objectToMove.body.position.y = y - 64;
-          // }
-          // this.navMesh.recalculateAt(x + 64, y - 64, this);
-          // this.navMesh.recalculateAt(x - 64, y, this);
-          // this.navMesh.recalculateAt(x + 64, y + 64, this);
           this.navMesh.showWaypoints(this);
         }
       });
@@ -942,7 +919,6 @@ export class GameSceneTop
             try {
               computedColor = parseHexColor(color).color;
             } catch {}
-            // console.log("??????>>>>>>>", color)
           }
 
           const l = this.lights
@@ -992,17 +968,11 @@ export class GameSceneTop
     const objects: CustomTileObject[] = (layer.objects ??
       []) as unknown as CustomTileObject[];
 
-    // console.log("objects in ", n, objects);
-
     objects.forEach((t) => {
-      // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
-
       // read smart object type ----------------
 
       let smartTile: SpriteWithDepth | null = null;
       let collisionGroup = this.tileset.getTileProperties(t.gid);
-      // @ts-ignore
-      // console.log(",,,,,,,,,,,", t.gid, t.name, collisionGroup?.kind);
 
       // @ts-ignore
       switch (collisionGroup?.kind) {
@@ -1059,12 +1029,9 @@ export class GameSceneTop
 
       if (!tileCollision) {
         // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
-        // smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
         smartTile.setOrigin(0.5, 1);
         smartTile.setPosition(t.x + t.width / 2, t.y);
-        // smartTile.setRotation(Phaser.Math.DegToRad(+t.rotation));
         (smartTile.body as MatterJS.BodyType).isSensor = true;
-        // console.log('--------offset here?', t.height);
         return;
       }
       const {
@@ -1086,11 +1053,9 @@ export class GameSceneTop
         smartTile.setStatic(true);
         smartTile.setPosition(t.x + t.width / 2, t.y);
         smartTile.setOrigin(0.5, 1);
-        // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
       } else {
         // Movable items like a chair
         smartTile.setCircle(radius, { dialogue, isSensor: sensor });
-        // smartTile.body.dialogue = dialogue;
         smartTile.setFixedRotation();
         smartTile.setMass(100);
         smartTile.setFrictionAir(1);
@@ -1117,23 +1082,6 @@ export class GameSceneTop
 
     if (currLayer.name !== "logic") {
       throw "passed incorrect layer to 'Logic' object processor";
-    }
-    if (currLayer.properties) {
-      // layer properties is actually an array of name to value objects
-      /**
-       * @typedef {Object} layerObjectPropItem
-       * @property {string} name - property name, hoping to get Blackboard
-       * @protected {string} value - of a blackboard in Json string, needs to be parsed
-       */
-      /**
-       * @type { LogicLayerObjectPropItem[] }
-       */
-      // const properties = currLayer.properties as Record<string, string>[];
-      // const blackboard = properties.find(({ name }) => name === "blackboard");
-      // if (!blackboard) {
-      //   throw "Logic layer doesn't have Blackboard property - a json object";
-      // }
-      // this.blackboard = JSON.parse(blackboard.value);
     }
 
     currLayer.objects.forEach((o) => {
@@ -1162,8 +1110,6 @@ export class GameSceneTop
         const parsedOnEnterEvent = onEnterEvent?.value
           ? JSON.parse(onEnterEvent.value)
           : this.levelLogic.dialogues[o.id.toString()]?.().onEnter;
-
-        // console.lo
 
         if (parsedOnEnterEvent) {
           physicsOptions.dialogue = parsedOnEnterEvent;
@@ -1214,9 +1160,7 @@ export class GameSceneTop
     pawn.moveAnim = "walk";
 
     const enemyId = o.properties.find(({ name }) => name === "id")?.value;
-    // this.pawnHandler.add(enemyId ?? "butcher", pawn);
     this.pawnHandler.add(o.id, pawn);
-    // console.log("--Enemy id->", o.id, ", label:", enemyId);
 
     pawn.id = enemyId;
 
@@ -1250,8 +1194,6 @@ export class GameSceneTop
       throw "Not spawning from correct Logic TiledObject, expecting 'start'";
     }
 
-    this.playerObjectId = o.id;
-
     const pawn = new Character(
       this,
       o.x ?? 0,
@@ -1261,9 +1203,9 @@ export class GameSceneTop
     );
     pawn.controller = new SebastianPlayerControlls(this, pawn);
 
-    this.pawnHandler.add(o.id, pawn);
+    const playerIndex = this.pawnHandler.add(o.id, pawn);
+    this.levelLogic.setPlayerIndex(playerIndex);
     pawn.id = "player";
-
     this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
     this.cameras.main.startFollow(pawn.sprite, false, 0.2, 0.2);
   }
@@ -1311,7 +1253,6 @@ export class GameSceneTop
     let objectTween: Record<string, unknown> | undefined = undefined;
     let dialogue = {};
     let hasSensor = false;
-    // console.log("-----------", tile.index, collisionGroup);
 
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i];
@@ -1332,7 +1273,6 @@ export class GameSceneTop
         radius = JSON.parse(kinematicRadius.value as number);
       }
 
-      // console.log("==========KINEMATIC", isKinematic);
       if (isKinematic) {
         kinematic = true;
       }
@@ -1351,9 +1291,6 @@ export class GameSceneTop
 
       const isShadowCaster = props.find(({ name }) => name === "shadow")
         ?.value as boolean;
-      // if (isShadowCaster) {
-      //   console.log('---wooooooo-->', isShadowCaster, object);
-      // }
 
       const onEnterEvent = JSON.parse(
         (props.find(({ name }) => name === "onEnter")?.value as string) ?? "{}",
@@ -1364,10 +1301,6 @@ export class GameSceneTop
           (objectProps.find(({ name }) => name === "onEnter")?.value ??
             "{ }") as string,
         );
-
-      // if (tile.id === 78) {
-      //   debugger
-      // }
 
       if (onEnterEvent) {
         dialogue = {
@@ -1461,7 +1394,6 @@ export class GameSceneTop
   }
 
   update(time: number, delta: number) {
-    // console.log("------>", this.collisionCache.size);
     this.previousCollisionCache.forEach((pair, key) => {
       // On end collision
       if (!this.collisionCache.has(key)) {
@@ -1473,7 +1405,7 @@ export class GameSceneTop
           if (someBodyIsPlayer) {
             // reset players action promt
             this.pawnHandler.characters[
-              this.playerObjectId
+              this.levelLogic.getPlayerIndex()
             ].addActionForApproval(undefined);
           }
         }
@@ -1493,7 +1425,8 @@ export class GameSceneTop
   }
 
   updateShadowForCharacter() {
-    const { x, y } = this.pawnHandler.characters[this.playerObjectId].sprite;
+    const { x, y } =
+      this.pawnHandler.characters[this.levelLogic.getPlayerIndex()].sprite;
     const { transparencies, quad } = VisibilityPolygon.computeInverse(
       [x, y],
       this.shadowCasterPointsCompiled,
@@ -1522,9 +1455,7 @@ export class GameSceneTop
       this.textures.list[this.tilesetConfig.tilesetKey];
     const frame = tileTexture.get(56); // Get frame 56
     if (frame) {
-      // debugger
       tileTexture.add(newTextureFrame, 0, frame.cutX, frame.cutY, 64, 64);
     }
-    // tileTexture.add(newTextureFrame, 0, 0, 0, 64, 64);
   }
 }
