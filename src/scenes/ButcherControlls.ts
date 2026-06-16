@@ -2,6 +2,7 @@ import { Character } from "./Character";
 import { sceneEventConstants } from "./sceneEvents";
 import { Controlls } from "./BaseControlls";
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
+import { PLAYER } from "../constants/labels";
 
 export class ButcherControlls extends Controlls {
   chasePoint: { x: number; y: number } | null = null;
@@ -25,7 +26,7 @@ export class ButcherControlls extends Controlls {
           .intersectRect(x - diameter, y - diameter, diameter * 2, diameter * 2)
           .filter((b) => {
             // @ts-ignore
-            return !b.isStatic && b.label === "player";
+            return !b.isStatic && b.label === PLAYER;
           });
 
         if (bodies.length > 0) {

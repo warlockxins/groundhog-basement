@@ -29,6 +29,7 @@ import { ChairSmartObject } from "./smartSprites/ChairSmartObject";
 import { Level } from "./levelLogic/Level";
 import { LevelOne } from "./levelLogic/LevelOneBasement";
 import VisibilityPolygon from "../levelComponents/visibility_polygon_dev";
+import { PLAYER } from "../constants/labels";
 
 type SceneNavigationMesh = {
   vertices: NavMeshPointMap;
@@ -48,7 +49,7 @@ function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-        (p.y - points[a].y) * (p.y - points[a].y),
+      (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -285,8 +286,7 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities
-{
+  implements GameSceneTopPossibilities {
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -786,8 +786,7 @@ export class GameSceneTop
 
   processCollisions(event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
     // Note - technically already checked by onLevelTriggerCollide
-    const isPlayerHere = [bodyA.label, bodyB.label].some((l) => l === "player");
-    if (!isPlayerHere) {
+    if (bodyA.label !== PLAYER && bodyB.label !== PLAYER) {
       return;
     }
 
@@ -834,7 +833,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() {}
+  addPhysicsListeners() { }
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -918,7 +917,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch {}
+            } catch { }
           }
 
           const l = this.lights
@@ -1199,13 +1198,13 @@ export class GameSceneTop
       o.x ?? 0,
       o.y ?? 0,
       "walk-NE.png",
-      "player",
+      PLAYER,
     );
     pawn.controller = new SebastianPlayerControlls(this, pawn);
 
     const playerIndex = this.pawnHandler.add(o.id, pawn);
     this.levelLogic.setPlayerIndex(playerIndex);
-    pawn.id = "player";
+    pawn.id = PLAYER;
     this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
     this.cameras.main.startFollow(pawn.sprite, false, 0.2, 0.2);
   }
@@ -1399,10 +1398,7 @@ export class GameSceneTop
       if (!this.collisionCache.has(key)) {
         // ugly but more optimal
         if (pair.bodyA.isCharacter || pair.bodyB.isCharacter) {
-          const someBodyIsPlayer =
-            pair.bodyA.label === "player" || pair.bodyB.label === "player";
-
-          if (someBodyIsPlayer) {
+          if (pair.bodyA.label === PLAYER || pair.bodyB.label === PLAYER) {
             // reset players action promt
             this.pawnHandler.characters[
               this.levelLogic.getPlayerIndex()

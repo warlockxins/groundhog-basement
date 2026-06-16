@@ -1,6 +1,7 @@
 import { CharacterState } from "./CharacterState";
 import { Animations } from "phaser";
 import { GameSceneTop } from "../GameSceneTop";
+import { PLAYER } from "../../constants/labels";
 
 export class ButcherAttackState extends CharacterState {
   pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
@@ -58,7 +59,7 @@ export class ButcherAttackState extends CharacterState {
       .intersectRect(rX, rY, diameter * 2, diameter * 2)
       .filter((b) => {
         // @ts-ignore
-        return !b.isStatic && b.label === "player";
+        return !b.isStatic && b.label === PLAYER;
       });
 
     if (bodies.length > 0) {
