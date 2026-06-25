@@ -67,7 +67,7 @@ export class ButcherAttackState extends CharacterState {
 
       // @ts-ignore
       playerBody.gameObject.emit("damage", 100);
-      this.character.followPathState.setEnemyFollowId(null);
+      this.character.followPathState.setEnemyFollowId(-1);
 
       this.character.bark("BITCH!");
     }
