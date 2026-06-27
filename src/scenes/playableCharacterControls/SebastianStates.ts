@@ -49,7 +49,7 @@ export class SebastianStates implements I_AnimationState {
     this.states.idle.start();
   }
 
-  end() {}
+  end() { }
 
   update(): I_AnimationState {
     const nextState = this.currentState.update();
@@ -76,7 +76,7 @@ class MovableRoot implements I_AnimationState {
     this.animation = animation;
     this.speed = speed;
   }
-  start() {}
+  start() { }
   update(): I_AnimationState {
     if (this.controller.moveIntent.up) {
       if (this.controller.moveIntent.right) {
@@ -108,7 +108,7 @@ class MovableRoot implements I_AnimationState {
 
     return this.controller.states.idle;
   }
-  end() {}
+  end() { }
 
   playAnimation(repeat: boolean = true) {
     this.controller.animationDirection =
@@ -120,6 +120,9 @@ class MovableRoot implements I_AnimationState {
         repeat: repeat ? -1 : 0,
         key: newAnimation,
       });
+
+      this.controller.sprite.setDisplaySize(180, 180);
+      this.controller.sprite.setOrigin(0.5, 0.8)
     }
   }
 }

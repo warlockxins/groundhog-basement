@@ -63,11 +63,14 @@ export class Character {
           mask: 1,
         },
       })
-      .setScale(0.7)
+      // .setScale(1)
       // .setDisplaySize(30, 80)
       .setFixedRotation()
       .setOrigin(0.5, 0.9)
       .setPipeline("Light2D");
+
+    this.sprite.setDisplaySize(30, 30);
+
 
     // an optimisation - collision callbacks will reference this to know if
     // body is a character first, and by label later.
@@ -232,7 +235,7 @@ export class Character {
   updateShadowLightDepth() {
     this.sprite.setDepth(this.sprite.y);
     this.shadow.x = this.sprite.x;
-    this.shadow.y = this.sprite.y - 5;
+    this.shadow.y = this.sprite.y + 5;
     this.shadow.setDepth(this.sprite.y - 10);
 
     this.textBubble.setPosition(this.sprite.x, this.sprite.y);
