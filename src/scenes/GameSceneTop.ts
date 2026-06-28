@@ -5,18 +5,12 @@
 import { CST } from "../constants/CST";
 
 // import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-import { NavMeshPoint } from "../levelComponents/NavMesh";
 import { Character } from "./Character";
 import { GameDialogue } from "./GameDialogue";
 import { sceneEventConstants } from "./sceneEvents";
 import { ButcherControlls } from "./ButcherControlls";
 import { SebastianPlayerControlls } from "./playableCharacterControls/SebastianPlayerControlls";
-import {
-  EdgeOfPathPoint,
-  PATH_POINT_KEY,
-  PathPlanner,
-  PathPoint,
-} from "../levelComponents/PathPlanner";
+import { PathPoint } from "../levelComponents/PathPlanner";
 
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
 import { soundSource } from "../constants/sounds";
@@ -30,8 +24,9 @@ import { Level } from "./levelLogic/Level";
 import { LevelOne } from "./levelLogic/LevelOneBasement";
 import VisibilityPolygon from "../levelComponents/visibility_polygon_dev";
 import { PLAYER } from "../constants/labels";
+import { NavMeshSceneTop } from "./NavMeshSceneTop";
 
-function closestPointInRecords(
+export function closestPointInRecords(
   p: PathPoint,
   points: Record<number, PathPoint>,
   predicateToIncludeCallback?: (val: any, d: number) => boolean,
@@ -60,180 +55,6 @@ function closestPointInRecords(
     }
   }
   return closestPoint;
-}
-
-// TODO - WAYPOINTS can use their tileset x and Y index, save that info to waypoint too
-function getKeyForWaypointAt(x: number, y: number): number {
-  return (x << 16) | y;
-}
-type Waypoint = {
-  x: number;
-  y: number;
-  size: number;
-  xIndex: number;
-  yIndex: number;
-};
-class NavMeshSceneTop {
-  edges: Record<string, EdgeOfPathPoint[]> = {};
-
-  waypoints: Record<number, Waypoint> = {};
-  graphics!: Phaser.GameObjects.Graphics;
-
-  getOrCreateEdgePathPointList(key: number) {
-    if (!this.edges[key]) {
-      this.edges[key] = [];
-    }
-    return this.edges[key];
-  }
-  calculatePointEdges(scene: Phaser.Scene) {
-    this.edges = {};
-    for (const [key, wp] of Object.entries(this.waypoints)) {
-      this.calculateWaypointEdgeToRightAndBottom(+key, wp, scene);
-    }
-  }
-
-  calculateWaypointEdgeToRightAndBottom(
-    key: PATH_POINT_KEY,
-    wp: Waypoint,
-    scene: Phaser.Scene,
-  ) {
-    const wayPointKeyTop = getKeyForWaypointAt(wp.xIndex, wp.yIndex - 1);
-    const wayPointKeyRight = getKeyForWaypointAt(wp.xIndex + 1, wp.yIndex);
-
-    // console.log('===>>>>>', wayPointKeyRight, wayPointKeyTop, key);
-    this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
-    this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
-  }
-
-  tryConnectPointsToEdge(
-    scene: Phaser.Scene,
-    keyFrom: PATH_POINT_KEY,
-    keyTo: PATH_POINT_KEY,
-  ) {
-    if (!this.waypoints[keyTo]) {
-      return;
-    }
-
-    const p1 = this.waypoints[keyFrom];
-    const p2 = this.waypoints[keyTo];
-    // console.log('<<<<<<<', p1, p2);
-    const bodies = scene.matter
-      .intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
-      // @ts-ignore    here we know for a fact these parameters exist, only interested in static objects, as path goes between WALLS
-      .filter((b) => !b.isSensor && b.isStatic);
-
-    // const mapped = bodies.map((b) => {
-    //   return b.name;
-    // });
-    // console.log("---->, bodies in the way ", mapped);
-    // path is free to walk
-    if (bodies.length === 0) {
-      this.getOrCreateEdgePathPointList(keyFrom).push({
-        to: keyTo,
-        cost: 1,
-      });
-
-      this.getOrCreateEdgePathPointList(keyTo).push({
-        to: keyFrom,
-        cost: 1,
-      });
-    } else {
-      const points = this.getOrCreateEdgePathPointList(keyFrom);
-      const indexFrom = points.findIndex((p) => p.to === keyFrom);
-      const indexTo = points.findIndex((p) => p.to === keyTo);
-
-      if (indexFrom !== -1) {
-        points.splice(indexFrom, 1);
-      }
-      if (indexTo !== -1) {
-        points.splice(indexTo, 1);
-      }
-    }
-  }
-
-  recalculateAt(x: number, y: number, scene: Phaser.Scene) {
-    const from = this.closest({
-      x,
-      y,
-    });
-    // debugger;
-
-    if (!from) {
-      return;
-    }
-    this.calculateWaypointEdgeToRightAndBottom(
-      from,
-      this.waypoints[from],
-      scene,
-    );
-
-    this.showWaypoints(scene);
-  }
-
-  getPath(from: PathPoint, to: PathPoint) {
-    const planner = new PathPlanner(
-      new Map(Object.entries(this.waypoints).map((e) => [+e[0], e[1]])),
-      this.edges,
-    );
-
-    let fromKey = this.closest(from);
-    let toKey = this.closest(to);
-
-    if (!fromKey || !toKey) {
-      return null;
-    }
-    const result = planner.execute(
-      // @ts-ignore
-      +fromKey,
-      +toKey,
-    );
-
-    // console.log("=======>>>>>>> path", result);
-    if (result.length > 1) {
-      result[result.length - 1] = from;
-    }
-
-    return result;
-  }
-
-  closest(p: PathPoint): number | null {
-    return closestPointInRecords(p, this.waypoints);
-  }
-
-  showWaypoints(scene: Phaser.Scene) {
-    // console.log(">>>>>>", this.waypoints);
-    this.calculatePointEdges(scene);
-
-    if (!scene.matter.world.drawDebug) {
-      return;
-    }
-
-    if (!this.graphics) {
-      this.graphics = scene.add.graphics({ lineStyle: { color: 0xff0000 } });
-    } else {
-      this.graphics.clear();
-    }
-
-    let maxDepth = 0;
-    // for (const w of Object.values(this.waypoints)) {
-    //   const circle = new Phaser.Geom.Circle(0, 0, 5);
-    //   circle.setPosition(w.x, w.y);
-    //   this.graphics.strokeCircleShape(circle);
-    //   maxDepth = Math.max(maxDepth, w.y);
-    // }
-
-    for (const edgeFromPointKey in this.edges) {
-      const from = this.waypoints[edgeFromPointKey];
-
-      for (const e of this.edges[edgeFromPointKey]) {
-        const to = this.waypoints[e.to];
-        const l = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
-        this.graphics.strokeLineShape(l);
-      }
-    }
-
-    this.graphics.setDepth(maxDepth + 10);
-  }
 }
 
 export type LevelConfig = {
@@ -304,9 +125,9 @@ export class GameSceneTop
   previousCollisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   smartLightRayImage!: Record<string, string>;
   levelLogic!: Level;
-  shadowCasterPoints: [number, number][][];
-  shadowCasterGraphics: Phaser.GameObjects.Graphics;
-  shadowCasterPointsCompiled: any[][];
+  shadowCasterPoints!: [number, number][][];
+  shadowCasterGraphics!: Phaser.GameObjects.Graphics;
+  shadowCasterPointsCompiled!: any[][];
 
   constructor() {
     super({
@@ -533,7 +354,7 @@ export class GameSceneTop
   }
 
   onRequestCharacterFollowPath(
-    from: NavMeshPoint,
+    from: PathPoint,
     {
       characterId,
       point,
@@ -741,8 +562,8 @@ export class GameSceneTop
 
   getLogicObject(key: string) {
     return this.map
-      .getObjectLayer("logic")
-      .objects.find((item) => item.name === key);
+      ?.getObjectLayer("logic")
+      ?.objects.find((item) => item.name === key);
   }
 
   onLevelTriggerCollide(pair: Phaser.Physics.Matter.Pair) {
@@ -833,7 +654,7 @@ export class GameSceneTop
     this.tileset = this.map.addTilesetImage(
       this.tilesetConfig.tilesetName,
       this.tilesetConfig.tilesetKey,
-    );
+    )!;
 
     this.map.layers.forEach((l, layerIndex) => {
       const hasTileCollisions = l.properties.find(({ name, value }) => {
@@ -846,8 +667,7 @@ export class GameSceneTop
             const x = t.pixelX + t.width / 2;
             const y = t.pixelY + t.height / 2;
             // Todo key gen should be in navmesh
-            const wayPointKey = getKeyForWaypointAt(t.x, t.y);
-            // console.log('-->>>>>>>>>', wayPointKey, t.x, t.y); // TODO use t.x annd t.y above
+            const wayPointKey = NavMeshSceneTop.getKeyForWaypointAt(t.x, t.y);
             // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
             // Note - probably need to move into separate function
             if (!t.properties.above) {
@@ -1158,7 +978,7 @@ export class GameSceneTop
       const scheduleIds =
         (JSON.parse(onInitEvent.value) as GameDialogue).schedule?.ids ?? [];
 
-      const schedulePointsOrNull: (NavMeshPoint | null)[] = scheduleIds.map(
+      const schedulePointsOrNull: (PathPoint | null)[] = scheduleIds.map(
         (id: string) => {
           const logicObject = this.getLogicObjectFromLayer(id);
           if (!logicObject) {
@@ -1173,7 +993,7 @@ export class GameSceneTop
       );
 
       pawn.setAutoPathFollowSchedule(
-        schedulePointsOrNull.filter((o) => o !== null) as NavMeshPoint[],
+        schedulePointsOrNull.filter((o) => o !== null) as PathPoint[],
       );
     }
   }

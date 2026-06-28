@@ -1,9 +1,9 @@
 import { CharacterState } from "./CharacterState";
-import { NavMeshPoint } from "../../levelComponents/NavMesh";
 import { sceneEventConstants } from "../sceneEvents";
 import { GameSceneTopPossibilities } from "../GameSceneTopInterface";
+import { PathPoint } from "~/levelComponents/PathPlanner";
 export class CharacterWithGoToScheduledPointState extends CharacterState {
-  autoFollowPathPoints: NavMeshPoint[] = [];
+  autoFollowPathPoints: PathPoint[] = [];
   currentPointIndex = -1;
 
   fetchFollowPathEvent!: Phaser.Time.TimerEvent;
@@ -16,13 +16,13 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
   } | null = null;
 
   schedulePoints: {
-    originalScheduleForWalking: NavMeshPoint[];
+    originalScheduleForWalking: PathPoint[];
     currentIndex: number;
   } = {
     originalScheduleForWalking: [],
     currentIndex: -1,
   };
-  nextPoint!: NavMeshPoint;
+  nextPoint!: PathPoint;
 
   start() {
     this.character.sprite.on(
@@ -86,7 +86,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
 
     this.pathGraphicsDebugInfo.clear();
     if (toDrawPAth) {
-      let lastPoint: NavMeshPoint | null = null;
+      let lastPoint: PathPoint | null = null;
 
       for (const p of toDrawPAth) {
         if (lastPoint) {
@@ -145,7 +145,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     }
   }
 
-  setWalkingSchedule(ids: NavMeshPoint[]) {
+  setWalkingSchedule(ids: PathPoint[]) {
     this.schedulePoints.originalScheduleForWalking = ids ?? [];
     this.schedulePoints.currentIndex = -1;
     if (this.schedulePoints.originalScheduleForWalking.length > 0) {
@@ -157,7 +157,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     this.setAutoFollowPathPoints(ids);
   }
 
-  setAutoFollowPathPoints(points: NavMeshPoint[] = []) {
+  setAutoFollowPathPoints(points: PathPoint[] = []) {
     this.autoFollowPathPoints = points;
 
     if (this.autoFollowPathPoints.length > 0) {

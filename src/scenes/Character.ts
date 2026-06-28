@@ -1,11 +1,10 @@
-import { sceneEventConstants } from "./sceneEvents";
 import { Controlls } from "./BaseControlls";
-import { NavMeshPoint } from "~/levelComponents/NavMesh";
 import { CharacterState } from "./characterStates/CharacterState";
 import { ButcherAttackState } from "./characterStates/ButcherAttackState";
 import { CharacterWithGoToScheduledPointState } from "./characterStates/CharacterWithGoToScheduledPointState";
 import { GameDialogue } from "./GameDialogue";
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
+import { PathPoint } from "~/levelComponents/PathPlanner";
 
 class CharacterWithControllerState extends CharacterState {
   update(delta: number) {
@@ -137,7 +136,7 @@ export class Character {
     this.actionIndicator.strokePath();
   }
 
-  setAutoPathFollowSchedule(autoPathFollowSchedule: NavMeshPoint[]) {
+  setAutoPathFollowSchedule(autoPathFollowSchedule: PathPoint[]) {
     if (!this.followPathState) {
       this.followPathState = new CharacterWithGoToScheduledPointState(this);
 

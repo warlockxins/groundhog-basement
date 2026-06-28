@@ -1,8 +1,8 @@
-import { NavMeshPoint } from "../levelComponents/NavMesh";
 import { soundSource } from "../constants/sounds";
 import { PawnHandler } from "./PawnHandler";
 import { GameDialogue } from "./GameDialogue";
 import { Level } from "./levelLogic/Level";
+import { PathPoint } from "~/levelComponents/PathPlanner";
 
 export interface GameSceneTopPossibilities {
   pawnHandler: PawnHandler;
@@ -11,12 +11,12 @@ export interface GameSceneTopPossibilities {
     maxDistance?: number,
   ): number | null;
   onRequestCharacterFollowPath: (
-    from: NavMeshPoint,
+    from: PathPoint,
     {
       characterId,
       point,
     }: { characterId: number | null; point: { x: number; y: number } },
-  ) => NavMeshPoint[] | null;
+  ) => PathPoint[] | null;
   sounds: Record<
     keyof typeof soundSource,
     | Phaser.Sound.NoAudioSound
