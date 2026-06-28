@@ -19,9 +19,9 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     originalScheduleForWalking: NavMeshPoint[];
     currentIndex: number;
   } = {
-      originalScheduleForWalking: [],
-      currentIndex: -1,
-    };
+    originalScheduleForWalking: [],
+    currentIndex: -1,
+  };
   nextPoint!: NavMeshPoint;
 
   start() {
@@ -131,7 +131,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
         }
         this.nextPoint =
           this.schedulePoints.originalScheduleForWalking[
-          this.schedulePoints.currentIndex
+            this.schedulePoints.currentIndex
           ];
       }
     } else {
@@ -157,8 +157,8 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
     this.setAutoFollowPathPoints(ids);
   }
 
-  setAutoFollowPathPoints(ids: NavMeshPoint[] = []) {
-    this.autoFollowPathPoints = ids;
+  setAutoFollowPathPoints(points: NavMeshPoint[] = []) {
+    this.autoFollowPathPoints = points;
 
     if (this.autoFollowPathPoints.length > 0) {
       this.autoFollowPathPoints[0] = {
@@ -202,7 +202,7 @@ export class CharacterWithGoToScheduledPointState extends CharacterState {
       if (
         this.followingCharacter !== -1 &&
         this.character.controller?.scene.pawnHandler.characters[
-        this.followingCharacter
+          this.followingCharacter
         ]
       ) {
         if (

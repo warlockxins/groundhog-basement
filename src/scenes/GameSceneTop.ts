@@ -5,7 +5,7 @@
 import { CST } from "../constants/CST";
 
 // import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-import { NavMeshPoint, NavMeshPointMap } from "../levelComponents/NavMesh";
+import { NavMeshPoint } from "../levelComponents/NavMesh";
 import { Character } from "./Character";
 import { GameDialogue } from "./GameDialogue";
 import { sceneEventConstants } from "./sceneEvents";
@@ -31,11 +31,6 @@ import { LevelOne } from "./levelLogic/LevelOneBasement";
 import VisibilityPolygon from "../levelComponents/visibility_polygon_dev";
 import { PLAYER } from "../constants/labels";
 
-type SceneNavigationMesh = {
-  vertices: NavMeshPointMap;
-  edges: Record<string, EdgeOfPathPoint[]>;
-};
-
 function closestPointInRecords(
   p: PathPoint,
   points: Record<number, PathPoint>,
@@ -45,11 +40,11 @@ function closestPointInRecords(
   // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
   let minDistance = 10000000;
   let closestPoint: number | null = null;
-  // debugger
+
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-      (p.y - points[a].y) * (p.y - points[a].y),
+        (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -68,12 +63,7 @@ function closestPointInRecords(
 }
 
 // TODO - WAYPOINTS can use their tileset x and Y index, save that info to waypoint too
-// const X_WAYPOINT_OFFSET_MULTIPLYER = 10000;
 function getKeyForWaypointAt(x: number, y: number): number {
-  // console.log('--->', x, y)
-  // return x * X_WAYPOINT_OFFSET_MULTIPLYER + y;
-  // return `${x}_${y}`;
-
   return (x << 16) | y;
 }
 type Waypoint = {
@@ -84,7 +74,6 @@ type Waypoint = {
   yIndex: number;
 };
 class NavMeshSceneTop {
-  mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
   edges: Record<string, EdgeOfPathPoint[]> = {};
 
   waypoints: Record<number, Waypoint> = {};
@@ -286,7 +275,8 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities {
+  implements GameSceneTopPossibilities
+{
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -833,7 +823,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() { }
+  addPhysicsListeners() {}
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -917,7 +907,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch { }
+            } catch {}
           }
 
           const l = this.lights
@@ -1193,13 +1183,7 @@ export class GameSceneTop
       throw "Not spawning from correct Logic TiledObject, expecting 'start'";
     }
 
-    const pawn = new Character(
-      this,
-      o.x ?? 0,
-      o.y ?? 0,
-      "walk-NE.png",
-      PLAYER,
-    );
+    const pawn = new Character(this, o.x ?? 0, o.y ?? 0, "walk-NE.png", PLAYER);
     pawn.controller = new SebastianPlayerControlls(this, pawn);
 
     const playerIndex = this.pawnHandler.add(o.id, pawn);

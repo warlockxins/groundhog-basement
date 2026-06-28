@@ -63,21 +63,17 @@ export class Character {
           mask: 1,
         },
       })
-      // .setScale(1)
-      // .setDisplaySize(30, 80)
       .setFixedRotation()
       .setOrigin(0.5, 0.9)
       .setPipeline("Light2D");
 
     this.sprite.setDisplaySize(30, 30);
 
-
     // an optimisation - collision callbacks will reference this to know if
     // body is a character first, and by label later.
     // @ts-expect-error
     this.sprite.body.isCharacter = true;
 
-    // this.sprite.displayWidth = 10;
     this.textBubble = scene.add.text(10, 10, "");
     this.textBubble.setBackgroundColor("#000000");
     this.textBubble.setAlign("center");
@@ -94,7 +90,6 @@ export class Character {
       .setColor(0xffffff)
       .setIntensity(1.0);
 
-    // this.textBubble.setText("Bodies everywhere!");
     this.defaultAnimation = "idle";
     this.moveAnim = "walk";
 
