@@ -39,7 +39,7 @@ export function closestPointInRecords(
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-        (p.y - points[a].y) * (p.y - points[a].y),
+      (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -96,8 +96,7 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities
-{
+  implements GameSceneTopPossibilities {
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -253,18 +252,6 @@ export class GameSceneTop
     // Note - right above ground tiles
     this.shadowCasterGraphics.setDepth(1);
     this.shadowCasterGraphics.alpha = 0.6;
-    // this.shadowCasterGraphics.lineStyle(1, 0x00ff00);
-
-    // for (let i = 0; i < this.shadowCasterPoints.length; i++) {
-    //   for (let j = 0; j < this.shadowCasterPoints[i].length - 1; j++) {
-    //     const l1 = this.shadowCasterPoints[i][j];
-    //     const l2 = this.shadowCasterPoints[i][j + 1];
-    //     this.shadowCasterGraphics.moveTo(l1[0], l1[1]);
-    //     this.shadowCasterGraphics.lineTo(l2[0], l2[1]);
-
-    //     this.shadowCasterGraphics.strokePath();
-    //   }
-    // }
   }
 
   drawShadowTriangles(
@@ -308,9 +295,6 @@ export class GameSceneTop
       const color3 = new Phaser.Display.Color(c3, c3, c3).color;
       const color4 = new Phaser.Display.Color(c4, c4, c4).color;
 
-      // debugger
-      // Draw the triangle using coordinates (x1, y1, x2, y2, x3, y3)
-      // this.triangleGraphics.fillGradientStyle(0xff0000, 0x00ff00, 0x0000ff, 0x000000, 1);
       this.shadowCasterGraphics.fillGradientStyle(color3, color2, color1, 0, 1);
 
       this.shadowCasterGraphics.fillTriangle(
@@ -644,7 +628,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() {}
+  addPhysicsListeners() { }
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -727,7 +711,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch {}
+            } catch { }
           }
 
           const l = this.lights

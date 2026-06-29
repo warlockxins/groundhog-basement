@@ -203,7 +203,7 @@ VisibilityPolygon.lineNormalSeesPoint = function(a, b, p) {
     return dotProduct > 0;
 }
 
-const MAX_SHADOW_DISTANCE = 300;
+const MAX_SHADOW_DISTANCE = 200;
 
 /**
  * @typedef {[number, number]} Vertex
