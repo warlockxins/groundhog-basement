@@ -5,31 +5,28 @@
 import { CST } from "../constants/CST";
 
 // import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
-import { NavMeshPoint, NavMeshPointMap } from "../levelComponents/NavMesh";
-import jsonLogic from "../jsonLogic";
 import { Character } from "./Character";
 import { GameDialogue } from "./GameDialogue";
 import { sceneEventConstants } from "./sceneEvents";
 import { ButcherControlls } from "./ButcherControlls";
 import { SebastianPlayerControlls } from "./playableCharacterControls/SebastianPlayerControlls";
-import {
-  EdgeOfPathPoint,
-  PATH_POINT_KEY,
-  PathPlanner,
-  PathPoint,
-} from "../levelComponents/PathPlanner";
+import { PathPoint } from "../levelComponents/PathPlanner";
 
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
 import { soundSource } from "../constants/sounds";
 import { PawnHandler } from "./PawnHandler";
 import { GameSceneTopHudScene } from "./GameSceneTopHudScene";
+import { CustomTileObject } from "./types";
+import { SpriteWithDepth } from "./smartSprites/SpriteWithDepth";
+import { LightSwitchSmartObject } from "./smartSprites/LightSwitchSmartObject";
+import { ChairSmartObject } from "./smartSprites/ChairSmartObject";
+import { Level } from "./levelLogic/Level";
+import { LevelOne } from "./levelLogic/LevelOneBasement";
+import { PLAYER } from "../constants/labels";
+import { NavMeshSceneTop } from "./NavMeshSceneTop";
+import { ShadowRenderer } from "./ShadowRenderer";
 
-type SceneNavigationMesh = {
-  vertices: NavMeshPointMap;
-  edges: Record<string, EdgeOfPathPoint[]>;
-};
-
-function closestPointInRecords(
+export function closestPointInRecords(
   p: PathPoint,
   points: Record<number, PathPoint>,
   predicateToIncludeCallback?: (val: any, d: number) => boolean,
@@ -38,11 +35,11 @@ function closestPointInRecords(
   // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
   let minDistance = 10000000;
   let closestPoint: number | null = null;
-  // debugger
+
   for (let a in points) {
     const distance = Math.sqrt(
       (p.x - points[a].x) * (p.x - points[a].x) +
-        (p.y - points[a].y) * (p.y - points[a].y),
+      (p.y - points[a].y) * (p.y - points[a].y),
     );
 
     if (
@@ -60,191 +57,12 @@ function closestPointInRecords(
   return closestPoint;
 }
 
-// TODO - WAYPOINTS can use their tileset x and Y index, save that info to waypoint too
-// const X_WAYPOINT_OFFSET_MULTIPLYER = 10000;
-function getKeyForWaypointAt(x: number, y: number): number {
-  // console.log('--->', x, y)
-  // return x * X_WAYPOINT_OFFSET_MULTIPLYER + y;
-  // return `${x}_${y}`;
-
-  return (x << 16) | y;
-}
-type Waypoint = {
-  x: number;
-  y: number;
-  size: number;
-  xIndex: number;
-  yIndex: number;
-};
-class NavMeshSceneTop {
-  mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
-  edges: Record<string, EdgeOfPathPoint[]> = {};
-
-  waypoints: Record<number, Waypoint> = {};
-  graphics!: Phaser.GameObjects.Graphics;
-
-  getOrCreateEdgePathPointList(key: number) {
-    if (!this.edges[key]) {
-      this.edges[key] = [];
-    }
-    return this.edges[key];
-  }
-  calculatePointEdges(scene: Phaser.Scene) {
-    this.edges = {};
-    for (const [key, wp] of Object.entries(this.waypoints)) {
-      this.calculateWaypointEdgeToRightAndBottom(+key, wp, scene);
-    }
-  }
-
-  calculateWaypointEdgeToRightAndBottom(
-    key: PATH_POINT_KEY,
-    wp: Waypoint,
-    scene: Phaser.Scene,
-  ) {
-    const wayPointKeyTop = getKeyForWaypointAt(wp.xIndex, wp.yIndex - 1);
-    const wayPointKeyRight = getKeyForWaypointAt(wp.xIndex + 1, wp.yIndex);
-
-    // console.log('===>>>>>', wayPointKeyRight, wayPointKeyTop, key);
-    this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
-    this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
-  }
-
-  tryConnectPointsToEdge(
-    scene: Phaser.Scene,
-    keyFrom: PATH_POINT_KEY,
-    keyTo: PATH_POINT_KEY,
-  ) {
-    if (!this.waypoints[keyTo]) {
-      return;
-    }
-
-    const p1 = this.waypoints[keyFrom];
-    const p2 = this.waypoints[keyTo];
-    // console.log('<<<<<<<', p1, p2);
-    const bodies = scene.matter
-      .intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
-      // @ts-ignore    here we know for a fact these parameters exist, only interested in static objects, as path goes between WALLS
-      .filter((b) => !b.isSensor && b.isStatic);
-
-    // const mapped = bodies.map((b) => {
-    //   return b.name;
-    // });
-    // console.log("---->, bodies in the way ", mapped);
-    // path is free to walk
-    if (bodies.length === 0) {
-      this.getOrCreateEdgePathPointList(keyFrom).push({
-        to: keyTo,
-        cost: 1,
-      });
-
-      this.getOrCreateEdgePathPointList(keyTo).push({
-        to: keyFrom,
-        cost: 1,
-      });
-    } else {
-      const points = this.getOrCreateEdgePathPointList(keyFrom);
-      const indexFrom = points.findIndex((p) => p.to === keyFrom);
-      const indexTo = points.findIndex((p) => p.to === keyTo);
-
-      if (indexFrom !== -1) {
-        points.splice(indexFrom, 1);
-      }
-      if (indexTo !== -1) {
-        points.splice(indexTo, 1);
-      }
-    }
-  }
-
-  recalculateAt(x: number, y: number, scene: Phaser.Scene) {
-    const from = this.closest({
-      x,
-      y,
-    });
-    // debugger;
-
-    if (!from) {
-      return;
-    }
-    this.calculateWaypointEdgeToRightAndBottom(
-      from,
-      this.waypoints[from],
-      scene,
-    );
-
-    this.showWaypoints(scene);
-  }
-
-  getPath(from: PathPoint, to: PathPoint) {
-    const planner = new PathPlanner(
-      new Map(Object.entries(this.waypoints).map((e) => [+e[0], e[1]])),
-      this.edges,
-    );
-
-    let fromKey = this.closest(from);
-    let toKey = this.closest(to);
-
-    if (!fromKey || !toKey) {
-      return null;
-    }
-    const result = planner.execute(
-      // @ts-ignore
-      +fromKey,
-      +toKey,
-    );
-
-    // console.log("=======>>>>>>> path", result);
-    if (result.length > 1) {
-      result[result.length - 1] = from;
-    }
-
-    return result;
-  }
-
-  closest(p: PathPoint): number | null {
-    return closestPointInRecords(p, this.waypoints);
-  }
-
-  showWaypoints(scene: Phaser.Scene) {
-    // console.log(">>>>>>", this.waypoints);
-    this.calculatePointEdges(scene);
-
-    if (!scene.matter.world.drawDebug) {
-      return;
-    }
-
-    if (!this.graphics) {
-      this.graphics = scene.add.graphics({ lineStyle: { color: 0xff0000 } });
-    } else {
-      this.graphics.clear();
-    }
-
-    let maxDepth = 0;
-    // for (const w of Object.values(this.waypoints)) {
-    //   const circle = new Phaser.Geom.Circle(0, 0, 5);
-    //   circle.setPosition(w.x, w.y);
-    //   this.graphics.strokeCircleShape(circle);
-    //   maxDepth = Math.max(maxDepth, w.y);
-    // }
-
-    for (const edgeFromPointKey in this.edges) {
-      const from = this.waypoints[edgeFromPointKey];
-
-      for (const e of this.edges[edgeFromPointKey]) {
-        const to = this.waypoints[e.to];
-        const l = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
-        this.graphics.strokeLineShape(l);
-      }
-    }
-
-    this.graphics.setDepth(maxDepth + 10);
-  }
-}
-
 export type LevelConfig = {
   tilesetName: string;
   tilesetKey: string;
   tilesetSprite: string;
   level: string;
+  levelLogic: (scene: Phaser.Scene & GameSceneTopPossibilities) => Level;
 };
 
 const Levels: { [key: string]: LevelConfig } = {
@@ -253,12 +71,19 @@ const Levels: { [key: string]: LevelConfig } = {
     tilesetKey: "tiles",
     tilesetSprite: "assets/levels/tilesTop.png",
     level: "assets/levels/basementTop.json",
+    levelLogic: (scene) => {
+      return new LevelOne(scene);
+    },
   },
   bloodPool: {
     tilesetName: "tilesTop",
     tilesetKey: "tiles",
     tilesetSprite: "assets/levels/tilesTop.png",
     level: "assets/levels/bloodPool.json",
+    // Note - change to actual level 2, when imlpemented
+    levelLogic: (scene) => {
+      return new LevelOne(scene);
+    },
   },
 };
 
@@ -271,8 +96,7 @@ function parseHexColor(hexWithAlpha: string) {
 const LIGHT_ON_INTENSITY = 3.0;
 export class GameSceneTop
   extends Phaser.Scene
-  implements GameSceneTopPossibilities
-{
+  implements GameSceneTopPossibilities {
   smartLights!: Record<string, Phaser.GameObjects.Light>;
 
   map!: Phaser.Tilemaps.Tilemap;
@@ -281,7 +105,7 @@ export class GameSceneTop
   graphics!: Phaser.GameObjects.Graphics;
   scriptedDialogs: GameDialogue[] = [];
 
-  blackboard: Record<string, unknown> = {};
+  // blackboard: Record<string, unknown> = {};
   tileset!: Phaser.Tilemaps.Tileset;
   pawnHandler!: PawnHandler;
 
@@ -299,6 +123,9 @@ export class GameSceneTop
   collisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   previousCollisionCache: Map<string, Phaser.Physics.Matter.Pair> = new Map();
   smartLightRayImage!: Record<string, string>;
+  levelLogic!: Level;
+  shadowRenderer: ShadowRenderer;
+
 
   constructor() {
     super({
@@ -307,35 +134,40 @@ export class GameSceneTop
   }
 
   init({ levelId }: { levelId: string }) {
-    const { tilesetKey, tilesetSprite, tilesetName, level } = Levels[levelId];
+    const { tilesetKey, tilesetSprite, tilesetName, level, levelLogic } =
+      Levels[levelId];
+
+    this.levelLogic = levelLogic(this);
 
     this.tilesetConfig = {
       tilesetName: tilesetName,
       tilesetKey: tilesetKey,
       tilesetSprite: tilesetSprite,
       level: level,
+      levelLogic,
     };
 
-    console.log("data passed to this scene", this.tilesetConfig);
+    // console.log("data passed to this scene", this.tilesetConfig);
 
     this.navMesh = new NavMeshSceneTop();
     this.pawnHandler = new PawnHandler();
-    this.blackboard = {};
+    // this.blackboard = {};
     this.smartLights = {};
     this.smartLightRayImage = {};
+    this.shadowRenderer = new ShadowRenderer(this);
 
     this.createKeyFrame();
   }
 
   preload() {
-    console.log("lets load!");
+    // console.log("lets load!");
 
     this.load.spritesheet(
       this.tilesetConfig.tilesetKey,
       this.tilesetConfig.tilesetSprite,
       { frameWidth: 128, frameHeight: 128 },
     );
-    console.log("key entries", this.cache.binary.getKeys());
+    // console.log("key entries", this.cache.binary.getKeys());
     // experiment with clearing active map
     this.cache.tilemap.remove("map");
     this.load.tilemapTiledJSON("map", this.tilesetConfig.level);
@@ -365,6 +197,11 @@ export class GameSceneTop
       slamDoor: this.sound.add(soundSource.slamDoor),
       step: this.sound.add(soundSource.step),
       tryDoor: this.sound.add(soundSource.tryDoor),
+      switch: this.sound.add(soundSource.switch),
+      maniacLaugh: this.sound.add(soundSource.maniacLaugh),
+      hurt: this.sound.add(soundSource.hurt),
+      cry: this.sound.add(soundSource.cry),
+      movingItem: this.sound.add(soundSource.movingItem),
     };
   }
 
@@ -373,7 +210,7 @@ export class GameSceneTop
 
     this.sound.pauseOnBlur = true;
     this.loadingBar.clear().destroy();
-    console.log("CREATE------");
+    // console.log("CREATE------");
 
     this.scene.launch(CST.SCENES.GAME_HUD);
 
@@ -383,10 +220,10 @@ export class GameSceneTop
 
     // this.createAnimatedTiles();
     // this.cameras.main.setOrigin(-0.1, 1.5);
-    this.lights.enable().setAmbientColor(0x111111);
+    this.lights.enable().setAmbientColor(0x222222);
 
-    jsonLogic.rm_operation("setVar");
-    jsonLogic.add_operation("setVar", this.jsLogicSetBlackboardVar.bind(this));
+    // jsonLogic.rm_operation("setVar");
+    // jsonLogic.add_operation("setVar", this.jsLogicSetBlackboardVar.bind(this));
     this.addPhysicsListeners();
 
     this.events.on(
@@ -394,13 +231,14 @@ export class GameSceneTop
       this.onCharacterDeath,
       this,
     );
-    // this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
 
     this.game.events.once(sceneEventConstants.stopGameplayScene, () => {
-      console.log("try destroy");
       this.scene.stop();
     });
+
+    this.shadowRenderer.displayShadowCasters();
   }
+
 
   findClosestLight(p: { x: number; y: number }, maxDistance: number = 256) {
     return closestPointInRecords(
@@ -421,14 +259,14 @@ export class GameSceneTop
   }
 
   onRequestCharacterFollowPath(
-    from: NavMeshPoint,
+    from: PathPoint,
     {
       characterId,
       point,
-    }: { characterId: string | null; point: { x: number; y: number } },
+    }: { characterId: number | null; point: { x: number; y: number } },
   ) {
     let pointTo = point;
-    if (characterId) {
+    if (characterId !== null && characterId !== -1) {
       const pawn = this.pawnHandler.characters[characterId];
       if (!pawn) {
         // Todo - inform characterPawn: path finished/not found
@@ -475,14 +313,6 @@ export class GameSceneTop
     ).onGameOver(cause);
   }
 
-  jsLogicSetBlackboardVar(key: string, value: unknown) {
-    // console.log('>>>>>MMM>>>', key, '|', value);
-    if (!key) {
-      return;
-    }
-    this.blackboard[key] = value;
-  }
-
   /**
    * @returns boolean if dialogue was not processed due to rule Precondition then returns false
    **/
@@ -504,10 +334,7 @@ export class GameSceneTop
     } = d;
 
     if (rulePre) {
-      // console.log('RYYYYLE', rulePre);
-      const res = jsonLogic.apply(rulePre, this.blackboard);
-      if (!res) {
-        // console.log(":::PREEEE:>>>", res);
+      if (!rulePre()) {
         if (d.rulePreFail) {
           return this.processGameDialogue(d.rulePreFail, gameObject, receiver);
         }
@@ -522,7 +349,6 @@ export class GameSceneTop
 
     if (receiver && d.actor) {
       if (d.actor.events) {
-        // console.log('WHHHHHAAAAT?', d.actor);
         d.actor.events.forEach(({ name, value }) => {
           receiver.emit(name, value);
         });
@@ -545,12 +371,14 @@ export class GameSceneTop
         lightMaskToMove.setVisible(visible);
       }
 
-      this.sounds.itemPut.setVolume(0.3);
-      this.sounds.itemPut.play({ loop: false });
+      this.sounds.switch.setVolume(0.3);
+      this.sounds.switch.play({ loop: false });
     });
 
     if (character) {
-      const playerPawn = this.pawnHandler.characters[character.id];
+      const playerPawn =
+        this.pawnHandler.characters[character.getCharacterIndex()];
+
       character.actions.forEach((a) => {
         if (a.bark) {
           playerPawn.bark(a.bark);
@@ -578,25 +406,8 @@ export class GameSceneTop
         );
 
         if (objectToMove) {
-          // const circle = new Phaser.Geom.Circle(0, 0, 5);
-          // circle.setPosition(x + 64, y - 64);
-
-          // const graphics = this.add.graphics({
-          //   lineStyle: { color: 0x0000ff },
-          // });
-          // graphics.strokeCircleShape(circle);
-          // graphics.setDepth(y + 10000000);
-          // console.log(" >>>>>qqqqqq", objectToMove.data.get("--setData->"));
-
           objectToMove.setPosition(x + 64, y); // 64 is a half width of a tile - necessary evil
 
-          // if (objectToMove.body) {
-          //   objectToMove.body.position.x = x + 64;
-          //   objectToMove.body.position.y = y - 64;
-          // }
-          // this.navMesh.recalculateAt(x + 64, y - 64, this);
-          // this.navMesh.recalculateAt(x - 64, y, this);
-          // this.navMesh.recalculateAt(x + 64, y + 64, this);
           this.navMesh.showWaypoints(this);
         }
       });
@@ -632,9 +443,7 @@ export class GameSceneTop
     }
 
     if (rulePost) {
-      // console.log('RYYYYLE POOOOST', rulePost);
-      const res = jsonLogic.apply(rulePost, this.blackboard);
-      // console.log(":::Pooooooost:>>>", res);
+      rulePost();
     }
 
     this.time.delayedCall(
@@ -658,8 +467,8 @@ export class GameSceneTop
 
   getLogicObject(key: string) {
     return this.map
-      .getObjectLayer("logic")
-      .objects.find((item) => item.name === key);
+      ?.getObjectLayer("logic")
+      ?.objects.find((item) => item.name === key);
   }
 
   onLevelTriggerCollide(pair: Phaser.Physics.Matter.Pair) {
@@ -693,13 +502,12 @@ export class GameSceneTop
 
   processCollisions(event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) {
     // Note - technically already checked by onLevelTriggerCollide
-    const isPlayerHere = [bodyA.label, bodyB.label].some((l) => l === "player");
-    if (!isPlayerHere) {
+    if (bodyA.label !== PLAYER && bodyB.label !== PLAYER) {
       return;
     }
 
     const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
-    let trigger: MatterJS.BodyType = null;
+    let trigger: MatterJS.BodyType | null = null;
 
     let actor = null;
     if (bodyA.dialogue) {
@@ -724,9 +532,10 @@ export class GameSceneTop
       if (wasProcessed) {
         if (dialogue.removeTrigger) {
           if (trigger.gameObject instanceof Phaser.Physics.Matter.Sprite) {
-            // >>>>>>>>>>>>>>>>>>>>
-            // debugger
-            (trigger.gameObject as Phaser.Physics.Matter.Sprite).destroy();
+            const gObject = trigger.gameObject as Phaser.Physics.Matter.Sprite;
+            gObject.stop();
+            this.tweens.killTweensOf(gObject);
+            gObject.destroy();
           } else {
             this.matter.world.remove(trigger);
           }
@@ -740,7 +549,7 @@ export class GameSceneTop
     }
   }
 
-  addPhysicsListeners() {}
+  addPhysicsListeners() { }
 
   addLevelFloorAndLightsGetWaypoints() {
     this.map = this.add.tilemap("map");
@@ -750,7 +559,7 @@ export class GameSceneTop
     this.tileset = this.map.addTilesetImage(
       this.tilesetConfig.tilesetName,
       this.tilesetConfig.tilesetKey,
-    );
+    )!;
 
     this.map.layers.forEach((l, layerIndex) => {
       const hasTileCollisions = l.properties.find(({ name, value }) => {
@@ -763,8 +572,7 @@ export class GameSceneTop
             const x = t.pixelX + t.width / 2;
             const y = t.pixelY + t.height / 2;
             // Todo key gen should be in navmesh
-            const wayPointKey = getKeyForWaypointAt(t.x, t.y);
-            // console.log('-->>>>>>>>>', wayPointKey, t.x, t.y); // TODO use t.x annd t.y above
+            const wayPointKey = NavMeshSceneTop.getKeyForWaypointAt(t.x, t.y);
             // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
             // Note - probably need to move into separate function
             if (!t.properties.above) {
@@ -824,8 +632,7 @@ export class GameSceneTop
           if (color) {
             try {
               computedColor = parseHexColor(color).color;
-            } catch {}
-            // console.log("??????>>>>>>>", color)
+            } catch { }
           }
 
           const l = this.lights
@@ -860,131 +667,124 @@ export class GameSceneTop
       } else if (n === "logic") {
         this.processLogicLayerObjects(this.map.getObjectLayer(n));
       } else if (n === "tileLogic") {
-        type CustomTileObjectProperty = {
-          value: unknown;
-          name: string;
-          type: string;
-        };
+        const layer: Phaser.Tilemaps.ObjectLayer | null =
+          this.map.getObjectLayer(n);
+        this.processTileLogicLayer(layer);
+      }
+    });
+  }
 
-        type CustomTileObject = {
-          flippedAntiDiagonal: boolean;
-          flippedHorizontal: boolean;
-          flippedVertical: boolean;
-          gid: number;
-          height: number;
-          id: number;
-          name: string;
-          rotation: number;
-          type: string;
-          visible: boolean;
-          width: number;
-          x: number;
-          y: number;
-          properties: CustomTileObjectProperty[];
-        };
-        const objects: CustomTileObject[] = (this.map.getObjectLayer(n)
-          ?.objects ?? []) as unknown as CustomTileObject[];
+  processTileLogicLayer(layer: Phaser.Tilemaps.ObjectLayer | null) {
+    if (!layer) {
+      return;
+    }
 
-        // console.log("objects in ", n, objects);
+    const objects: CustomTileObject[] = (layer.objects ??
+      []) as unknown as CustomTileObject[];
 
-        objects.forEach((t) => {
-          // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
+    objects.forEach((t) => {
+      // read smart object type ----------------
 
-          // read smart object type ----------------
+      let smartTile: SpriteWithDepth | null = null;
+      let collisionGroup = this.tileset.getTileProperties(t.gid);
 
-          let smartTile: SpriteWithDepth | null = null;
-          let collisionGroup = this.tileset.getTileProperties(t.gid);
-          // console.log(",,,,,,,,,,,", collisionGroup.kind);
-
-          // @ts-ignore
-          if (collisionGroup.kind === "lightSwitch") {
-            smartTile = new LightSwitchSmartObject(
-              this,
-              t.x,
-              t.y - t.height,
-              "tiles",
-              t.gid - 1,
-            );
-          } else {
-            smartTile = new SpriteWithDepth(
-              this,
-              t.x,
-              t.y - t.height,
-              "tiles",
-              t.gid - 1,
-            );
-          }
-
-          smartTile
-            .setDepth(t.y)
-            .setOrigin(0, 0)
-            .setPipeline("Light2D")
-            .setName(t.id.toString());
-          // console.log("----ID", t.id.toString());
-
-          // console.log('-----props', t);
-
-          const tileCollision = this.makeTileCollision(
-            {
-              index: t.gid,
-              pixelX: 0,
-              pixelY: 0,
-              allowStatic: false,
-            },
-            t.properties,
+      // @ts-ignore
+      switch (collisionGroup?.kind) {
+        case "lightSwitch":
+          smartTile = new LightSwitchSmartObject(
+            this,
+            t.x,
+            t.y - t.height,
+            "tiles",
+            t.gid - 1,
           );
-          // smartTile.setData("--setData->", t.name);
+          break;
 
-          if (!tileCollision) {
-            // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
-            smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
-            smartTile.setOrigin(0.5, 1);
-            // smartTile.setRotation(Phaser.Math.DegToRad(+t.rotation));
-            (smartTile.body as MatterJS.BodyType).isSensor = true;
-            return;
-          }
-          const {
-            bodyParts: compoundBodyParts,
-            kinematic,
-            tween,
-            radius,
-            dialogue,
-            sensor,
-          } = tileCollision;
+        case "chair":
+          smartTile = new ChairSmartObject(
+            this,
+            t.x,
+            t.y - t.height,
+            "tiles",
+            t.gid - 1,
+          );
+          break;
+        default:
+          smartTile = new SpriteWithDepth(
+            this,
+            t.x,
+            t.y - t.height / 2,
+            "tiles",
+            t.gid - 1,
+          );
+          break;
+      }
 
-          if (!kinematic && compoundBodyParts.length > 0) {
-            const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
-              parts: compoundBodyParts,
-              inertia: Infinity,
-            });
+      smartTile
+        .setDepth(t.y)
+        .setOrigin(0, 0)
+        .setPipeline("Light2D")
+        .setName(t.id.toString());
+      // console.log("----ID", t.id.toString());
 
-            smartTile.setExistingBody(compoundBody, true);
-            smartTile.setStatic(true);
-            smartTile.setPosition(t.x + t.width / 2, t.y);
-            smartTile.setOrigin(0.5, 1);
-            // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
-          } else {
-            // Movable items like a chair
-            smartTile.setCircle(radius, { dialogue, isSensor: sensor });
-            // smartTile.body.dialogue = dialogue;
-            smartTile.setFixedRotation();
-            smartTile.setMass(100);
-            smartTile.setFrictionAir(1);
-            smartTile.setOrigin(0.5, 0.5);
-            smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+      // console.log('-----props', t);
 
-            const smartTileBody = smartTile.body! as MatterJS.BodyType;
-            smartTileBody.onCollideCallback =
-              this.onLevelTriggerCollide.bind(this);
+      const tileCollision = this.makeTileCollision(
+        {
+          index: t.gid,
+          pixelX: 0,
+          pixelY: 0,
+          allowStatic: false,
+          id: t.id,
+        },
+        t.properties,
+      );
+      // smartTile.setData("--setData->", t.name);
 
-            if (tween) {
-              this.tweens.add({
-                targets: smartTile,
-                ...tween,
-              });
-            }
-          }
+      if (!tileCollision) {
+        // Note - whatever "smartObject" without collision info (poly), becomes a trigger without "on Colision" event
+        smartTile.setOrigin(0.5, 1);
+        smartTile.setPosition(t.x + t.width / 2, t.y);
+        (smartTile.body as MatterJS.BodyType).isSensor = true;
+        return;
+      }
+      const {
+        bodyParts: compoundBodyParts,
+        kinematic,
+        tween,
+        radius,
+        dialogue,
+        sensor,
+      } = tileCollision;
+
+      if (!kinematic && compoundBodyParts.length > 0) {
+        const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
+          parts: compoundBodyParts,
+          inertia: Infinity,
         });
+
+        smartTile.setExistingBody(compoundBody, true);
+        smartTile.setStatic(true);
+        smartTile.setPosition(t.x + t.width / 2, t.y);
+        smartTile.setOrigin(0.5, 1);
+      } else {
+        // Movable items like a chair
+        smartTile.setCircle(radius, { dialogue, isSensor: sensor });
+        smartTile.setFixedRotation();
+        smartTile.setMass(100);
+        smartTile.setFrictionAir(1);
+        smartTile.setOrigin(0.5, 0.5);
+        smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+
+        const smartTileBody = smartTile.body! as MatterJS.BodyType;
+        smartTileBody.onCollideCallback = this.onLevelTriggerCollide.bind(this);
+
+        if (tween) {
+          this.tweens.add({
+            targets: smartTile,
+            ...tween,
+          });
+        }
       }
     });
   }
@@ -996,26 +796,6 @@ export class GameSceneTop
 
     if (currLayer.name !== "logic") {
       throw "passed incorrect layer to 'Logic' object processor";
-    }
-    if (currLayer.properties) {
-      // layer properties is actually an array of name to value objects
-
-      /**
-       * @typedef {Object} layerObjectPropItem
-       * @property {string} name - property name, hoping to get Blackboard
-       * @protected {string} value - of a blackboard in Json string, needs to be parsed
-       */
-
-      /**
-       * @type { LogicLayerObjectPropItem[] }
-       */
-      const properties = currLayer.properties as Record<string, string>[];
-      const blackboard = properties.find(({ name }) => name === "blackboard");
-      if (!blackboard) {
-        throw "Logic layer doesn't have Blackboard property - a json object";
-      }
-
-      this.blackboard = JSON.parse(blackboard.value);
     }
 
     currLayer.objects.forEach((o) => {
@@ -1041,8 +821,12 @@ export class GameSceneTop
           ({ name }) => name === "onEnter",
         );
 
-        if (onEnterEvent?.value) {
-          physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
+        const parsedOnEnterEvent = onEnterEvent?.value
+          ? JSON.parse(onEnterEvent.value)
+          : this.levelLogic.dialogues[o.id.toString()]?.().onEnter;
+
+        if (parsedOnEnterEvent) {
+          physicsOptions.dialogue = parsedOnEnterEvent;
 
           if (icon) {
             const triggerSprite = this.matter.add
@@ -1090,7 +874,7 @@ export class GameSceneTop
     pawn.moveAnim = "walk";
 
     const enemyId = o.properties.find(({ name }) => name === "id")?.value;
-    this.pawnHandler.add(enemyId ?? "butcher", pawn);
+    this.pawnHandler.add(o.id, pawn);
 
     pawn.id = enemyId;
 
@@ -1099,7 +883,7 @@ export class GameSceneTop
       const scheduleIds =
         (JSON.parse(onInitEvent.value) as GameDialogue).schedule?.ids ?? [];
 
-      const schedulePointsOrNull: (NavMeshPoint | null)[] = scheduleIds.map(
+      const schedulePointsOrNull: (PathPoint | null)[] = scheduleIds.map(
         (id: string) => {
           const logicObject = this.getLogicObjectFromLayer(id);
           if (!logicObject) {
@@ -1114,7 +898,7 @@ export class GameSceneTop
       );
 
       pawn.setAutoPathFollowSchedule(
-        schedulePointsOrNull.filter((o) => o !== null) as NavMeshPoint[],
+        schedulePointsOrNull.filter((o) => o !== null) as PathPoint[],
       );
     }
   }
@@ -1124,18 +908,12 @@ export class GameSceneTop
       throw "Not spawning from correct Logic TiledObject, expecting 'start'";
     }
 
-    const pawn = new Character(
-      this,
-      o.x ?? 0,
-      o.y ?? 0,
-      "walk-NE.png",
-      "player",
-    );
+    const pawn = new Character(this, o.x ?? 0, o.y ?? 0, "walk-NE.png", PLAYER);
     pawn.controller = new SebastianPlayerControlls(this, pawn);
 
-    this.pawnHandler.add("player", pawn);
-    pawn.id = "player";
-
+    const playerIndex = this.pawnHandler.add(o.id, pawn);
+    this.levelLogic.setPlayerIndex(playerIndex);
+    pawn.id = PLAYER;
     this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
     this.cameras.main.startFollow(pawn.sprite, false, 0.2, 0.2);
   }
@@ -1154,6 +932,9 @@ export class GameSceneTop
       pixelX: number;
       pixelY: number;
       allowStatic: boolean;
+
+      // smart tile id, used to identify levelLogic portion
+      id: number;
     },
     objectProps: { name: string; value: string | boolean }[] = [],
   ): {
@@ -1180,7 +961,6 @@ export class GameSceneTop
     let objectTween: Record<string, unknown> | undefined = undefined;
     let dialogue = {};
     let hasSensor = false;
-    // console.log("-----------", tile.index, collisionGroup);
 
     for (let i = 0; i < objects.length; i++) {
       const object = objects[i];
@@ -1201,7 +981,6 @@ export class GameSceneTop
         radius = JSON.parse(kinematicRadius.value as number);
       }
 
-      // console.log("==========KINEMATIC", isKinematic);
       if (isKinematic) {
         kinematic = true;
       }
@@ -1213,17 +992,30 @@ export class GameSceneTop
         physicsOptions.isStatic = true;
       }
 
-      const onEnterEvent = props.find(({ name }) => name === "onEnter");
+      // tileId is a reference to level logic item
+      const levelLogicDialogueOrConfig = !!tile.id
+        ? this.levelLogic.dialogues[tile.id.toString()]?.().onEnter
+        : {};
 
-      const onEnterEventFromMainObjectOrEmpty: string = (objectProps.find(
-        ({ name }) => name === "onEnter",
-      )?.value ?? "{ }") as string;
+      const isShadowCaster = props.find(({ name }) => name === "shadow")
+        ?.value as boolean;
 
-      if (onEnterEvent?.value) {
+      const onEnterEvent = JSON.parse(
+        (props.find(({ name }) => name === "onEnter")?.value as string) ?? "{}",
+      );
+
+      const onEnterEventFromMainObjectOrEmpty: { [key: string]: unknown } =
+        JSON.parse(
+          (objectProps.find(({ name }) => name === "onEnter")?.value ??
+            "{ }") as string,
+        );
+
+      if (onEnterEvent) {
         dialogue = {
           ...dialogue,
-          ...JSON.parse(onEnterEvent.value as string),
-          ...JSON.parse(onEnterEventFromMainObjectOrEmpty),
+          ...onEnterEvent,
+          ...onEnterEventFromMainObjectOrEmpty,
+          ...levelLogicDialogueOrConfig,
         };
       }
 
@@ -1231,10 +1023,11 @@ export class GameSceneTop
         hasSensor = true;
         physicsOptions.isSensor = true;
 
-        if (onEnterEvent?.value) {
+        if (onEnterEvent) {
           physicsOptions.dialogue = {
-            ...JSON.parse(onEnterEvent.value as string),
-            ...JSON.parse(onEnterEventFromMainObjectOrEmpty),
+            ...onEnterEvent,
+            ...onEnterEventFromMainObjectOrEmpty,
+            ...levelLogicDialogueOrConfig,
           };
         }
       }
@@ -1250,6 +1043,8 @@ export class GameSceneTop
           : object.polyline;
         const visualPoints = [];
 
+        const shadowCasterShape: [number, number][] = [];
+
         for (let j = 0; j < originalPoints.length; j++) {
           const point = originalPoints[j];
           const pPos = point;
@@ -1258,6 +1053,15 @@ export class GameSceneTop
             x: objectX + pPos.x,
             y: objectY + pPos.y,
           });
+
+          if (isShadowCaster) {
+            shadowCasterShape.push([objectX + pPos.x, objectY + pPos.y]);
+          }
+        }
+
+        if (isShadowCaster && shadowCasterShape.length) {
+          shadowCasterShape.push(shadowCasterShape[0]);
+          this.shadowRenderer.addShadowShape(shadowCasterShape);
         }
 
         const c = this.matter.verts.centre(visualPoints);
@@ -1298,20 +1102,16 @@ export class GameSceneTop
   }
 
   update(time: number, delta: number) {
-    // console.log("------>", this.collisionCache.size);
     this.previousCollisionCache.forEach((pair, key) => {
       // On end collision
       if (!this.collisionCache.has(key)) {
         // ugly but more optimal
         if (pair.bodyA.isCharacter || pair.bodyB.isCharacter) {
-          const someBodyIsPlayer =
-            pair.bodyA.label === "player" || pair.bodyB.label === "player";
-
-          if (someBodyIsPlayer) {
+          if (pair.bodyA.label === PLAYER || pair.bodyB.label === PLAYER) {
             // reset players action promt
-            this.pawnHandler.characters["player"].addActionForApproval(
-              undefined,
-            );
+            this.pawnHandler.characters[
+              this.levelLogic.getPlayerIndex()
+            ].addActionForApproval(undefined);
           }
         }
       }
@@ -1325,17 +1125,29 @@ export class GameSceneTop
 
     this.collisionCache.clear();
     this.pawnHandler.update(time, delta);
+
+    this.updateShadowForCharacter();
   }
 
-  bounceCollectable(sprite: any) {
-    const tween = {
-      alpha: { from: "0.5", to: "1" },
+  updateShadowForCharacter() {
+    const { x, y } =
+      this.pawnHandler.characters[this.levelLogic.getPlayerIndex()].sprite;
+    this.shadowRenderer.update(x, y);
+  }
+
+  bounceCollectable(sprite: Phaser.Physics.Matter.Sprite) {
+    const originalY = sprite.y;
+    const targetY = originalY - 10;
+
+    const tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      y: { from: originalY, to: targetY },
       duration: 1000,
       yoyo: true,
       repeat: -1,
       ease: "Sine.InOut",
+      targets: sprite,
     };
-    this.tweens.add({ ...tween, targets: sprite });
+    this.tweens.add(tween);
   }
 
   createKeyFrame() {
@@ -1344,58 +1156,7 @@ export class GameSceneTop
       this.textures.list[this.tilesetConfig.tilesetKey];
     const frame = tileTexture.get(56); // Get frame 56
     if (frame) {
-      // debugger
       tileTexture.add(newTextureFrame, 0, frame.cutX, frame.cutY, 64, 64);
     }
-    // tileTexture.add(newTextureFrame, 0, 0, 0, 64, 64);
-  }
-}
-
-class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
-  constructor(scene: Phaser.Scene, x, y, texture, frame) {
-    super(scene.matter.world, x, y, texture, frame);
-    this.setTexture(texture);
-    scene.add.existing(this);
-
-    this.setFrame(frame);
-  }
-
-  preUpdate(time: number, delta: number) {
-    super.preUpdate(time, delta);
-    this.setDepth(this.y + 1);
-  }
-}
-
-class LightSwitchSmartObject extends SpriteWithDepth {
-  indicator: Phaser.GameObjects.Ellipse;
-
-  constructor(
-    scene: Phaser.Scene,
-    x: number,
-    y: number,
-    texture: string,
-    frame: number,
-  ) {
-    super(scene, x, y, texture, frame);
-    // console.log("switch time-----");
-
-    this.indicator = scene.add
-      .ellipse(x + 64, y + 64, 10, 10, 0xff1111, 1)
-      .setDepth(y + 130)
-      .setSmoothness(5);
-
-    // in case if needed, can add this to any other object .... copy to config in tiled editor
-    scene.tweens.add({
-      targets: this.indicator,
-      alpha: { from: 0.1, to: 1 },
-      duration: 1000,
-      yoyo: true,
-      repeat: -1,
-      ease: "Sine.InOut",
-    });
-  }
-
-  preUpdate(time: number, delta: number) {
-    super.preUpdate(time, delta);
   }
 }

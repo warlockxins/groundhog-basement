@@ -3,7 +3,6 @@ export const sceneEventConstants = {
     // requestCharacterFollowPath: 'requestCharacterFollowPath',
     arrivedAtObjectPoint: 'arrivedAtObjectPoint',
     arrivedAtEnemyPoint: 'arrivedAtEnemyPoint',
-    // foundEnemyId: 'foundEnemyId',
     chase: 'chase',
     characterDeath: 'characterDeath'
 };

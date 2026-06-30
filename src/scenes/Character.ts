@@ -1,11 +1,12 @@
-import { sceneEventConstants } from "./sceneEvents";
 import { Controlls } from "./BaseControlls";
-import { NavMeshPoint } from "~/levelComponents/NavMesh";
 import { CharacterState } from "./characterStates/CharacterState";
 import { ButcherAttackState } from "./characterStates/ButcherAttackState";
 import { CharacterWithGoToScheduledPointState } from "./characterStates/CharacterWithGoToScheduledPointState";
 import { GameDialogue } from "./GameDialogue";
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
+import { PathPoint } from "~/levelComponents/PathPlanner";
+import { ActionIndicator } from "./ActionIndicator";
+import { CharacterTextBubble } from "./CharacterTextBubble";
 
 class CharacterWithControllerState extends CharacterState {
   update(delta: number) {
@@ -17,7 +18,7 @@ class CharacterWithControllerState extends CharacterState {
 export class Character {
   scene: Phaser.Scene & GameSceneTopPossibilities;
   sprite: Phaser.Physics.Matter.Sprite;
-  textBubble: Phaser.GameObjects.Text;
+
   lastDirection: Phaser.Types.Math.Vector2Like = { x: 0, y: 0 };
   myLight: Phaser.GameObjects.Light;
   imageFramePrefix: string;
@@ -36,11 +37,11 @@ export class Character {
   id: string = "";
   lastDirectionAnimationFrame!: string;
 
-  barkList: Set<string> = new Set();
   actionByApproval?: GameDialogue;
 
   running = false;
-  actionIndicator!: Phaser.GameObjects.Graphics;
+  actionIndicator!: ActionIndicator;
+  characterTextBubble: CharacterTextBubble;
 
   // TODO - add id to sprite, for getting by id for scripts
   constructor(
@@ -63,83 +64,40 @@ export class Character {
           mask: 1,
         },
       })
-      .setScale(0.7)
-      // .setDisplaySize(30, 80)
       .setFixedRotation()
       .setOrigin(0.5, 0.9)
       .setPipeline("Light2D");
+
+    this.sprite.setDisplaySize(30, 30);
 
     // an optimisation - collision callbacks will reference this to know if
     // body is a character first, and by label later.
     // @ts-expect-error
     this.sprite.body.isCharacter = true;
 
-    // this.sprite.displayWidth = 10;
-    this.textBubble = scene.add.text(10, 10, "");
-    this.textBubble.setBackgroundColor("#000000");
-    this.textBubble.setAlign("center");
-    this.textBubble.setMaxLines(2);
-    this.textBubble.setOrigin(0.5, 0.5);
+    this.characterTextBubble = new CharacterTextBubble(scene);
+
+
 
     this.shadow = scene.add.ellipse(x, y, 30, 15, 0x111111, 0.3);
     this.shadow.setSmoothness(8);
 
-    this.createActionIndicator(scene);
+    this.actionIndicator = new ActionIndicator(scene);
 
     this.myLight = scene.lights
       .addLight(x, y, 100)
       .setColor(0xffffff)
-      .setIntensity(1.0);
+      .setIntensity(0.5);
 
-    // this.textBubble.setText("Bodies everywhere!");
     this.defaultAnimation = "idle";
     this.moveAnim = "walk";
 
     this.sprite.on("damage", this.onDamage, this);
 
-    this.sprite.scene.time.addEvent({
-      delay: 250,
-      loop: true,
-      callback: () => {
-        const TIME_SHOW_TEXT = 1500;
-        const TIME_DATA_NAME = "time";
 
-        const currentTime =
-          (this.textBubble.getData(TIME_DATA_NAME) ?? 0) - 250;
-
-        if (currentTime > 0) {
-          this.textBubble.setData(TIME_DATA_NAME, currentTime);
-        } else {
-          const val = this.barkList.values().next();
-          if (val.value) {
-            this.barkList.delete(val.value!);
-            this.textBubble.setData(TIME_DATA_NAME, TIME_SHOW_TEXT);
-          }
-          const nextText = val.value ?? "";
-          if (this.textBubble.text !== nextText) {
-            this.textBubble.setText(nextText);
-          }
-        }
-      },
-      callbackScope: this,
-    });
   }
 
-  createActionIndicator(scene: Phaser.Scene) {
-    this.actionIndicator = scene.add.graphics({
-      lineStyle: { color: 0xffffff, width: 2 },
-    });
-
-    this.actionIndicator.strokeEllipse(0, 0, 20, 20, 8);
-
-    this.actionIndicator.moveTo(-4, -3);
-    this.actionIndicator.lineTo(-4, 3);
-    this.actionIndicator.lineTo(4, 3);
-    this.actionIndicator.lineTo(4, -3);
-    this.actionIndicator.strokePath();
-  }
-
-  setAutoPathFollowSchedule(autoPathFollowSchedule: NavMeshPoint[]) {
+  setAutoPathFollowSchedule(autoPathFollowSchedule: PathPoint[]) {
     if (!this.followPathState) {
       this.followPathState = new CharacterWithGoToScheduledPointState(this);
 
@@ -178,23 +136,17 @@ export class Character {
 
   bark(text: string = "") {
     if (this.isDead) {
-      this.barkList.clear();
+      this.characterTextBubble.clear()
       return;
     }
 
-    if (!text) return;
-
-    this.barkList.add(text);
+    this.characterTextBubble.addText(text);
   }
 
   addActionForApproval(actionByApproval?: GameDialogue) {
     this.actionByApproval = actionByApproval;
 
-    if (actionByApproval) {
-      this.actionIndicator.setVisible(true);
-    } else {
-      this.actionIndicator.setVisible(false);
-    }
+    this.actionIndicator.setVisible(!!actionByApproval);
   }
 
   executeActionByApproving() {
@@ -218,7 +170,7 @@ export class Character {
     this.controller?.onDamage("insane");
   }
 
-  animationDirectionFromSpeed(): string {
+  updateAnimationDirectionFromSpeed(): string {
     const y = this.lastDirection.y ?? 0;
     const xAnimFrame = this.lastDirection.x !== 0 ? "E" : "";
     const yAnimFrame = y > 0 ? "S" : y < 0 ? "N" : "";
@@ -232,20 +184,17 @@ export class Character {
   updateShadowLightDepth() {
     this.sprite.setDepth(this.sprite.y);
     this.shadow.x = this.sprite.x;
-    this.shadow.y = this.sprite.y - 5;
+    this.shadow.y = this.sprite.y + 5;
     this.shadow.setDepth(this.sprite.y - 10);
 
-    this.textBubble.setPosition(this.sprite.x, this.sprite.y);
-    this.textBubble.setDepth(this.sprite.depth + 10000);
+    this.characterTextBubble.setPosition(this.sprite.x, this.sprite.y)
 
     this.myLight.x = this.sprite.x;
 
     this.myLight.y = this.sprite.y - 50;
 
     if (this.actionByApproval) {
-      this.actionIndicator.x = this.sprite.x;
-      this.actionIndicator.y = this.sprite.y - 120;
-      this.actionIndicator.setDepth(this.textBubble.depth);
+      this.actionIndicator.setPosition(this.sprite.x, this.sprite.y);
     }
   }
 
@@ -258,7 +207,7 @@ export class Character {
 
     const playerVelocity = this.sprite.getVelocity();
 
-    this.animationDirectionFromSpeed();
+    this.updateAnimationDirectionFromSpeed();
 
     if (playerVelocity.x !== 0 || playerVelocity.y !== 0) {
       this.lastDirection = playerVelocity;

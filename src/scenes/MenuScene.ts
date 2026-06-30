@@ -14,12 +14,12 @@ export class MenuScene extends Phaser.Scene {
   }
 
   init(data) {
-    console.log("data passed to this scene", data);
+    // console.log("data passed to this scene", data);
   }
 
-  preload() { }
+  preload() {}
   create() {
-    console.log("===? goooooooo");
+    // console.log("===? goooooooo");
 
     this.activeButtonHighlight = this.add.graphics();
     this.drawActiveButtonBackground(250, false);

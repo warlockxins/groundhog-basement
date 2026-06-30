@@ -1,19 +1,32 @@
 import { CharacterState } from "./CharacterState";
 import { Animations } from "phaser";
 import { GameSceneTop } from "../GameSceneTop";
+import { PLAYER } from "../../constants/labels";
 
 export class ButcherAttackState extends CharacterState {
   pathGraphicsDebugInfo: Phaser.GameObjects.Graphics | null = null;
+  attackVelocity: Phaser.Math.Vector2 = new Phaser.Math.Vector2();
+
+  collisionDone = false;
+  drawDebug: boolean = false;
+
   start() {
     // console.log("look at me, I am attacking");
+    this.collisionDone = false;
 
-    if (this.character.sprite.scene.matter.world.drawDebug) {
+    // this.drawDebug = this.character.sprite.scene.matter.world.drawDebug;
+
+    if (this.drawDebug) {
       this.pathGraphicsDebugInfo = this.character.sprite.scene.add.graphics({
         lineStyle: { color: 0x00ff00 },
       });
     }
 
     (this.character.sprite.scene as GameSceneTop).sounds.knifeSlice.play();
+    this.attackVelocity = this.getVectorToPlayer();
+    // preserve speed and set frame direction based on speed
+    this.character.lastDirection = this.attackVelocity;
+    this.character.updateAnimationDirectionFromSpeed();
 
     this.character.bark("kill");
     this.character.playAnimationFrameOnLastDirection("slice", 0);
@@ -24,23 +37,29 @@ export class ButcherAttackState extends CharacterState {
       this.pathGraphicsDebugInfo?.destroy();
       this.pathGraphicsDebugInfo = null;
     });
+  }
 
+  doPlayerCollision() {
+    if (this.collisionDone) {
+      return;
+    }
+    this.collisionDone = true;
     const { x, y } = this.character.sprite;
     const normalizedDirection = new Phaser.Math.Vector2(
-      this.character.lastDirection,
-    )
-      .normalize()
-      .scale(30);
+      this.attackVelocity,
+    ).normalize();
+
+    const hitBoxOffset = normalizedDirection.scale(30);
 
     const diameter = 33;
-    const rX = x + normalizedDirection.x - diameter;
-    const rY = y + normalizedDirection.y - diameter;
+    const rX = x + hitBoxOffset.x - diameter;
+    const rY = y + hitBoxOffset.y - diameter;
 
     const bodies = this.character.sprite.scene.matter
       .intersectRect(rX, rY, diameter * 2, diameter * 2)
       .filter((b) => {
         // @ts-ignore
-        return !b.isStatic && b.label === "player";
+        return !b.isStatic && b.label === PLAYER;
       });
 
     if (bodies.length > 0) {
@@ -48,20 +67,36 @@ export class ButcherAttackState extends CharacterState {
 
       // @ts-ignore
       playerBody.gameObject.emit("damage", 100);
-      this.character.followPathState.setEnemyFollowId(null);
+      this.character.followPathState.setEnemyFollowId(-1);
 
       this.character.bark("BITCH!");
     }
 
-    if (this.character.sprite.scene.matter.world.drawDebug) {
+    if (this.drawDebug) {
       this.pathGraphicsDebugInfo?.strokeRect(
         rX,
         rY,
         diameter * 2,
         diameter * 2,
       );
-      this.pathGraphicsDebugInfo?.setDepth(this.pathGraphicsDebugInfo.y + 100);
+      this.pathGraphicsDebugInfo?.setDepth(rY + 100);
     }
+  }
+
+  getVectorToPlayer(): Phaser.Math.Vector2 {
+    const { x, y } = this.character.sprite;
+
+    const { x: playerX, y: playerY } =
+      this.character.scene.pawnHandler.characters[
+        this.character.scene.levelLogic.getPlayerIndex()
+      ].sprite;
+
+    const direction = new Phaser.Math.Vector2({
+      x: playerX,
+      y: playerY,
+    }).subtract(new Phaser.Math.Vector2({ x, y }));
+
+    return direction.normalize().scale(0.8);
   }
 
   destroy() {
@@ -70,6 +105,15 @@ export class ButcherAttackState extends CharacterState {
   }
 
   update() {
-    this.character.sprite.setVelocity(0);
+    if (this.character.sprite.anims.getProgress() > 0.5) {
+      this.doPlayerCollision();
+    }
+
+    if (this.character.sprite.anims.getProgress() < 0.4) {
+      this.character.sprite.setVelocity(
+        this.attackVelocity.x,
+        this.attackVelocity.y,
+      );
+    }
   }
 }

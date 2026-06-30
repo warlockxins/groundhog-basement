@@ -6,23 +6,23 @@ export type CharacterActionByApproval = {
   actionByApproval: GameDialogue;
 };
 
-export type CharacterAction = CharacterActionByApproval & CharacterBark;
+export type CharacterAction = CharacterActionByApproval | CharacterBark;
 
 export type GameDialogue = {
   goScene?: string;
   toggleLight?: string[]; // id of light
-  rulePre?: Record<string, unknown>;
+  rulePre?: () => boolean;
   rulePreFail?: GameDialogue;
-  rulePost?: Record<string, unknown>;
+  rulePost?: () => void;
   noteRead?: {
     title: string;
     text: string;
   };
   character?: {
-    id: string;
+    getCharacterIndex(): number;
     actions: CharacterAction[];
   };
-  removeTrigger: boolean;
+  removeTrigger?: boolean;
   newDialogue?: GameDialogue[];
 
   changeTileGameObjectToId?: number;
@@ -33,8 +33,8 @@ export type GameDialogue = {
   schedule?: {
     ids: string[];
   };
-  sound: string;
-  moveTo: {
+  sound?: string;
+  moveTo?: {
     tileId: string;
     x: number;
     y: number;

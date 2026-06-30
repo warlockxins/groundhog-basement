@@ -12,15 +12,53 @@ export class GameSceneTopHudScene extends Phaser.Scene {
   gameHudContainer!: Phaser.GameObjects.Container;
   pauseHudContainer!: Phaser.GameObjects.Container;
   gameOverHudContainer!: Phaser.GameObjects.Container;
+  noteReadingContainer!: Phaser.GameObjects.Container;
+
+  activeContainer?: {
+    container: Phaser.GameObjects.Container;
+    onDismiss?: () => void;
+  };
+
   deadLabel: Phaser.GameObjects.Text;
-  noteReadingContainer: Phaser.GameObjects.Container;
   noteLabel: Phaser.GameObjects.Text;
   noteText: Phaser.GameObjects.Text;
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+
+  keyboardCache = {
+    space: false,
+    escape: false,
+  };
+  keyEscape!: Phaser.Input.Keyboard.Key;
 
   constructor() {
     super({
       key: CST.SCENES.GAME_HUD,
     });
+  }
+
+  onPauseClick() {
+    this.scene.get(CST.SCENES.GAME).scene.pause();
+    this.gameHudContainer.setVisible(false);
+    this.pauseHudContainer.setVisible(true);
+
+    this.collectKeysWhenOpenMenu();
+
+    this.activeContainer = {
+      container: this.pauseHudContainer,
+      onDismiss: this.onResume.bind(this),
+    };
+
+    // ---- animate appearance
+    this.pauseHudContainer.alpha = 0;
+
+    const tween = {
+      alpha: { from: "0", to: "1" },
+      duration: 300,
+      yoyo: false,
+      repeat: false,
+      ease: "Sine.InOut",
+    };
+    this.tweens.add({ ...tween, targets: this.pauseHudContainer });
   }
 
   makePauseButton() {
@@ -35,14 +73,18 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     clickButton
       .setInteractive()
       .on("pointerup", () => {
-        this.scene.get(CST.SCENES.GAME).scene.pause();
-        this.gameHudContainer.setVisible(false);
-        this.pauseHudContainer.setVisible(true);
+        this.onPauseClick();
       })
       .on("pointerover", () => clickButton.setColor("#aaaaaa"))
       .on("pointerout", () => clickButton.setColor("#ffffff"));
 
     return clickButton;
+  }
+
+  onResume() {
+    this.scene.get(CST.SCENES.GAME).scene.resume();
+    this.gameHudContainer.setVisible(true);
+    this.pauseHudContainer.setVisible(false);
   }
 
   makePauseContainer() {
@@ -75,9 +117,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     resumeButton
       .setInteractive()
       .on("pointerup", () => {
-        this.scene.get(CST.SCENES.GAME).scene.resume();
-        this.gameHudContainer.setVisible(true);
-        this.pauseHudContainer.setVisible(false);
+        this.onResume();
       })
       .on("pointerover", () => {
         resumeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
@@ -192,6 +232,12 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.gameOverHudContainer.setVisible(false);
   }
 
+  onCloseNoteReadingContainer() {
+    this.scene.get(CST.SCENES.GAME).scene.resume();
+    this.gameHudContainer.setVisible(true);
+    this.noteReadingContainer.setVisible(false);
+  }
+
   makeNoteReadingContainer() {
     const noteGraphics = this.add.graphics();
     const { width, height } = this.game.config;
@@ -237,9 +283,7 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     closeButton
       .setInteractive()
       .on("pointerup", () => {
-        this.scene.get(CST.SCENES.GAME).scene.resume();
-        this.gameHudContainer.setVisible(true);
-        this.noteReadingContainer.setVisible(false);
+        this.onCloseNoteReadingContainer();
       })
       .on("pointerover", () => {
         closeButton.setBackgroundColor("rgba(255, 255, 255, 0.1)");
@@ -288,16 +332,44 @@ export class GameSceneTopHudScene extends Phaser.Scene {
 
   create() {
     // this.events.on(sceneEventConstants.characterDeath, this.onGameOver, this);
+    this.cursors = this.input.keyboard!.createCursorKeys();
     this.makeGameHudContainer();
     this.makePauseContainer();
     this.makeGameOverContainer();
     this.makeNoteReadingContainer();
+
+    this.keyEscape = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ESC,
+    );
+
+    this.activeContainer = undefined;
   }
 
   onGameOver(cause: "insane" | "damage") {
     this.gameOverHudContainer.setVisible(true);
+    this.gameHudContainer.setVisible(false);
     this.deadLabel.text =
       cause === "insane" ? "You went\nMad" : "You are\nDead";
+
+    this.activeContainer = {
+      container: this.gameOverHudContainer,
+    };
+
+    // animate appearance
+    this.gameOverHudContainer.alpha = 0;
+    const tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      alpha: { from: "0", to: "1" },
+      duration: 300,
+      yoyo: false,
+      ease: "Sine.InOut",
+      targets: this.gameOverHudContainer,
+    };
+    this.tweens.add(tween);
+  }
+
+  collectKeysWhenOpenMenu() {
+    this.keyboardCache.space = this.cursors.space.isDown;
+    this.keyboardCache.escape = this.keyEscape.isDown;
   }
 
   onShowNoteReader(title: string, text: string) {
@@ -306,6 +378,30 @@ export class GameSceneTopHudScene extends Phaser.Scene {
     this.noteReadingContainer.setVisible(true);
     this.noteLabel.text = title;
     this.noteText.text = text;
+    this.collectKeysWhenOpenMenu();
+
+    const originalPosition = this.noteReadingContainer.x;
+    this.noteReadingContainer.x = this.game.canvas.width;
+
+    // animate appearance
+    const tween: Phaser.Types.Tweens.TweenBuilderConfig = {
+      x: { from: this.game.canvas.width, to: originalPosition },
+      duration: 250,
+      yoyo: false,
+      ease: "Sine.InOut",
+      targets: this.noteReadingContainer,
+    };
+
+    const tweenAlpha: Phaser.Types.Tweens.TweenBuilderConfig = {
+      alpha: { from: "0", to: "1" },
+      duration: 350,
+      yoyo: false,
+      ease: "Sine.InOut",
+      targets: this.noteReadingContainer,
+    };
+
+    this.tweens.add(tween);
+    this.tweens.add(tweenAlpha);
   }
 
   onRegistryDataUpdate(parent, key, data) {
@@ -344,5 +440,40 @@ export class GameSceneTopHudScene extends Phaser.Scene {
       SANITY_BOX_MAX_WIDTH,
       8,
     );
+  }
+
+  // wow this sucks. Should have made different scenes to handle all cases separaely. But it works
+  update(time: number, delta: number): void {
+    if (!this.keyboardCache.space && this.cursors.space.isDown) {
+      if (this.noteReadingContainer.visible) {
+        this.onCloseNoteReadingContainer();
+      }
+    }
+
+    if (
+      this.activeContainer &&
+      this.activeContainer.onDismiss &&
+      this.keyEscape.isDown &&
+      !this.keyboardCache.escape
+    ) {
+      this.activeContainer.onDismiss();
+      this.activeContainer = undefined;
+      this.keyboardCache.escape = true;
+    } else if (
+      !this.activeContainer &&
+      !this.keyboardCache.escape &&
+      this.keyEscape.isDown &&
+      !this.noteReadingContainer.visible
+    ) {
+      this.onPauseClick();
+    }
+
+    if (this.cursors.space.isUp) {
+      this.keyboardCache.space = false;
+    }
+
+    if (this.keyEscape.isUp) {
+      this.keyboardCache.escape = false;
+    }
   }
 }

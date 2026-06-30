@@ -13,6 +13,7 @@ export function createAnimations(scene: Scene, characterName: string, animConfig
     AnimationAvaliableDirections.forEach((direction) => {
         baseAnimationKeys.forEach((baseAnimation) => {
 
+            // debugger
             const frames = animConfig[baseAnimation][direction].map((f) => ({
                 key: spriteSheetName,
                 frame: f,
@@ -23,7 +24,8 @@ export function createAnimations(scene: Scene, characterName: string, animConfig
             scene.anims.create({
                 key: animationNameWithDirection,
                 frames: frames,
-                frameRate: 10,//frames.length,
+                // frameRate: 10,
+                frameRate: frames.length,
                 repeat: -1,
             });
 
