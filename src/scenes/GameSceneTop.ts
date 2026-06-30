@@ -1,0 +1,995 @@
+// https://www.emanueleferonato.com/2019/01/23/html5-endless-runner-built-with-phaser-and-arcade-physics-step-5-adding-deadly-fire-being-kind-with-players-by-setting-its-body-smaller-than-the-image/
+
+// animating tiles here
+// https://medium.com/@junhongwang/tiled-generated-map-with-phaser-3-d2c16ffe75b6
+import { CST } from "../constants/CST";
+
+// import { AnimatedTileSceneBase } from "../levelComponents/AnimatedTileSceneBase";
+import { NavMeshPoint, NavMeshPointMap } from "~/levelComponents/NavMesh";
+import jsonLogic from '../jsonLogic';
+import { Character } from './Character';
+import { GameDialogue } from './GameDialogue';
+import { sceneEventConstants } from './sceneEvents';
+import { PlayerControlls, ButcherControlls } from './Controlls';
+import { EdgeOfPathPoint, PathPlanner, PathPoint } from '~/levelComponents/PathPlanner';
+
+import { GameSceneTopPossibilities } from './GameSceneTopInterface';
+
+class PawnHandler {
+    characters: Record<string, Character> = {}
+
+    add(key: string, c: Character) {
+        this.characters[key] = c
+    }
+
+    update(_time: number, delta: number) {
+        for (const c of Object.values(this.characters)) {
+            c.currentState.update(delta)
+        }
+    }
+}
+
+type SceneNavigationMesh = {
+    vertices: NavMeshPointMap;
+    edges: Record<string, EdgeOfPathPoint[]>;
+}
+
+
+function closestPointInRecords(p: PathPoint, points: Record<string, PathPoint>, predicateToIncludeCallback?: (val: any, d: number) => boolean): string | null {
+    // tree search example - TODO try
+    // https://labs.phaser.io/edit.html?src=src\utils\rbush\rbush%201.js
+    let minDistance = 10000000;
+    let closestPoint: string | null = null;
+    for (let a in points) {
+        const distance = Math.sqrt((p.x - points[a].x) * (p.x - points[a].x) + (p.y - points[a].y) * (p.y - points[a].y));
+
+        if (predicateToIncludeCallback && !predicateToIncludeCallback(points[a], distance)) {
+            continue
+        }
+
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestPoint = a;
+        }
+    }
+    return closestPoint;
+}
+
+type Waypoint = {
+    x: number, y: number,
+    size: number
+}
+class NavMeshSceneTop {
+    mesh: SceneNavigationMesh = { vertices: new Map(), edges: {} };
+    edges: Record<string, EdgeOfPathPoint[]> = {};
+
+    waypoints: Record<string, Waypoint> = {};
+    graphics!: Phaser.GameObjects.Graphics;
+
+    getOrCreateEdgePathPointList(key: string) {
+        if (!this.edges[key]) {
+            this.edges[key] = [];
+        }
+        return this.edges[key];
+    }
+    calculatePointEdges(scene: Phaser.Scene) {
+        for (const [key, wp] of Object.entries(this.waypoints)) {
+            this.calculateWaypointEdgeToRightAndBottom(key, wp, scene)
+        }
+    }
+
+    calculateWaypointEdgeToRightAndBottom(key: string, wp: Waypoint, scene: Phaser.Scene) {
+        const wayPointKeyTop = `${wp.x}_${wp.y - wp.size}`;
+        const wayPointKeyRight = `${wp.x + wp.size}_${wp.y}`;
+        this.tryConnectPointsToEdge(scene, key, wayPointKeyTop);
+        this.tryConnectPointsToEdge(scene, key, wayPointKeyRight);
+    }
+
+    tryConnectPointsToEdge(scene: Phaser.Scene, keyFrom: string, keyTo: string) {
+        if (!this.waypoints[keyTo]) {
+            return
+        }
+
+        const p1 = this.waypoints[keyFrom];
+        const p2 = this.waypoints[keyTo];
+        const bodies = scene.matter.intersectRay(p1.x, p1.y, p2.x, p2.y, 1)
+            // @ts-ignore    here we know for a fact these parameters exist, only interested in static objects, as path goes between WALLS
+            .filter((b) => !b.isSensor && b.isStatic);
+
+        // path is free to walk
+        if (bodies.length === 0) {
+            this.getOrCreateEdgePathPointList(keyFrom).push({
+                to: keyTo, cost: 1
+            })
+
+            this.getOrCreateEdgePathPointList(keyTo).push({
+                to: keyFrom, cost: 1
+            })
+        }
+    }
+
+    recalculateAt(x: number, y: number, scene: Phaser.Scene) {
+        const from = this.closest({
+            x, y
+        });
+
+        if (!from) {
+            return
+        }
+        this.calculateWaypointEdgeToRightAndBottom(from, this.waypoints[from], scene)
+
+        this.showWaypoints(scene)
+    }
+
+    getPath(from: PathPoint, to: PathPoint) {
+        const planner = new PathPlanner(
+            new Map(Object.entries(this.waypoints)),
+            this.edges
+        );
+
+        let fromKey = this.closest(from);
+        let toKey = this.closest(to);
+
+        if (!fromKey || !toKey) {
+            return null;
+        }
+        const result = planner.execute(
+            fromKey,
+            toKey
+        );
+
+        // console.log("=======>>>>>>> path", result);
+        if (result.length > 1) {
+            result[result.length - 1] = from;
+        }
+
+        return result;
+    }
+
+    closest(p: PathPoint): string | null {
+        return closestPointInRecords(p, this.waypoints);
+    }
+
+
+    showWaypoints(scene: Phaser.Scene) {
+        // console.log(">>>>>>", this.waypoints);
+        this.calculatePointEdges(scene);
+
+
+        if (!scene.matter.world.drawDebug) {
+            return
+        }
+
+        if (!this.graphics) {
+            this.graphics = scene.add.graphics({ lineStyle: { color: 0xff0000 } });
+        } else {
+            this.graphics.clear();
+        }
+
+        let maxDepth = 0;
+        for (const w of Object.values(this.waypoints)) {
+            const circle = new Phaser.Geom.Circle(0, 0, 5);
+            circle.setPosition(w.x, w.y);
+            this.graphics.strokeCircleShape(circle);
+            maxDepth = Math.max(maxDepth, w.y)
+        }
+
+
+        for (const edgeFromPointKey in this.edges) {
+            const from = this.waypoints[edgeFromPointKey];
+
+            for (const e of this.edges[edgeFromPointKey]) {
+                const to = this.waypoints[e.to];
+                const l = new Phaser.Geom.Line(from.x, from.y, to.x, to.y);
+                this.graphics.strokeLineShape(l);
+            }
+        }
+
+        this.graphics.setDepth(maxDepth + 10);
+
+    }
+
+}
+
+export type LevelConfig = { tilesetName: string; tilesetKey: string; tilesetSprite: string; level: string };
+
+const Levels: { [key: string]: LevelConfig } = {
+    basement: {
+        tilesetName: "tilesTop",
+        tilesetKey: "tiles",
+        tilesetSprite: "levels/tilesTop.png",
+        level: "levels/basementTop.json"
+    },
+    bloodPool: {
+        tilesetName: "tilesTop",
+        tilesetKey: "tiles",
+        tilesetSprite: "levels/tilesTop.png",
+        level: "levels/bloodPool.json"
+
+    }
+}
+
+export class GameSceneTop extends Phaser.Scene implements GameSceneTopPossibilities {
+    smartLights!: Record<string, Phaser.GameObjects.Light>
+
+    map!: Phaser.Tilemaps.Tilemap;
+    // navMesh!: NavMesh;
+
+    graphics!: Phaser.GameObjects.Graphics;
+    scriptedDialogs: GameDialogue[] = [];
+
+    blackboard: Record<string, unknown> = {};
+    tileset!: Phaser.Tilemaps.Tileset;
+    pawnHandler!: PawnHandler;
+
+    navMesh!: NavMeshSceneTop;
+    sanityCheckTimer!: Phaser.Time.TimerEvent;
+
+    sanityScore: number = 0;
+    tilesetConfig!: LevelConfig;
+    loadingBar!: Phaser.GameObjects.Graphics;
+
+    constructor() {
+        super({
+            key: CST.SCENES.GAME,
+        });
+    }
+
+    init({ levelId }: { levelId: string }) {
+
+        const { tilesetKey, tilesetSprite, tilesetName, level } = Levels[levelId];
+
+        this.tilesetConfig = {
+            tilesetName: tilesetName,
+            tilesetKey: tilesetKey,
+            tilesetSprite: tilesetSprite,
+            level: level
+        }
+
+        console.log("data passed to this scene", this.tilesetConfig);
+
+        this.navMesh = new NavMeshSceneTop()
+        this.pawnHandler = new PawnHandler();
+        this.blackboard = {};
+        this.smartLights = {};
+    }
+
+    preload() {
+        console.log("lets load!");
+
+        this.load.spritesheet(this.tilesetConfig.tilesetKey, this.tilesetConfig.tilesetSprite, { frameWidth: 128, frameHeight: 128 });
+        console.log("key entries", this.cache.binary.getKeys());
+        // experiment with clearing active map
+        this.cache.tilemap.remove("map");
+        this.load.tilemapTiledJSON("map", this.tilesetConfig.level);
+
+        this.loadingBar = this.add.graphics({
+            fillStyle: {
+                color: 0xffffff,
+            },
+        });
+
+        this.load.on("progress", (progress) => {
+            this.loadingBar.clear();
+            this.loadingBar.fillRect(
+                0,
+                this.game.renderer.height / 2,
+                this.game.renderer.width * progress,
+                50
+            );
+        });
+    }
+
+
+    create() {
+
+        this.loadingBar.clear().destroy()
+        console.log('CREATE------');
+
+        this.scene.launch(CST.SCENES.GAME_HUD);
+
+        this.addLevelFloorAndLightsGetWaypoints();
+
+        this.navMesh.showWaypoints(this);
+
+        // this.createAnimatedTiles();
+        this.cameras.main.setOrigin(0.1, 1);
+        this.lights.enable().setAmbientColor(0x111111);
+
+        jsonLogic.rm_operation('setVar');
+        jsonLogic.add_operation('setVar', this.jsLogicSetBlackboardVar.bind(this));
+        this.addPhysicsListeners();
+
+        this.events.on(sceneEventConstants.characterDeath, this.onCharacterDeath, this);
+        // this.events.on(sceneEventConstants.requestCharacterFollowPath, this.onRequestCharacterFollowPath, this);
+
+        this.game.events.once(sceneEventConstants.stopGameplayScene, () => {
+            console.log("try destroy");
+            this.scene.stop();
+        })
+
+
+
+        // sanity meter
+
+        if (this.sanityCheckTimer) {
+            this.time.removeEvent(this.sanityCheckTimer);
+        }
+        this.sanityCheckTimer = new Phaser.Time.TimerEvent({
+            delay: 1000,
+            loop: true,
+            callback: this.checkSanitiBasedOnDistanceToClosestLight,
+            callbackScope: this
+        });
+
+
+        this.time.addEvent(this.sanityCheckTimer);
+        this.sanityScore = 10;
+        this.registry.set('sanity', this.sanityScore);
+    }
+
+    // This potentially needs to be in Player controller - but it is a global gameplay part tied to main player
+    checkSanitiBasedOnDistanceToClosestLight() {
+        const character = this.pawnHandler.characters['player'];
+        const { x, y } = character.sprite;
+
+        const closestLightId = closestPointInRecords(
+            { x, y },
+            this.smartLights,
+            (it: Phaser.GameObjects.Light, distance) => it.visible && distance < 256 // dist is 2 X tileWidth
+        );
+
+        if (closestLightId) {
+            this.sanityScore += 1.5;
+
+            this.sanityScore = Math.min(this.sanityScore, 10);
+        } else {
+
+            const sanityDepletionScale = character.running ? 1.2 : 1;
+            this.sanityScore -= 1 * sanityDepletionScale;
+
+            if (this.sanityScore < 5 && this.sanityScore > 2) {
+                this.pawnHandler.characters['player'].bark('So dark!');
+            }
+            if (this.sanityScore < 0) {
+                this.pawnHandler.characters['player'].onMadeInsane();
+
+                this.time.removeEvent(this.sanityCheckTimer);
+            }
+            this.sanityScore = Math.max(this.sanityScore, 0);
+        }
+
+        this.registry.set('sanity', this.sanityScore);
+    }
+
+    getLogicObjectFromLayer(logicLayerObjectId: string) {
+        const logicObject = this.map.getObjectLayer('logic')?.objects.find(({ id }) => {
+            return id.toString() === logicLayerObjectId
+        });
+        return logicObject;
+    }
+
+    onRequestCharacterFollowPath(from: NavMeshPoint, { characterId, point }: { characterId: string | null, point: { x: number, y: number } }) {
+        let pointTo = point;
+        if (characterId) {
+            const pawn = this.pawnHandler.characters[characterId];
+            if (!pawn) {
+                // Todo - inform characterPawn: path finished/not found
+                return null;
+            }
+
+            pointTo = pawn.sprite;
+        }
+
+        return this.navMesh.getPath(pointTo, from) || [];
+    }
+
+    onCharacterDeath(character: Character, cause: 'insane' | 'damage') {
+        if (cause !== 'damage') return;
+
+        // console.log("KILLL CHARACTER", character.imageFramePrefix);
+        const bloodTileIndexInTilemap = 24;
+        const x = character.sprite.x;
+        const y = character.sprite.y;
+        const bloodTile = this.add.image(x, y, 'tiles', bloodTileIndexInTilemap)
+            .setOrigin(0.5, 0.5)
+            .setScale(0)
+            .setTint(0xff0000);
+
+
+        // https://labs.phaser.io/edit.html?src=src\tweens\tween%20text%20size.js
+        this.tweens.addCounter({
+            from: 0,
+            to: 0.5,
+            duration: 2000,
+            yoyo: false,
+            onUpdate: (tween) => {
+                const v = tween.getValue();
+                bloodTile.setScale(v);
+                this.cameras.main.setZoom(1 + v / 2);
+            }
+        });
+    }
+
+    jsLogicSetBlackboardVar(key: string, value: unknown) {
+
+        // console.log('>>>>>MMM>>>', key, '|', value);
+        if (!key) {
+            return;
+        }
+        this.blackboard[key] = value;
+    }
+
+    /**
+    * @returns boolean if dialogue was not processed due to rule Precondition then returns false  
+    **/
+    processGameDialogue(d: GameDialogue, gameObject: Phaser.Physics.Matter.Image, receiver: Phaser.GameObjects.GameObject): boolean {
+        const { goScene, character, newDialogue, rulePre, rulePost, toggleLight } = d;
+
+        if (rulePre) {
+            // console.log('RYYYYLE', rulePre);
+            const res = jsonLogic.apply(rulePre, this.blackboard);
+            if (!res) {
+
+                // console.log(":::PREEEE:>>>", res);
+                if (d.rulePreFail) {
+                    return this.processGameDialogue(d.rulePreFail, gameObject, receiver);
+                }
+                return false;
+            }
+        }
+
+        if (receiver && d.actor) {
+            if (d.actor.events) {
+                // console.log('WHHHHHAAAAT?', d.actor);
+                d.actor.events.forEach(({ name, value }) => {
+                    receiver.emit(name, value);
+                });
+            }
+        }
+
+        toggleLight?.forEach((lightId) => {
+            const light = this.smartLights[lightId];
+            light.setVisible(!light.visible)
+        });
+
+        if (character) {
+            const playerPawn = this.pawnHandler.characters[character.id];
+            character.actions.forEach((a) => {
+                playerPawn.bark(a.bark);
+            })
+        }
+
+        if (goScene) {
+            this.scene.restart({ levelId: goScene })
+            return true;
+        }
+
+        if (gameObject?.body && d.changeTileGameObjectToId !== undefined) {
+            ((gameObject.body as MatterJS.BodyType).parts ?? []).forEach((p) => {
+                this.matter.world.remove(p);
+            });
+
+            gameObject.setFrame(d.changeTileGameObjectToId);
+            this.navMesh.recalculateAt(gameObject.x, gameObject.y, this);
+        }
+
+        if (d.tween) {
+            const { ids, ...tween } = d.tween;
+
+            const gameObjects = (ids || []).map((id) => {
+                return this.children.getByName(id);
+            }).filter((o) => o !== null);
+
+            // console.log("====woooooo", ids, gameObjects);
+            if (gameObjects.length > 0) {
+                this.tweens.add({
+                    targets: gameObjects,
+                    ...tween,
+                    ease: 'Sine.easeInOut',
+                    delay: this.tweens.stagger(500)
+                });
+            }
+        }
+
+
+        if (rulePost) {
+            // console.log('RYYYYLE POOOOST', rulePost);
+            const res = jsonLogic.apply(rulePost, this.blackboard);
+            // console.log(":::Pooooooost:>>>", res);
+        }
+
+        this.time.delayedCall(2500, () => {
+            if (newDialogue) {
+                this.scriptedDialogs = newDialogue;
+            }
+
+            const nextDialogueItem = this.scriptedDialogs.shift();
+            if (nextDialogueItem) {
+                this.processGameDialogue(nextDialogueItem);
+            }
+        }, [], this);
+
+        return true;
+    }
+
+    getLogicObject(key: string) {
+        return this.map.getObjectLayer("logic")
+            .objects.find(
+                (item) => item.name === key);
+    }
+
+    addPhysicsListeners() {
+        this.matter.world.on('collisionstart', (event, bodyA: MatterJS.BodyType, bodyB: MatterJS.BodyType) => {
+            const isPlayerHere = [bodyA.label, bodyB.label].some(l => l === 'player');
+            if (!isPlayerHere) {
+                return
+            }
+
+            const dialogue = (bodyA.dialogue ?? bodyB.dialogue) as GameDialogue;
+            let trigger: MatterJS.BodyType = null;
+
+            let actor = null;
+            if (bodyA.dialogue) {
+                trigger = bodyA;
+                actor = bodyB;
+            }
+            if (bodyB.dialogue) {
+                trigger = bodyB;
+                actor = bodyA;
+            }
+
+            if (!trigger) {
+                return;
+            }
+
+            if (dialogue) {
+                const wasProcessed = this.processGameDialogue(dialogue, trigger?.gameObject as Phaser.Physics.Matter.Image, actor?.gameObject);
+                if (wasProcessed) {
+                    if (dialogue.removeTrigger) {
+                        this.matter.world.remove(trigger);
+                        return;
+                    }
+                }
+            }
+
+            if (trigger.isSensor) {
+                Phaser.Physics.Matter.Matter.Sleeping.set(trigger, true);
+            }
+        });
+    }
+
+    addLevelFloorAndLightsGetWaypoints() {
+
+        this.map = this.add.tilemap("map");
+        //
+        // // The first parameter is the name of the tileset in Tiled and the second parameter is the key
+        // // of the tileset image used when loading the file in preload.
+        this.tileset = this.map.addTilesetImage(
+            this.tilesetConfig.tilesetName,
+            this.tilesetConfig.tilesetKey
+        );
+
+        this.map.layers.forEach((l, layerIndex) => {
+            const hasTileCollisions = l.properties.find(({ name, value }) => {
+                return name === 'physics' && value === true;
+            });
+
+            this.map.forEachTile((t) => {
+                if (t.index > -1) {
+
+                    // Todo key gen should be in navmesh
+                    const wayPointKey = `${t.pixelX + t.width / 2}_${t.pixelY + t.height / 2}`;
+                    // if tile not a 'visible above all layers' sprite, then add it to walkable'ish list
+                    // Note - probably need to move into separate function
+                    if (!t.properties.above) {
+                        if (!this.navMesh.waypoints[wayPointKey]) {
+                            this.navMesh.waypoints[wayPointKey] = {
+                                x: t.pixelX + t.width / 2,
+                                y: t.pixelY + t.height / 2,
+                                size: t.width, // needed to calculate neighbour position
+                            }
+                        }
+                    }
+
+                    let depth = 0;
+                    if (t.properties.wall) {
+                        depth += t.pixelY + t.height - 10;
+                    }
+                    if (t.properties.above) {
+                        depth += t.pixelY + t.height * 2;
+                    }
+                    this.add.image(t.pixelX, t.pixelY, 'tiles', t.index - 1)
+                        .setDepth(
+                            depth
+                        )
+                        .setOrigin(0, 0)
+                        .setPipeline('Light2D');
+
+                    if (hasTileCollisions) {
+                        this.makeTileCollision(t);
+                    }
+                }
+
+            }, undefined, undefined, undefined, undefined, undefined, undefined, l.name);
+        });
+
+        this.cameras.main.fadeIn(2000, 0, 0, 0);
+        this.cameras.main.setZoom(0.5);
+        this.cameras.main.zoomTo(1);
+        // ---------
+        this.map.getObjectLayerNames().forEach(n => {
+            if (n === 'lights') {
+                this.map.getObjectLayer(n)?.objects.forEach(o => {
+                    const pp = o;
+
+                    const l = this.lights.addLight(
+                        pp.x,
+                        pp.y,
+                        o.width ? o.width : 300
+                    ).setColor(0xffff00)
+                        .setIntensity(3.0);
+
+                    this.smartLights[o.id] = l;
+
+                    const isLightOn = o.properties?.find(({ name }) => name === 'isOn')?.value;
+                    l.setVisible(isLightOn);
+
+                });
+            } else if (n === 'logic') {
+                this.processLogicLayerObjects(
+                    this.map.getObjectLayer(n)
+                );
+            }
+            else if (n === 'tileLogic') {
+
+                type CustomTileObjectProperty = {
+                    value: unknown;
+                    name: string;
+                    type: string;
+                }
+
+                type CustomTileObject = {
+                    flippedAntiDiagonal: boolean;
+                    flippedHorizontal: boolean;
+                    flippedVertical: boolean;
+                    gid: number;
+                    height: number;
+                    id: number;
+                    name: string;
+                    rotation: number;
+                    type: string;
+                    visible: boolean;
+                    width: number;
+                    x: number;
+                    y: number;
+                    properties: CustomTileObjectProperty[];
+
+                };
+                const objects: CustomTileObject[] = (this.map.getObjectLayer(n)?.objects ?? []) as unknown as CustomTileObject[];
+
+                // console.log("objects in ", n, objects);
+
+                objects.forEach((t) => {
+                    // const smartTile = this.matter.add.image(t.x, t.y - t.height, 'tiles', t.gid - 1)
+
+                    const smartTile = (new SpriteWithDepth(this, t.x, t.y - t.height, 'tiles', t.gid - 1))
+                        .setDepth(
+                            t.y
+                        )
+                        .setOrigin(0, 0)
+                        .setPipeline('Light2D')
+                        .setName(t.id.toString());
+                    // console.log("----ID", t.id.toString());
+
+                    // console.log('-----props', t);
+
+                    const tileCollision = this.makeTileCollision({
+                        index: t.gid,
+                        pixelX: 0,
+                        pixelY: 0,
+                        allowStatic: false
+                    }, t.properties);
+
+                    if (!tileCollision) return;
+
+                    const { bodyParts: compoundBodyParts, kinematic, tween, radius, dialogue, sensor } = tileCollision;
+
+                    if (!kinematic && compoundBodyParts.length > 0) {
+                        const compoundBody = Phaser.Physics.Matter.Matter.Body.create({
+                            parts: compoundBodyParts,
+                            inertia: Infinity
+                        });
+
+                        smartTile.setExistingBody(compoundBody, true);
+                        smartTile.setStatic(true);
+                        smartTile.setPosition(t.x + t.width / 2, t.y);
+                        // Phaser.Physics.Matter.Matter.Body.scale(smartTile.body, 0.5, 0.5)
+                    }
+                    else {
+                        smartTile.setCircle(radius, { dialogue, isSensor: sensor });
+                        // smartTile.body.dialogue = dialogue;
+                        smartTile.setFixedRotation();
+                        smartTile.setMass(100);
+                        smartTile.setFrictionAir(1);
+                        smartTile.setOrigin(0.5, 0.5);
+                        smartTile.setPosition(t.x + t.width / 2, t.y - t.height / 2);
+
+                        if (tween) {
+                            this.tweens.add({
+                                targets: smartTile,
+                                ...tween
+                            });
+                        }
+                    }
+
+                });
+            }
+        });
+    }
+
+    processLogicLayerObjects(currLayer: Phaser.Tilemaps.ObjectLayer | null) {
+        if (!currLayer) {
+            return
+        }
+
+        if (currLayer.name !== 'logic') {
+            throw "passed incorrect layer to 'Logic' object processor"
+        }
+        if (currLayer.properties) {
+            // layer properties is actually an array of name to value objects
+
+            /**
+             * @typedef {Object} layerObjectPropItem
+             * @property {string} name - property name, hoping to get Blackboard
+             * @protected {string} value - of a blackboard in Json string, needs to be parsed
+             */
+
+            /**
+             * @type { LogicLayerObjectPropItem[] }
+             */
+            const properties = currLayer.properties as Record<string, string>[];
+            const blackboard = properties.find(({ name }) => name === 'blackboard')
+            if (!blackboard) {
+                throw "Logic layer doesn't have Blackboard property - a json object"
+            }
+
+            this.blackboard = JSON.parse(blackboard.value);
+        }
+
+        currLayer.objects.forEach(o => {
+            const pp = o;
+
+            if (o.name === 'start') {
+                this.spawnPlayableCharacter(o);
+            }
+            if (o.name === 'enemyStart') {
+                this.spawnNonPlayableCharacter(o);
+
+            }
+
+            const isSensor = o.properties?.some(({ name }) => {
+                return name === 'sensor'
+            });
+            if (isSensor) {
+                const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {};
+                physicsOptions.isSensor = true;
+                const onEnterEvent = o.properties.find(({ name }) => name === 'onEnter');
+
+                if (onEnterEvent?.value) {
+                    physicsOptions.dialogue = JSON.parse(onEnterEvent.value);
+                    this.matter.add.circle(
+                        pp.x ?? 0, pp.y ?? 0, o.width ?? 30,
+                        { ignoreGravity: true, isStatic: true, ...physicsOptions }
+                    );
+                }
+            }
+        });
+    }
+
+    spawnNonPlayableCharacter(o: Phaser.Types.Tilemaps.TiledObject) {
+        if (o.name !== 'enemyStart') {
+            throw "Not spawning from correct Logic TiledObject, expecting 'enemyStart'"
+        }
+
+        const pawn = new Character(this, o.x ?? 0, (o.y ?? 0) - 50, 'walk-NE.png', 'enemy');
+        pawn.controller = new ButcherControlls(this, pawn);
+        pawn.lastDirection.x = 1;
+        pawn.lastDirection.y = -1;
+        pawn.moveAnim = 'walk';
+
+        const enemyId = o.properties.find(({ name }) => name === 'id')?.value;
+        this.pawnHandler.add(enemyId ?? 'butcher', pawn);
+
+        pawn.id = enemyId;
+
+        const onInitEvent = o.properties.find(({ name }) => name === 'onInit');
+        if (onInitEvent) {
+            const scheduleIds = (JSON.parse(onInitEvent.value) as GameDialogue).schedule?.ids ?? [];
+
+            const schedulePointsOrNull: (NavMeshPoint | null)[] = scheduleIds.map((id: string) => {
+                const logicObject = this.getLogicObjectFromLayer(id);
+                if (!logicObject) {
+                    return null;
+                }
+
+                return {
+                    x: logicObject.x ?? 0,
+                    y: logicObject.y ?? 0,
+                }
+            });
+
+
+            pawn.setAutoPathFollowSchedule(
+                schedulePointsOrNull
+                    .filter(o => o !== null) as NavMeshPoint[]
+            )
+        }
+
+
+    }
+
+    spawnPlayableCharacter(o: Phaser.Types.Tilemaps.TiledObject) {
+        if (o.name !== 'start') {
+            throw "Not spawning from correct Logic TiledObject, expecting 'start'"
+        }
+
+        const pawn = new Character(this, o.x ?? 0, o.y ?? 0, 'walk-NE.png', 'player');
+        pawn.controller = new PlayerControlls(this, pawn)
+
+        this.pawnHandler.add('player', pawn);
+        pawn.id = 'player';
+
+        this.cameras.main.centerOn(o.x ?? 0, o.y ?? 0);
+        this.cameras.main.startFollow(pawn.sprite, true, 0.2, 0.2, 350, -this.cameras.main.height / 2);
+
+
+    }
+
+    /*
+     * @description Check if tile has any sub objects that contain collision shape information. Disregarding if sensor or anything else
+    */
+    tileHasCollisions(tile: {
+        index: number
+    }) {
+        const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
+        // @ts-ignore
+        return !(!collisionGroup || collisionGroup.objects.length === 0)
+    }
+    makeTileCollision(tile: {
+        index: number,
+        pixelX: number,
+        pixelY: number
+        allowStatic: boolean
+    }, objectProps: { name: string, value: string | boolean }[] = []): { dialogue: Record<string, unknown>, bodyParts: MatterJS.BodyType[], kinematic: boolean, sensor: boolean, radius: number, tween?: Record<string, unknown> } | null {
+        const tileWorldPos = tile;
+
+        if (!this.tileHasCollisions(tile)) {
+            return null;
+        }
+
+
+        const collisionGroup = this.tileset.getTileCollisionGroup(tile.index);
+        const bodyParts: MatterJS.BodyType[] = [];
+        // The group will have an array of objects - these are the individual collision shapes
+        const objects = collisionGroup.objects;
+
+        let kinematic = false;
+        let radius = 30; // default for kinematic object
+        let objectTween: Record<string, unknown> | undefined = undefined;
+        let dialogue = {};
+        let hasSensor = false;
+        // console.log("-----------", tile.index, collisionGroup);
+
+        for (let i = 0; i < objects.length; i++) {
+            const object = objects[i];
+            const props: { name: string, value: string | boolean }[] = object.properties ?? [];
+
+            const isSensor = props.some(({ name }) =>
+                name === 'sensor'
+            );
+
+            const isKinematic = props.some(({ name }) =>
+                name === 'isKinematic'
+            );
+
+            const tween = props.find(({ name }) => name === 'tween');
+            if (tween) {
+                objectTween = JSON.parse(tween.value as string);
+            }
+
+            const kinematicRadius = props.find(({ name }) => name === 'radius');
+            if (kinematicRadius) {
+                radius = JSON.parse(kinematicRadius.value as number);
+            }
+
+            // console.log("==========KINEMATIC", isKinematic);
+            if (isKinematic) {
+                kinematic = true;
+            }
+
+            const physicsOptions: Phaser.Types.Physics.Matter.MatterBodyConfig = {
+                ignoreGravity: true
+            };
+            if (tile.allowStatic === undefined || tile.allowStatic === true) {
+                physicsOptions.isStatic = true;
+            }
+
+            const onEnterEvent = props.find(({ name }) => name === 'onEnter');
+
+            const onEnterEventFromMainObjectOrEmpty: string = (objectProps.find(({ name }) => name === 'onEnter')?.value ?? "{ }") as string;
+
+            if (onEnterEvent?.value) {
+                dialogue = {
+                    ...dialogue,
+                    ...JSON.parse(onEnterEvent.value as string),
+                    ...JSON.parse(onEnterEventFromMainObjectOrEmpty)
+                };
+            }
+
+            if (isSensor) {
+                hasSensor = true;
+                physicsOptions.isSensor = true;
+
+                if (onEnterEvent?.value) {
+                    physicsOptions.dialogue = {
+                        ...JSON.parse(onEnterEvent.value as string),
+                        ...JSON.parse(onEnterEventFromMainObjectOrEmpty)
+                    };
+                }
+            }
+
+            const objectX = tileWorldPos.pixelX + object.x;
+            const objectY = tileWorldPos.pixelY + object.y;
+
+            // When objects are parsed by Phaser, they will be guaranteed to have one of the
+            // following properties if they are a rectangle/ellipse/polygon/polyline.
+            if (object.polygon || object.polyline) {
+                const originalPoints = (object.polygon ? object.polygon : object.polyline);
+                const visualPoints = [];
+
+                for (let j = 0; j < originalPoints.length; j++) {
+                    const point = originalPoints[j];
+                    const pPos = point;
+
+                    visualPoints.push({
+                        x: objectX + pPos.x,
+                        y: objectY + pPos.y
+                    });
+                }
+
+                const c = this.matter.verts.centre(visualPoints);
+                const body = this.matter.add.fromVertices(c.x, c.y, visualPoints, { ...physicsOptions });
+                bodyParts.push(body);
+            }
+        }
+
+        return {
+            sensor: hasSensor,
+            bodyParts,
+            kinematic,
+            tween: objectTween,
+            radius,
+            dialogue
+        };
+    }
+
+    update(time: number, delta: number) {
+        this.pawnHandler.update(time, delta);
+    }
+}
+
+class SpriteWithDepth extends Phaser.Physics.Matter.Sprite {
+    constructor(scene: Phaser.Scene, x, y, texture, frame) {
+        super(scene.matter.world, x, y, texture, frame);
+        this.setTexture(texture);
+        scene.add.existing(this);
+
+        this.setFrame(frame);
+    }
+
+    preUpdate(time, delta) {
+        super.preUpdate(time, delta)
+        this.setDepth(this.y + 1);
+    }
+}
