@@ -5,6 +5,7 @@ import { CharacterWithGoToScheduledPointState } from "./characterStates/Characte
 import { GameDialogue } from "./GameDialogue";
 import { GameSceneTopPossibilities } from "./GameSceneTopInterface";
 import { PathPoint } from "~/levelComponents/PathPlanner";
+import { ActionIndicator } from "./ActionIndicator";
 
 class CharacterWithControllerState extends CharacterState {
   update(delta: number) {
@@ -39,7 +40,7 @@ export class Character {
   actionByApproval?: GameDialogue;
 
   running = false;
-  actionIndicator!: Phaser.GameObjects.Graphics;
+  actionIndicator!: ActionIndicator;
 
   // TODO - add id to sprite, for getting by id for scripts
   constructor(
@@ -82,12 +83,12 @@ export class Character {
     this.shadow = scene.add.ellipse(x, y, 30, 15, 0x111111, 0.3);
     this.shadow.setSmoothness(8);
 
-    this.createActionIndicator(scene);
+    this.actionIndicator = new ActionIndicator(scene);
 
     this.myLight = scene.lights
       .addLight(x, y, 100)
       .setColor(0xffffff)
-      .setIntensity(1.0);
+      .setIntensity(0.5);
 
     this.defaultAnimation = "idle";
     this.moveAnim = "walk";
@@ -120,20 +121,6 @@ export class Character {
       },
       callbackScope: this,
     });
-  }
-
-  createActionIndicator(scene: Phaser.Scene) {
-    this.actionIndicator = scene.add.graphics({
-      lineStyle: { color: 0xffffff, width: 2 },
-    });
-
-    this.actionIndicator.strokeEllipse(0, 0, 20, 20, 8);
-
-    this.actionIndicator.moveTo(-4, -3);
-    this.actionIndicator.lineTo(-4, 3);
-    this.actionIndicator.lineTo(4, 3);
-    this.actionIndicator.lineTo(4, -3);
-    this.actionIndicator.strokePath();
   }
 
   setAutoPathFollowSchedule(autoPathFollowSchedule: PathPoint[]) {
@@ -187,11 +174,7 @@ export class Character {
   addActionForApproval(actionByApproval?: GameDialogue) {
     this.actionByApproval = actionByApproval;
 
-    if (actionByApproval) {
-      this.actionIndicator.setVisible(true);
-    } else {
-      this.actionIndicator.setVisible(false);
-    }
+    this.actionIndicator.setVisible(!!actionByApproval);
   }
 
   executeActionByApproving() {
@@ -240,9 +223,7 @@ export class Character {
     this.myLight.y = this.sprite.y - 50;
 
     if (this.actionByApproval) {
-      this.actionIndicator.x = this.sprite.x;
-      this.actionIndicator.y = this.sprite.y - 120;
-      this.actionIndicator.setDepth(this.textBubble.depth);
+      this.actionIndicator.setPosition(this.sprite.x, this.sprite.y);
     }
   }
 
